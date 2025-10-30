@@ -448,15 +448,102 @@ class LOIGenerator:
 
         # CAS 2: Toutes les données présentes → Remplacer dans le texte SANS toucher au formatage
         else:
-            # Remplacer les placeholders dans chaque run INDIVIDUELLEMENT
+            # Vérifier si des placeholders sont fragmentés (span multiple runs)
+            # Si oui, utiliser la reconstruction (CAS 1) pour les remplacer correctement
+            has_fragmented_placeholder = False
             for placeholder in placeholders:
-                value = self._get_variable(placeholder)
-                if value:
-                    placeholder_pattern = f"[{placeholder}]"
-                    for run in paragraph.runs:
-                        if placeholder_pattern in run.text:
-                            run.text = run.text.replace(placeholder_pattern, value)
-                            # Le formatage du run est automatiquement préservé
+                placeholder_pattern = f"[{placeholder}]"
+                found_in_single_run = False
+                for run in paragraph.runs:
+                    if placeholder_pattern in run.text:
+                        found_in_single_run = True
+                        break
+                if not found_in_single_run:
+                    # Ce placeholder est fragmenté
+                    has_fragmented_placeholder = True
+                    break
+
+            if has_fragmented_placeholder:
+                # Utiliser la même reconstruction que CAS 1 pour les placeholders fragmentés
+                char_to_run_map = []
+                for run in paragraph.runs:
+                    for _ in range(len(run.text)):
+                        char_to_run_map.append(run)
+
+                original_runs = list(paragraph.runs)
+
+                for run in list(paragraph.runs):
+                    run.text = ""
+
+                segments = []
+
+                placeholder_matches = list(re.finditer(r'\[([^\]]+)\]', full_text))
+
+                if not placeholder_matches:
+                    pos = 0
+                    for run in original_runs:
+                        if run.text:
+                            segments.append((pos, pos + len(run.text), run.text, run, False, False))
+                            pos += len(run.text)
+                else:
+                    pos = 0
+                    placeholder_idx = 0
+
+                    while pos < len(full_text):
+                        if placeholder_idx < len(placeholder_matches):
+                            match = placeholder_matches[placeholder_idx]
+                            ph_start, ph_end = match.span()
+                            placeholder = match.group(1)
+
+                            if pos < ph_start:
+                                current_run = char_to_run_map[pos] if pos < len(char_to_run_map) else original_runs[0]
+                                segment_start = pos
+                                while pos < ph_start and pos < len(char_to_run_map):
+                                    if char_to_run_map[pos] != current_run:
+                                        segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                                        segment_start = pos
+                                        current_run = char_to_run_map[pos]
+                                    pos += 1
+                                if segment_start < pos:
+                                    segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+
+                            value = self._get_variable(placeholder)
+                            source_run = char_to_run_map[ph_start] if ph_start < len(char_to_run_map) else original_runs[0]
+                            if value:
+                                segments.append((ph_start, ph_end, value, source_run, True, False))
+                            else:
+                                segments.append((ph_start, ph_end, f"[{placeholder}]", source_run, True, True))
+
+                            pos = ph_end
+                            placeholder_idx += 1
+                        else:
+                            if pos < len(full_text):
+                                current_run = char_to_run_map[pos] if pos < len(char_to_run_map) else original_runs[0]
+                                segment_start = pos
+                                while pos < len(char_to_run_map):
+                                    if char_to_run_map[pos] != current_run:
+                                        segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                                        segment_start = pos
+                                        current_run = char_to_run_map[pos]
+                                    pos += 1
+                                if segment_start < pos:
+                                    segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                            break
+
+                for _, _, text, source_run, _, _ in segments:
+                    if text:
+                        new_run = paragraph.add_run(text)
+                        self._copy_run_format(source_run, new_run)
+            else:
+                # Remplacer les placeholders dans chaque run INDIVIDUELLEMENT
+                for placeholder in placeholders:
+                    value = self._get_variable(placeholder)
+                    if value:
+                        placeholder_pattern = f"[{placeholder}]"
+                        for run in paragraph.runs:
+                            if placeholder_pattern in run.text:
+                                run.text = run.text.replace(placeholder_pattern, value)
+                                # Le formatage du run est automatiquement préservé
 
         return None
 
