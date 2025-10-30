@@ -56,7 +56,7 @@ class LOIGenerator:
         # Mapping: Nom dans Excel → Nom dans Template
         mappings = {
             "Statut Locaux loués": "Statut Locaux Loués",
-            "Durée ferme bail": "Durée ferme Bail",
+            "Durée ferme bail": "Durée ferme Bail",  # Correction casse: bail → Bail
             "Duré GAPD": "Durée GAPD",  # Typo dans l'ancien Excel
         }
 
@@ -238,6 +238,29 @@ class LOIGenerator:
                         return True
         return False
 
+    def _get_variable(self, placeholder: str) -> str:
+        """
+        Récupère une variable avec fallback case-insensitive.
+        D'abord cherche la variable exacte, ensuite cherche avec casse différente.
+
+        Args:
+            placeholder: Nom du placeholder
+
+        Returns:
+            Valeur de la variable ou chaîne vide
+        """
+        # Chercher en exact d'abord
+        if placeholder in self.variables:
+            return self.variables[placeholder] or ""
+
+        # Fallback: chercher case-insensitive
+        placeholder_lower = placeholder.lower()
+        for var_name, value in self.variables.items():
+            if var_name.lower() == placeholder_lower:
+                return value or ""
+
+        return ""
+
     def _find_placeholders(self, text: str) -> List[str]:
         """
         Trouve tous les placeholders dans un texte.
@@ -261,7 +284,7 @@ class LOIGenerator:
             True si toutes les données sont disponibles
         """
         for placeholder in placeholders:
-            if placeholder not in self.variables or not self.variables[placeholder]:
+            if not self._get_variable(placeholder):
                 return False
         return True
 
@@ -279,7 +302,7 @@ class LOIGenerator:
         missing_data = False
 
         for placeholder in placeholders:
-            value = self.variables.get(placeholder, "")
+            value = self._get_variable(placeholder)
             if value:
                 text = text.replace(f"[{placeholder}]", value)
             else:
@@ -321,7 +344,7 @@ class LOIGenerator:
         # Vérifier si on a des données manquantes
         has_missing_data = False
         for placeholder in placeholders:
-            if not self.variables.get(placeholder, ""):
+            if not self._get_variable(placeholder):
                 has_missing_data = True
                 break
 
@@ -386,7 +409,7 @@ class LOIGenerator:
                                 segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
 
                         # Ajouter le placeholder ou sa valeur
-                        value = self.variables.get(placeholder, "")
+                        value = self._get_variable(placeholder)
                         source_run = char_to_run_map[ph_start] if ph_start < len(char_to_run_map) else original_runs[0]
                         if value:
                             segments.append((ph_start, ph_end, value, source_run, True, False))
@@ -427,7 +450,7 @@ class LOIGenerator:
         else:
             # Remplacer les placeholders dans chaque run INDIVIDUELLEMENT
             for placeholder in placeholders:
-                value = self.variables.get(placeholder, "")
+                value = self._get_variable(placeholder)
                 if value:
                     placeholder_pattern = f"[{placeholder}]"
                     for run in paragraph.runs:
