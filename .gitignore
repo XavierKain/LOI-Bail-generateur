@@ -41,3 +41,19 @@ output/*.docx
 
 # Logs
 *.log
+
+# Fichiers sensibles - Données d'entreprises
+Exemples/*.xlsx
+Exemples/*.pdf
+Exemples/*.doc
+Exemples/*.docx
+!Exemples/.gitkeep
+
+# Fichiers confidentiels - Fichiers clients uniquement (non les templates génériques)
+# Exemples: Autres templates, autres configurations, données clients
+# NE DOIT PAS ignorer: Rédaction LOI.xlsx, Template LOI avec placeholder.docx
+
+# Documentation contenant des références à des clients/projets
+SUMMARY.md
+PRESENTATION.txt
+QUICKSTART.md

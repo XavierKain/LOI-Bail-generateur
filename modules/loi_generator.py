@@ -65,6 +65,36 @@ class LOIGenerator:
                 self.variables[template_name] = self.variables[excel_name]
                 logger.debug(f"Mapping: '{excel_name}' → '{template_name}'")
 
+    def _copy_run_format(self, source_run, target_run, override_color=None):
+        """
+        Copie TOUS les attributs de formatage d'un run source vers un run cible.
+
+        Args:
+            source_run: Run source dont on copie le formatage
+            target_run: Run cible qui reçoit le formatage
+            override_color: Couleur RGB à forcer (pour mettre en rouge/noir)
+        """
+        if not source_run:
+            return
+
+        # Copier tous les attributs de police
+        target_run.font.name = source_run.font.name
+        target_run.font.size = source_run.font.size
+        target_run.font.bold = source_run.font.bold
+        target_run.font.italic = source_run.font.italic
+        target_run.font.underline = source_run.font.underline
+        target_run.font.strike = source_run.font.strike
+        target_run.font.subscript = source_run.font.subscript
+        target_run.font.superscript = source_run.font.superscript
+        target_run.font.all_caps = source_run.font.all_caps
+        target_run.font.small_caps = source_run.font.small_caps
+
+        # Couleur: utiliser override_color si fourni, sinon copier
+        if override_color:
+            target_run.font.color.rgb = override_color
+        elif source_run.font.color and source_run.font.color.type == 1:
+            target_run.font.color.rgb = source_run.font.color.rgb
+
     def _calculate_derived_values(self):
         """Calcule les valeurs dérivées (paliers, adresse, type bail, etc.)."""
 
@@ -247,6 +277,7 @@ class LOIGenerator:
     def _process_paragraph(self, paragraph) -> Optional[str]:
         """
         Traite un paragraphe: remplace les placeholders ou le supprime.
+        Gère les placeholders fragmentés entre plusieurs runs.
 
         Args:
             paragraph: Paragraphe docx
@@ -254,8 +285,9 @@ class LOIGenerator:
         Returns:
             "delete" si le paragraphe doit être supprimé, None sinon
         """
-        text = paragraph.text
-        placeholders = self._find_placeholders(text)
+        # Utiliser le texte complet du paragraphe (reconstitué depuis tous les runs)
+        full_text = paragraph.text
+        placeholders = self._find_placeholders(full_text)
 
         if not placeholders:
             return None
@@ -265,88 +297,130 @@ class LOIGenerator:
 
         # Section optionnelle sans données → Supprimer
         if is_optional and not has_data:
-            logger.debug(f"Suppression paragraphe optionnel: {text[:50]}...")
+            logger.debug(f"Suppression paragraphe optionnel: {full_text[:50]}...")
             return "delete"
 
-        # Remplacer les placeholders dans les runs
-        for run in paragraph.runs:
-            original_text = run.text
-
-            # Section optionnelle avec données → Mettre TOUT en noir
-            if is_optional and has_data:
+        # Section optionnelle avec données → Mettre TOUT en noir
+        if is_optional and has_data:
+            for run in paragraph.runs:
                 run.font.color.rgb = RGBColor(0, 0, 0)
 
-            # Remplacer les placeholders
-            new_text = original_text
-            run_missing_data = False
+        # Vérifier si on a des données manquantes
+        has_missing_data = False
+        for placeholder in placeholders:
+            if not self.variables.get(placeholder, ""):
+                has_missing_data = True
+                break
 
-            # Trouver les placeholders dans ce run spécifique
-            run_placeholders = self._find_placeholders(original_text)
+        import re
 
-            for placeholder in run_placeholders:
+        # CAS 1: Section OBLIGATOIRE avec données manquantes → Reconstruire pour mettre les placeholders en rouge
+        if not is_optional and has_missing_data:
+            # Créer un mapping détaillé: position → (run, formatage)
+            char_to_run_map = []
+            for run in paragraph.runs:
+                for _ in range(len(run.text)):
+                    char_to_run_map.append(run)
+
+            # Sauvegarder runs originaux
+            original_runs = list(paragraph.runs)
+
+            # Effacer tous les runs
+            for run in list(paragraph.runs):
+                run.text = ""
+
+            # Construire une liste de segments avec leur formatage
+            # Segment = (start_pos, end_pos, text, run_source, is_placeholder, is_missing)
+            segments = []
+            current_pos = 0
+
+            # Identifier tous les placeholders et leurs positions
+            placeholder_matches = list(re.finditer(r'\[([^\]]+)\]', full_text))
+
+            # Si pas de placeholders, juste copier le texte
+            if not placeholder_matches:
+                pos = 0
+                for run in original_runs:
+                    if run.text:
+                        segments.append((pos, pos + len(run.text), run.text, run, False, False))
+                        pos += len(run.text)
+            else:
+                # Traiter le texte segment par segment en respectant les changements de run ET les placeholders
+                pos = 0
+                placeholder_idx = 0
+
+                while pos < len(full_text):
+                    # Y a-t-il un placeholder à cette position ?
+                    if placeholder_idx < len(placeholder_matches):
+                        match = placeholder_matches[placeholder_idx]
+                        ph_start, ph_end = match.span()
+                        placeholder = match.group(1)
+
+                        # Si on est avant le placeholder, ajouter le texte normal
+                        if pos < ph_start:
+                            # Découper par changement de run
+                            current_run = char_to_run_map[pos] if pos < len(char_to_run_map) else original_runs[0]
+                            segment_start = pos
+                            while pos < ph_start and pos < len(char_to_run_map):
+                                if char_to_run_map[pos] != current_run:
+                                    # Changement de run: sauvegarder le segment
+                                    segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                                    segment_start = pos
+                                    current_run = char_to_run_map[pos]
+                                pos += 1
+                            # Sauvegarder le dernier segment avant le placeholder
+                            if segment_start < pos:
+                                segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+
+                        # Ajouter le placeholder ou sa valeur
+                        value = self.variables.get(placeholder, "")
+                        source_run = char_to_run_map[ph_start] if ph_start < len(char_to_run_map) else original_runs[0]
+                        if value:
+                            segments.append((ph_start, ph_end, value, source_run, True, False))
+                        else:
+                            segments.append((ph_start, ph_end, f"[{placeholder}]", source_run, True, True))
+
+                        pos = ph_end
+                        placeholder_idx += 1
+                    else:
+                        # Plus de placeholders, traiter le reste
+                        if pos < len(full_text):
+                            current_run = char_to_run_map[pos] if pos < len(char_to_run_map) else original_runs[0]
+                            segment_start = pos
+                            while pos < len(char_to_run_map):
+                                if char_to_run_map[pos] != current_run:
+                                    segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                                    segment_start = pos
+                                    current_run = char_to_run_map[pos]
+                                pos += 1
+                            if segment_start < pos:
+                                segments.append((segment_start, pos, full_text[segment_start:pos], current_run, False, False))
+                        break
+
+            # Reconstruire en préservant le formatage de chaque segment
+            for _, _, text, source_run, is_ph, is_missing in segments:
+                if text:
+                    new_run = paragraph.add_run(text)
+                    if is_missing:
+                        override_color = RGBColor(255, 0, 0)
+                    else:
+                        override_color = RGBColor(0, 0, 0)
+                    self._copy_run_format(source_run, new_run, override_color=override_color)
+
+            if has_missing_data:
+                logger.warning(f"Placeholder manquant (rouge): {full_text[:50]}...")
+
+        # CAS 2: Toutes les données présentes → Remplacer dans le texte SANS toucher au formatage
+        else:
+            # Remplacer les placeholders dans chaque run INDIVIDUELLEMENT
+            for placeholder in placeholders:
                 value = self.variables.get(placeholder, "")
                 if value:
-                    new_text = new_text.replace(f"[{placeholder}]", value)
-                else:
-                    run_missing_data = True
-
-            run.text = new_text
-
-            # Section obligatoire avec placeholder manquant → Mettre SEULEMENT les placeholders en rouge
-            if not is_optional and run_missing_data:
-                # Recréer le run avec des parties en rouge pour les placeholders
-                run.text = ""
-                parts = []
-                current_pos = 0
-
-                # Parser le texte pour identifier les placeholders
-                import re
-                for match in re.finditer(r'\[([^\]]+)\]', original_text):
-                    placeholder = match.group(1)
-                    start, end = match.span()
-
-                    # Ajouter le texte avant le placeholder (en noir)
-                    if start > current_pos:
-                        parts.append(('black', original_text[current_pos:start]))
-
-                    # Ajouter le placeholder
-                    value = self.variables.get(placeholder, "")
-                    if value:
-                        parts.append(('black', value))
-                    else:
-                        parts.append(('red', f"[{placeholder}]"))
-
-                    current_pos = end
-
-                # Ajouter le reste du texte (en noir)
-                if current_pos < len(original_text):
-                    parts.append(('black', original_text[current_pos:]))
-
-                # Reconstruire le run avec les bonnes couleurs
-                if parts:
-                    # Utiliser le premier élément pour le run actuel
-                    first_color, first_text = parts[0]
-                    run.text = first_text
-                    if first_color == 'red':
-                        run.font.color.rgb = RGBColor(255, 0, 0)
-                    else:
-                        run.font.color.rgb = RGBColor(0, 0, 0)
-
-                    # Ajouter les autres parties comme de nouveaux runs
-                    for color, text in parts[1:]:
-                        new_run = paragraph.add_run(text)
-                        if color == 'red':
-                            new_run.font.color.rgb = RGBColor(255, 0, 0)
-                        else:
-                            new_run.font.color.rgb = RGBColor(0, 0, 0)
-                        # Copier le formatage du run original
-                        new_run.font.name = run.font.name
-                        new_run.font.size = run.font.size
-                        new_run.font.bold = run.font.bold
-                        new_run.font.italic = run.font.italic
-
-                if run_missing_data:
-                    logger.warning(f"Placeholder manquant (rouge): {text[:50]}...")
+                    placeholder_pattern = f"[{placeholder}]"
+                    for run in paragraph.runs:
+                        if placeholder_pattern in run.text:
+                            run.text = run.text.replace(placeholder_pattern, value)
+                            # Le formatage du run est automatiquement préservé
 
         return None
 
@@ -368,7 +442,7 @@ class LOIGenerator:
         header_text = societe_info.get("header", "")
         footer_text = societe_info.get("footer", "")
 
-        from docx.shared import Pt
+        from docx.shared import Pt, Inches
         from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
         # Mettre à jour tous les headers et footers
@@ -376,6 +450,11 @@ class LOIGenerator:
             # Header
             if header_text:
                 header = section.header
+
+                # Ajuster les marges du header
+                # Réduire la marge supérieure et augmenter la marge inférieure
+                section.top_margin = Inches(0.5)  # Marge haut de page réduite
+                section.header_distance = Inches(0.3)  # Distance du header au texte
 
                 # Supprimer tous les paragraphes existants
                 for para in list(header.paragraphs):
@@ -387,11 +466,20 @@ class LOIGenerator:
                 para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                 run = para.add_run(header_text)
                 run.font.bold = True
-                run.font.size = Pt(12)
+                run.font.size = Pt(22)  # Police 22pt au lieu de 12pt
+
+                # Ajouter un espacement après le header
+                from docx.shared import Pt as PtSpace
+                para.paragraph_format.space_after = PtSpace(12)
 
             # Footer
             if footer_text:
                 footer = section.footer
+
+                # Ajuster les marges du footer
+                # Augmenter la marge supérieure (espace avant le footer) et réduire la marge inférieure
+                section.bottom_margin = Inches(0.5)  # Marge bas de page réduite
+                section.footer_distance = Inches(0.3)  # Distance du texte au footer
 
                 # Supprimer tous les paragraphes existants
                 for para in list(footer.paragraphs):
@@ -405,6 +493,11 @@ class LOIGenerator:
                     para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                     run = para.add_run(line)
                     run.font.size = Pt(9)
+
+                    # Ajouter un espacement avant le premier paragraphe du footer
+                    if i == 0:
+                        from docx.shared import Pt as PtSpace
+                        para.paragraph_format.space_before = PtSpace(12)
 
         logger.info(f"Headers/Footers mis à jour pour: {societe_bailleur}")
 
@@ -445,11 +538,12 @@ class LOIGenerator:
         for i, paragraph in enumerate(all_paragraphs):
             text = paragraph.text
             is_optional = self._is_paragraph_optional(paragraph)
+            placeholders = self._find_placeholders(text)
 
-            # Cas spéciaux: paragraphes de titre sans placeholder
-            if is_optional and not self._find_placeholders(text):
-                # "Remises (sur loyer annuel indexé) :"
-                if "Remises" in text and "loyer" in text:
+            # Cas spéciaux: paragraphes de titre sans placeholder OU avec placeholder [.]
+            if is_optional:
+                # "Remises (sur loyer annuel indexé) :" - sans placeholder
+                if "Remises" in text and "loyer" in text and not placeholders:
                     if has_palier_data:
                         # Garder ce paragraphe et le mettre en noir
                         for run in paragraph.runs:
@@ -458,15 +552,26 @@ class LOIGenerator:
                         paragraphs_to_delete.append(paragraph)
                     continue
 
-                # "Condition(s) suspensive(s)"
-                if "Condition" in text and "suspensive" in text:
+                # "Condition(s) suspensive(s) : à réaliser au plus tard pour le [.]"
+                if "Condition" in text and "suspensive" in text and "[.]" in text:
                     if has_conditions_data:
-                        # Garder ce paragraphe et le mettre en noir
+                        # Garder ce paragraphe et le mettre en noir (mais laisser le traitement normal faire le remplacement)
                         for run in paragraph.runs:
                             run.font.color.rgb = RGBColor(0, 0, 0)
+                        # Ne pas faire continue - laisser le traitement normal gérer les placeholders
                     else:
                         paragraphs_to_delete.append(paragraph)
-                    continue
+                        continue
+
+                # "Franchise de loyer : [Durée Franchise]..." et "Garantie à première demande... [Durée GAPD]..."
+                # Ces paragraphes ont des placeholders et doivent être traités normalement
+                # mais on s'assure que TOUS les runs passent en noir si on a les données
+                if placeholders:
+                    has_data = self._has_data_for_placeholders(placeholders)
+                    if has_data:
+                        # Mettre TOUS les runs en noir
+                        for run in paragraph.runs:
+                            run.font.color.rgb = RGBColor(0, 0, 0)
 
             # Traitement normal
             result = self._process_paragraph(paragraph)

@@ -194,6 +194,6 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: gray; padding: 20px;'>
     <p>Générateur automatique de LOI v2.0</p>
-    <p>Développé pour Forgeot Property</p>
+    <p>Développé par Xavier Kain</p>
 </div>
 """, unsafe_allow_html=True)
