@@ -65,6 +65,19 @@ class LOIGenerator:
                 self.variables[template_name] = self.variables[excel_name]
                 logger.debug(f"Mapping: '{excel_name}' → '{template_name}'")
 
+        # Créer un mapping case-insensitive pour toutes les variables
+        # pour éviter les problèmes de casse
+        var_keys = list(self.variables.keys())
+        for key in var_keys:
+            key_lower = key.lower()
+            # Chercher si une version avec casse différente existe
+            for other_key in var_keys:
+                if other_key != key and other_key.lower() == key_lower:
+                    # Utiliser la version avec casse "correcte" (celle du template)
+                    if not self.variables.get(other_key):
+                        self.variables[other_key] = self.variables[key]
+                        logger.debug(f"Case-insensitive mapping: '{key}' → '{other_key}'")
+
     def _copy_run_format(self, source_run, target_run, override_color=None):
         """
         Copie TOUS les attributs de formatage d'un run source vers un run cible.
