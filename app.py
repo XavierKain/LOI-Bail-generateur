@@ -95,6 +95,45 @@ if uploaded_file is not None:
             st.metric("Durée Bail", variables.get("Durée Bail", "Non défini") + " ans")
             st.metric("Enseigne", variables.get("Enseigne", "Non défini"))
 
+        # Section INPI (si données enrichies)
+        siret = variables.get("N° DE SIRET", "")
+        if siret:
+            st.markdown("---")
+            inpi_enriched = variables.get("_inpi_enriched", "false") == "true"
+
+            if inpi_enriched:
+                st.success("🏢 Données INPI enrichies automatiquement ✅")
+            else:
+                error_msg = variables.get("_inpi_error", "Erreur inconnue")
+                st.warning(f"⚠️ Enrichissement INPI échoué: {error_msg}")
+
+            # Afficher les données INPI
+            with st.expander("📊 Informations INPI", expanded=inpi_enriched):
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("**SIRET**")
+                    st.text(siret)
+
+                    st.markdown("**Nom de la société**")
+                    st.text(variables.get("NOM DE LA SOCIETE", "Non disponible"))
+
+                    st.markdown("**Type de société**")
+                    st.text(variables.get("TYPE DE SOCIETE", "Non disponible"))
+
+                with col2:
+                    st.markdown("**Capital social**")
+                    st.text(variables.get("CAPITAL SOCIAL", "Non disponible"))
+
+                    st.markdown("**Localité RCS**")
+                    st.text(variables.get("LOCALITE RCS", "Non disponible"))
+
+                st.markdown("**Adresse de domiciliation**")
+                st.text(variables.get("ADRESSE DE DOMICILIATION", "Non disponible"))
+
+                st.markdown("**Président / Gérant**")
+                st.text(variables.get("PRESIDENT DE LA SOCIETE", "Non disponible"))
+
         # Détails complets
         with st.expander("📋 Voir toutes les variables extraites"):
             # Filtrer les variables spéciales (formules, descriptions)

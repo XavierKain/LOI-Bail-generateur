@@ -42,6 +42,9 @@ output/*.docx
 # Logs
 *.log
 
+# Fichiers de configuration sensibles
+.env
+
 # Fichiers sensibles - Données d'entreprises
 Exemples/*.xlsx
 Exemples/*.pdf

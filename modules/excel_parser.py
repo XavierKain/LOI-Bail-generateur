@@ -10,6 +10,8 @@ from pathlib import Path
 import openpyxl
 from openpyxl.utils.exceptions import InvalidFileException
 
+from .inpi_client import get_inpi_client
+
 logger = logging.getLogger(__name__)
 
 
@@ -141,8 +143,72 @@ class ExcelParser:
         # Ajouter la date d'aujourd'hui
         variables["Date d'aujourd'hui"] = datetime.now().strftime("%d/%m/%Y")
 
+        # Enrichissement automatique via INPI si SIRET présent
+        siret = self._get_cell_value("Validation", "B25")
+        if siret:
+            logger.info(f"SIRET détecté: {siret} - Enrichissement INPI en cours...")
+            inpi_data = self._enrich_from_inpi(siret)
+
+            # Fusionner les données INPI avec les variables extraites
+            variables.update(inpi_data)
+
+            # Ajouter un flag pour savoir si l'enrichissement a réussi
+            if inpi_data.get("enrichment_status") == "success":
+                variables["_inpi_enriched"] = "true"
+                logger.info("✓ Enrichissement INPI réussi")
+            else:
+                variables["_inpi_enriched"] = "false"
+                error_msg = inpi_data.get("error_message", "Erreur inconnue")
+                variables["_inpi_error"] = error_msg
+                logger.warning(f"✗ Enrichissement INPI échoué: {error_msg}")
+
         logger.info(f"{len(variables)} variables extraites")
         return variables
+
+    def _enrich_from_inpi(self, siret: str) -> Dict[str, str]:
+        """
+        Enrichit les données avec l'API INPI.
+
+        Args:
+            siret: Numéro SIRET de l'entreprise
+
+        Returns:
+            Dictionnaire avec les données enrichies INPI
+        """
+        # Initialiser le résultat vide
+        inpi_data = {
+            "N° DE SIRET": siret,
+            "NOM DE LA SOCIETE": "",
+            "TYPE DE SOCIETE": "",
+            "CAPITAL SOCIAL": "",
+            "LOCALITE RCS": "",
+            "ADRESSE DE DOMICILIATION": "",
+            "PRESIDENT DE LA SOCIETE": "",
+            "enrichment_status": "failed",
+            "error_message": ""
+        }
+
+        # Récupérer le client INPI
+        inpi_client = get_inpi_client()
+
+        if not inpi_client:
+            inpi_data["error_message"] = "Client INPI non configuré (credentials manquants)"
+            logger.warning(inpi_data["error_message"])
+            return inpi_data
+
+        try:
+            # Interroger l'API INPI
+            company_info = inpi_client.get_company_info(siret)
+
+            # Mettre à jour avec les données récupérées
+            inpi_data.update(company_info)
+
+            return inpi_data
+
+        except Exception as e:
+            inpi_data["error_message"] = f"Erreur lors de l'enrichissement INPI: {str(e)}"
+            logger.error(inpi_data["error_message"], exc_info=True)
+            return inpi_data
 
     def extract_societe_info(self) -> Dict[str, Dict[str, str]]:
         """
