@@ -6,9 +6,19 @@ Permet de récupérer les informations des entreprises françaises via le RNE.
 import logging
 import requests
 import time
+import re
 from typing import Optional, Dict
 from ratelimit import limits, sleep_and_retry
 from functools import lru_cache
+
+try:
+    import cloudscraper
+    from bs4 import BeautifulSoup
+    SCRAPING_AVAILABLE = True
+except ImportError:
+    SCRAPING_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("cloudscraper ou beautifulsoup4 non installé. Le scraping des dirigeants ne sera pas disponible.")
 
 from .config import Config
 
@@ -154,6 +164,91 @@ class INPIClient:
 
         return None
 
+    def _scrape_pappers_dirigeant(self, siren: str) -> Optional[str]:
+        """
+        Scrape le nom du dirigeant depuis Pappers.fr.
+
+        Note: Cette méthode utilise le web scraping pour récupérer les informations
+        de dirigeants qui ne sont pas disponibles via l'API INPI (protection RGPD).
+        Utilisé uniquement pour un usage légitime et limité.
+
+        Args:
+            siren: Numéro SIREN (9 chiffres)
+
+        Returns:
+            Nom du dirigeant ou None si non trouvé
+        """
+        if not SCRAPING_AVAILABLE:
+            logger.warning("Scraping non disponible (cloudscraper/beautifulsoup4 manquant)")
+            return None
+
+        url = f"https://www.pappers.fr/entreprise/{siren}"
+
+        try:
+            # Créer un scraper qui contourne Cloudflare
+            scraper = cloudscraper.create_scraper(
+                browser={
+                    'browser': 'chrome',
+                    'platform': 'darwin',
+                    'desktop': True
+                }
+            )
+
+            response = scraper.get(url, timeout=30)
+
+            if response.status_code != 200:
+                logger.warning(f"Scraping Pappers échoué (HTTP {response.status_code}) pour SIREN {siren}")
+                return None
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Méthode 1: Chercher dans le texte des mentions légales
+            # Pattern: "représentée par XXX agissant et ayant les pouvoirs nécessaires en tant que président"
+            mentions = soup.find('generate-mentions')
+            if mentions and mentions.get('mentions'):
+                mentions_text = mentions.get('mentions')
+                match = re.search(
+                    r'représentée par ([A-Z\s]+) agissant et ayant les pouvoirs nécessaires en tant que (?:président|gérant|directeur général)',
+                    mentions_text,
+                    re.IGNORECASE
+                )
+                if match:
+                    dirigeant = match.group(1).strip()
+                    logger.info(f"Dirigeant trouvé pour SIREN {siren}: {dirigeant}")
+                    return dirigeant
+
+            # Méthode 2: Chercher les liens <a> contenant un nom en majuscules
+            for link in soup.find_all('a', href=True):
+                href = link.get('href', '')
+                # Pattern: nom-en-minuscules-suivi-de-chiffres
+                if re.match(r'^[a-z-]+-\d{9}$', href):
+                    text = link.get_text(strip=True)
+                    # Vérifier que c'est bien un nom (tout en majuscules, pas d'adresse)
+                    if text and text.isupper() and len(text) > 2:
+                        excluded_words = ['AVENUE', 'RUE', 'BOULEVARD', 'PARIS', 'FRANCE', 'GAULLE']
+                        if not any(word in text for word in excluded_words):
+                            # Vérifier le contexte autour
+                            parent_text = link.parent.get_text() if link.parent else ''
+                            keywords = ['président', 'dirigeant', 'gérant', 'directeur']
+                            if any(keyword in parent_text.lower() for keyword in keywords):
+                                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
+                                return text
+
+            # Méthode 3: Chercher dans le texte brut
+            text = soup.get_text()
+            match = re.search(r'(?:nomination du )?Président\s*:\s*([A-Z][A-Za-z\s\-]+?)(?:\s|$|;|,)', text)
+            if match:
+                dirigeant = match.group(1).strip()
+                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {dirigeant}")
+                return dirigeant
+
+            logger.info(f"Aucun dirigeant trouvé pour SIREN {siren}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Erreur lors du scraping Pappers pour SIREN {siren}: {str(e)}")
+            return None
+
     def get_company_info(self, siret: str) -> Dict[str, str]:
         """
         Récupère les informations d'une entreprise à partir du SIRET.
@@ -285,8 +380,13 @@ class INPIClient:
 
             # Président/gérant (représentant légal)
             # Les données personnelles des dirigeants sont protégées par RGPD dans l'API INPI
-            # On laisse vide pour respecter la réglementation
-            result["PRESIDENT DE LA SOCIETE"] = ""
+            # On utilise le scraping de Pappers.fr pour obtenir cette information
+            try:
+                dirigeant = self._scrape_pappers_dirigeant(siren)
+                result["PRESIDENT DE LA SOCIETE"] = dirigeant if dirigeant else ""
+            except Exception as e:
+                logger.warning(f"Échec du scraping du dirigeant: {str(e)}")
+                result["PRESIDENT DE LA SOCIETE"] = ""
 
             result["enrichment_status"] = "success"
             logger.info(f"Enrichissement INPI réussi pour {result['NOM DE LA SOCIETE']}")
