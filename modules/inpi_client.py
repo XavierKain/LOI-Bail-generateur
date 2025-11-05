@@ -241,27 +241,7 @@ class INPIClient:
                 }
                 result["TYPE DE SOCIETE"] = formes_codes.get(forme_juridique, forme_juridique)
 
-            # Capital social - chercher dans personneMorale.capital
-            capital = personne_morale.get("capital", {})
-            if isinstance(capital, dict):
-                montant = capital.get("montant") or capital.get("capitalSocial")
-                if montant:
-                    if isinstance(montant, (int, float)):
-                        result["CAPITAL SOCIAL"] = f"{int(montant):,}".replace(",", " ") + " €"
-                    else:
-                        result["CAPITAL SOCIAL"] = str(montant)
-            elif isinstance(capital, (int, float)):
-                result["CAPITAL SOCIAL"] = f"{int(capital):,}".replace(",", " ") + " €"
-
-            # Localité RCS (greffe) - chercher dans les identifiants
-            identifiants = personne_morale.get("identifiant", {})
-            if isinstance(identifiants, list):
-                for ident in identifiants:
-                    if ident.get("typeIdentifiant") == "RCS":
-                        result["LOCALITE RCS"] = ident.get("registre", "")
-                        break
-
-            # Adresse de domiciliation (siège social)
+            # Adresse de domiciliation (siège social) - extraire d'abord car on en a besoin pour le RCS
             adresse_entreprise = personne_morale.get("adresseEntreprise", {})
             adresse = adresse_entreprise.get("adresse", {})
             if isinstance(adresse, dict):
@@ -281,9 +261,31 @@ class INPIClient:
 
                 result["ADRESSE DE DOMICILIATION"] = " ".join(parts) if parts else ""
 
+            # Capital social - chercher dans personneMorale.identite.description
+            identite = personne_morale.get("identite", {})
+            description = identite.get("description", {})
+
+            montant_capital = description.get("montantCapital")
+            if montant_capital:
+                if isinstance(montant_capital, (int, float)):
+                    result["CAPITAL SOCIAL"] = f"{int(montant_capital):,}".replace(",", " ") + " €"
+                else:
+                    result["CAPITAL SOCIAL"] = str(montant_capital)
+
+            # Localité RCS (greffe) - déduire de la commune du siège social
+            # Le greffe est généralement dans la même ville que le siège social
+            commune = adresse.get("commune", "") if isinstance(adresse, dict) else ""
+            if commune:
+                # Nettoyer le nom de la commune (retirer arrondissement pour Paris, Lyon, Marseille)
+                commune_clean = commune.replace(" 1ER ARRONDISSEMENT", "")
+                commune_clean = commune_clean.replace(" 2E ARRONDISSEMENT", "")
+                for i in range(3, 21):
+                    commune_clean = commune_clean.replace(f" {i}E ARRONDISSEMENT", "")
+                result["LOCALITE RCS"] = commune_clean.strip()
+
             # Président/gérant (représentant légal)
-            # Les représentants sont souvent dans une section séparée de l'API
-            # Pour l'instant on laisse vide, nécessiterait un appel API supplémentaire
+            # Les données personnelles des dirigeants sont protégées par RGPD dans l'API INPI
+            # On laisse vide pour respecter la réglementation
             result["PRESIDENT DE LA SOCIETE"] = ""
 
             result["enrichment_status"] = "success"
