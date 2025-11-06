@@ -242,6 +242,34 @@ class INPIClient:
                 logger.info(f"Dirigeant trouvé pour SIREN {siren}: {dirigeant}")
                 return dirigeant
 
+            # Méthode 4: Chercher la structure HTML Pappers "Dirigeant :"
+            # Structure: <td>Dirigeant :</td> suivi de <td class="info-dirigeant"><a>Nom Prénom</a></td>
+            dirigeant_cells = soup.find_all('td', class_='info-dirigeant')
+            for cell in dirigeant_cells:
+                link = cell.find('a')
+                if link:
+                    text = link.get_text(strip=True)
+                    # Vérifier que c'est un nom de personne (au moins 2 mots)
+                    if text and len(text.split()) >= 2:
+                        logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
+                        return text
+
+            # Méthode 5: Chercher "Dirigeant :" dans le HTML
+            # Utiliser BeautifulSoup pour trouver le motif
+            for elem in soup.find_all(text=re.compile(r'Dirigeant\s*:', re.IGNORECASE)):
+                # Chercher les éléments suivants qui pourraient contenir le nom
+                parent = elem.parent
+                if parent:
+                    next_elem = parent.find_next_sibling()
+                    if next_elem:
+                        # Chercher un lien ou du texte
+                        link = next_elem.find('a')
+                        if link:
+                            text = link.get_text(strip=True)
+                            if text and len(text.split()) >= 2:
+                                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
+                                return text
+
             logger.info(f"Aucun dirigeant trouvé pour SIREN {siren}")
             return None
 
@@ -315,10 +343,15 @@ class INPIClient:
             etab_principal = personne_morale.get("etablissementPrincipal", {})
             desc_etab = etab_principal.get("descriptionEtablissement", {})
 
+            # Chercher aussi dans identite.entreprise
+            identite = personne_morale.get("identite", {})
+            entreprise = identite.get("entreprise", {})
+
             result["NOM DE LA SOCIETE"] = (
                 desc_etab.get("nomCommercial") or
                 desc_etab.get("enseigne") or
                 personne_morale.get("denomination") or
+                entreprise.get("denomination") or
                 ""
             )
 
