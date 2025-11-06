@@ -186,20 +186,26 @@ class INPIClient:
 
         try:
             # Créer un scraper qui contourne Cloudflare
+            # Utiliser 'linux' comme plateforme pour compatibilité Streamlit Cloud
+            import platform
+            current_platform = 'linux' if platform.system() == 'Linux' else 'darwin'
+
             scraper = cloudscraper.create_scraper(
                 browser={
                     'browser': 'chrome',
-                    'platform': 'darwin',
+                    'platform': current_platform,
                     'desktop': True
                 }
             )
 
-            response = scraper.get(url, timeout=30)
+            logger.info(f"Tentative de scraping Pappers pour SIREN {siren} (plateforme: {current_platform})")
+            response = scraper.get(url, timeout=45)  # Timeout augmenté pour Streamlit Cloud
 
             if response.status_code != 200:
                 logger.warning(f"Scraping Pappers échoué (HTTP {response.status_code}) pour SIREN {siren}")
                 return None
 
+            logger.info(f"Scraping Pappers réussi (HTTP 200) pour SIREN {siren}")
             soup = BeautifulSoup(response.text, 'html.parser')
 
             # Méthode 1: Chercher dans le texte des mentions légales
@@ -244,19 +250,25 @@ class INPIClient:
 
             # Méthode 4: Chercher la structure HTML Pappers "Dirigeant :"
             # Structure: <td>Dirigeant :</td> suivi de <td class="info-dirigeant"><a>Nom Prénom</a></td>
+            logger.debug(f"Méthode 4: Recherche des cellules info-dirigeant...")
             dirigeant_cells = soup.find_all('td', class_='info-dirigeant')
+            logger.debug(f"Méthode 4: {len(dirigeant_cells)} cellule(s) trouvée(s)")
             for cell in dirigeant_cells:
                 link = cell.find('a')
                 if link:
                     text = link.get_text(strip=True)
+                    logger.debug(f"Méthode 4: Texte trouvé: '{text}'")
                     # Vérifier que c'est un nom de personne (au moins 2 mots)
                     if text and len(text.split()) >= 2:
-                        logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
+                        logger.info(f"Dirigeant trouvé (méthode 4) pour SIREN {siren}: {text}")
                         return text
 
             # Méthode 5: Chercher "Dirigeant :" dans le HTML
             # Utiliser BeautifulSoup pour trouver le motif
-            for elem in soup.find_all(text=re.compile(r'Dirigeant\s*:', re.IGNORECASE)):
+            logger.debug(f"Méthode 5: Recherche du pattern 'Dirigeant :'...")
+            dirigeant_labels = soup.find_all(text=re.compile(r'Dirigeant\s*:', re.IGNORECASE))
+            logger.debug(f"Méthode 5: {len(dirigeant_labels)} label(s) trouvé(s)")
+            for elem in dirigeant_labels:
                 # Chercher les éléments suivants qui pourraient contenir le nom
                 parent = elem.parent
                 if parent:
@@ -266,15 +278,42 @@ class INPIClient:
                         link = next_elem.find('a')
                         if link:
                             text = link.get_text(strip=True)
+                            logger.debug(f"Méthode 5: Texte trouvé: '{text}'")
                             if text and len(text.split()) >= 2:
-                                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
+                                logger.info(f"Dirigeant trouvé (méthode 5) pour SIREN {siren}: {text}")
                                 return text
 
-            logger.info(f"Aucun dirigeant trouvé pour SIREN {siren}")
+            logger.warning(f"Aucun dirigeant trouvé pour SIREN {siren} (toutes méthodes échouées)")
             return None
 
         except Exception as e:
-            logger.error(f"Erreur lors du scraping Pappers pour SIREN {siren}: {str(e)}")
+            logger.error(f"Erreur lors du scraping Pappers avec cloudscraper pour SIREN {siren}: {str(e)}")
+
+            # Fallback: Essayer avec requests simple (peut être bloqué par Cloudflare mais on essaie)
+            try:
+                logger.info(f"Tentative de fallback avec requests simple pour SIREN {siren}")
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+                response = requests.get(url, headers=headers, timeout=10)
+
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.text, 'html.parser')
+
+                    # Méthode 4 uniquement (la plus robuste)
+                    dirigeant_cells = soup.find_all('td', class_='info-dirigeant')
+                    for cell in dirigeant_cells:
+                        link = cell.find('a')
+                        if link:
+                            text = link.get_text(strip=True)
+                            if text and len(text.split()) >= 2:
+                                logger.info(f"Dirigeant trouvé via fallback pour SIREN {siren}: {text}")
+                                return text
+                else:
+                    logger.warning(f"Fallback échoué (HTTP {response.status_code})")
+            except Exception as fallback_error:
+                logger.error(f"Fallback échoué pour SIREN {siren}: {str(fallback_error)}")
+
             return None
 
     def get_company_info(self, siret: str) -> Dict[str, str]:
