@@ -113,7 +113,7 @@ def show_loi():
             # Extraire les données
             with st.spinner("Extraction des données et enrichissement INPI..."):
                 parser = ExcelParser(str(temp_path))
-                donnees = parser.extract_all_variables()
+                donnees = parser.extract_variables()
 
             st.success(f"✅ {len(donnees)} variables extraites")
 
@@ -263,7 +263,7 @@ def show_bail():
             # Extraire les données
             with st.spinner("Extraction des données..."):
                 parser = ExcelParser(str(temp_path))
-                donnees = parser.extract_all_variables()
+                donnees = parser.extract_variables()
 
                 # Générer le nom du fichier de sortie
                 nom_preneur = donnees.get("Nom Preneur", "Client")
