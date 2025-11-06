@@ -1,0 +1,434 @@
+{
+  "Comparution": [
+    {
+      "index": 10,
+      "designation": "Comparution Preneur",
+      "nom_source": "Type Preneur\nNom Preneur\nSiret Preneur",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "Monsieur/Madame [Nom Preneur], né le [.] à [.], [profession], demeurant [.], marié avec Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.] sous le régime de la séparation de biens suivant contrat de mariage reçu par Me [NOM DU NOTAIRE] à [.] ayant précédé leur union célébrée le [DATE DU MARIAGE] en la Commune de [.].\n\nSi personne marié sous le régime de la communauté :\nMonsieur [PRENOMS + NOM], né le [.] à [.], [profession], \nEt Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.], [profession],\nDemeurant ensemble [.], Mariés sous le régime de la communauté légale suivant mariage célébré le [DATE DU MARIAGE] en la Commune de [.].\n\nSi personne pacsée :\nMonsieur [PRENOMS + NOM], né le [.] à [.], [profession], demeurant [.], pacsé avec Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.] sous le régime de la séparation. ",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 11,
+      "designation": null,
+      "nom_source": "Type Preneur\nNom Preneur\nSiret Preneur",
+      "donnee_source": "SAS",
+      "condition": null,
+      "option1": "En fonction du n° de SIRET présent en Validation!B25, aller chercher les infos ci-dessous sur Pappers : \n\"La société [NOM DE LA SOCIETE], Société [TYPE DE SOCIETE] au capital de [CAPITAL SOCIAL], immatriculée au Registre du Commerce et des Sociétés de [LOCALITE RCS] sous le numéro [N° DE SIRET], dont le siège social est à [ADRESSE DE DOMICILIATION], représentée par Madame/Monsieur [PRESIDENT DE LA SOCIETE], dûment habilité aux fins des présentes en vertu [.], ci-après annexé ",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 12,
+      "designation": null,
+      "nom_source": "Type Preneur\nNom Preneur\nSiret Preneur",
+      "donnee_source": "SARL",
+      "condition": null,
+      "option1": "Idem SAS",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 13,
+      "designation": null,
+      "nom_source": "Type Preneur\nNom Preneur\nSiret Preneur",
+      "donnee_source": "EURL",
+      "condition": null,
+      "option1": "Idem SAS",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 14,
+      "designation": null,
+      "nom_source": "Type Preneur\nNom Preneur\nSiret Preneur",
+      "donnee_source": "Société en formation",
+      "condition": null,
+      "option1": "PRÉVOIR si le preneur agit pour le compte d’une société en formation :\nLa société XXXX, société [.] au capital de [.], en cours d’immatriculation auprès du Registre du Commerce et des Sociétés de [.], dont le siège social est à [.], représentée par Madame/Monsieur [.], dûment habilité aux fins des présentes en vertu, \n\nOu si personne physique :\nSi personne marié sous le régime de la séparation :\nMonsieur [PRENOMS + NOM], né le [.] à [.], [profession], demeurant [.], marié avec Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.] sous le régime de la séparation de biens suivant contrat de mariage reçu par Me [NOM DU NOTAIRE] à [.] ayant précédé leur union célébrée le [DATE DU MARIAGE] en la Commune de [.].\n\nSi personne marié sous le régime de la communauté :\nMonsieur [PRENOMS + NOM], né le [.] à [.], [profession], \nEt Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.], [profession],\nDemeurant ensemble [.], Mariés sous le régime de la communauté légale suivant mariage célébré le [DATE DU MARIAGE] en la Commune de [.].\n\nSi personne pacsée :\nMonsieur [PRENOMS + NOM], né le [.] à [.], [profession], demeurant [.], pacsé avec Madame |PRÉNOMS + NOM de JEUNE FILLE] née le [.] à [.] sous le régime de la séparation. \n\n[Idem pour tous les associés de la société en cours de formation]\nAgissant au nom et pour le compte de la société [●], société [●] au capital de [●] euros dont le siège est situé [●], en cours de formation auprès du Registre du Commerce et des Sociétés de [●].\n\nIl est expressément rappelé que le présent acte est passé et réalisé pour le compte de la société XXXXXXXXXX, société en cours de formation conformément à l’article L.210-6 du Code de Commerce et dans le cadre des dispositions de l'article 1843 du Code civil et du 3e paragraphe de l'article 6 du décret n° 78-704 du 3 juillet 1978.\n\nIl est rappelé que, conformément aux dispositions des textes précités, l'immatriculation de la société dont s'agit au Registre du commerce et des sociétés emportera reprise à son profit de ladite opération, qui sera alors réputée avoir été effectuée dès l'origine par la société elle-même.\n\nAfin de fixer un terme à la période d'incertitude quant à la personne du Preneur définitif, résultant des dispositions ci-dessus rappelées, si l'immatriculation de la société n'intervient pas dans un délai de DEUX MOIS à compter du présent acte, le présent Bail se trouvera conclu de façon définitive par tous les associés de ladite société, et ce, dans les mêmes proportions que celles de leurs droits dans le capital social.\n\nÀ ce titre, il est précisé que les associés fondateurs sont :\n\n-\tXXXXXXX ",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article préliminaire": [
+    {
+      "index": 15,
+      "designation": "Conditions suspensives et délais",
+      "nom_source": "Conditions suspensives 1, 2, 3, 4.",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITION SUSPENSIVE\n\n\n1.      Condition suspensive et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation de la condition suspensive suivante :\n \n- Obtention d’un prêt bancaire par le Preneur d’un montant de [X] € ([EN LETTRES] EUROS). Le Preneur devra justifier au Bailleur, au plus tard [X] ([EN LETTRES]) semaines suivant la signature des présentes, du dépôt d’une demande auprès d’au moins 2 (DEUX) établissement bancaires français, sous peine de caducité du présent Bail ;\n \nCi-après la « Condition Suspensive »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée de ladite condition suspensive sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où cette condition ne serait pas réalisée dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance de la Condition Suspensive\n \nA défaut de réalisation de la Condition Suspensive dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail.\n",
+      "condition_option2": "Si plusieurs conditions suspensives",
+      "option2": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITIONS SUSPENSIVES\n\n\n1.      Conditions suspensives et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation des conditions suspensives suivantes :\n \na.       Obtention d’un prêt bancaire par le Preneur d’un montant de [X] € ([EN LETTRES] EUROS). Le Preneur devra justifier au Bailleur, au plus tard [X] ([EN LETTRES]) semaines suivant la signature des présentes, du dépôt d’une demande auprès d’au moins 2 (DEUX) établissement bancaires français, sous peine de caducité du présent Bail ;\n \nb. \n \nCi-après les « Conditions Suspensives »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée desdites conditions suspensives sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où ces conditions ne seraient pas réalisées dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance des Conditions Suspensives\n \nA défaut de réalisation des Conditions Suspensives dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail."
+    },
+    {
+      "index": 16,
+      "designation": null,
+      "nom_source": "Conditions suspensives 1, 2, 3, 4.",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITION SUSPENSIVE\n\n\n1.      Condition suspensive et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation de la condition suspensive suivante :\n \n- Obtention par le Preneur de l'ensemble des autorisations administratives pour la réalisation des travaux nécessaires à la bonne exploitation de son activité et à la mise en place dans les Locaux Loués de son concept, à savoir une Déclaration Préalable pour les modifications de façade, une demande d’Autorisation d’aménager un établissement recevant du public (ERP) ou toute autre autorisation administrative qui s’avérerait indispensable à l’ouverture et à l’exploitation des Locaux Loués au vu de la localisation spécifique de ces derniers. Le Preneur s’engage à justifier au Bailleur du dépôt de ces autorisations administratives au plus tard 1 (UN) mois après la signature des présentes.\n \nCi-après la « Condition Suspensive »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée de ladite condition suspensive sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où cette condition ne serait pas réalisée dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance de la Condition Suspensive\n \nA défaut de réalisation de la Condition Suspensive dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail.\n",
+      "condition_option2": "Si plusieurs conditions suspensives",
+      "option2": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITIONS SUSPENSIVES\n\n\n1.      Conditions suspensives et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation des conditions suspensives suivantes :\n \na.       Obtention par le Preneur de l'ensemble des autorisations administratives pour la réalisation des travaux nécessaires à la bonne exploitation de son activité et à la mise en place dans les Locaux Loués de son concept, à savoir une Déclaration Préalable pour les modifications de façade, une demande d’Autorisation d’aménager un établissement recevant du public (ERP) ou toute autre autorisation administrative qui s’avérerait indispensable à l’ouverture et à l’exploitation des Locaux Loués au vu de la localisation spécifique de ces derniers. Le Preneur s’engage à justifier au Bailleur du dépôt de ces autorisations administratives au plus tard 1 (UN) mois après la signature des présentes.\n \nb. \n \nCi-après les « Conditions Suspensives »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée desdites conditions suspensives sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où ces conditions ne seraient pas réalisées dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance des Conditions Suspensives\n \nA défaut de réalisation des Conditions Suspensives dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail."
+    },
+    {
+      "index": 17,
+      "designation": null,
+      "nom_source": "Conditions suspensives 1, 2, 3, 4.",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITION SUSPENSIVE\n\n\n1.      Condition suspensive et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation de la condition suspensive suivante :\n \n- Obtention par le bailleur d’une autorisation de copropriété pour la réalisation de travaux d’installation d’un conduit d’extraction extérieur. Cette condition suspensive devra être levée au plus tard le [X] ;\nA ce titre, le preneur s’engage à communiquer au bailleur le dossier de travaux d’installation de la gaine d’extraction contenant l’ensemble des éléments nécessaires à la parfaite validation du projet (devis, visuels, rapport bureau d’étude, etc…) lui permettant de solliciter la convocation d’une assemblée générale. Le dossier susvisé devra être communiqué au bailleur au plus tard le [X]. Le Bailleur s’engage a voté favorablement pour l’adoption de ce projet.\n \nCi-après la « Condition Suspensive »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée de ladite condition suspensive sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où cette condition ne serait pas réalisée dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance de la Condition Suspensive\n \nA défaut de réalisation de la Condition Suspensive dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail.\n",
+      "condition_option2": "Si plusieurs conditions suspensives",
+      "option2": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITIONS SUSPENSIVES\n\n\n1.      Conditions suspensives et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation des conditions suspensives suivantes :\n \na.       Obtention par le bailleur d’une autorisation de copropriété pour la réalisation de travaux d’installation d’un conduit d’extraction extérieur. Cette condition suspensive devra être levée au plus tard le [X] ;\nA ce titre, le preneur s’engage à communiquer au bailleur le dossier de travaux d’installation de la gaine d’extraction contenant l’ensemble des éléments nécessaires à la parfaite validation du projet (devis, visuels, rapport bureau d’étude, etc…) lui permettant de solliciter la convocation d’une assemblée générale. Le dossier susvisé devra être communiqué au bailleur au plus tard le [X]. Le Bailleur s’engage a voté favorablement pour l’adoption de ce projet.\n \nb. \n \nCi-après les « Conditions Suspensives »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée desdites conditions suspensives sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où ces conditions ne seraient pas réalisées dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance des Conditions Suspensives\n \nA défaut de réalisation des Conditions Suspensives dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail."
+    },
+    {
+      "index": 18,
+      "designation": null,
+      "nom_source": "Conditions suspensives 1, 2, 3, 4.",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITION SUSPENSIVE\n\n\n1.      Condition suspensive et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation de la condition suspensive suivante :\n \n- Libération effective des Locaux Loués par l’actuel occupant, étant précisé que l’occupant a donné congé pour le [X].\n\nCi-après la « Condition Suspensive »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée de ladite condition suspensive sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où cette condition ne serait pas réalisée dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance de la Condition Suspensive\n \nA défaut de réalisation de la Condition Suspensive dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail.\n",
+      "condition_option2": "Si plusieurs conditions suspensives",
+      "option2": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITIONS SUSPENSIVES\n\n\n1.      Conditions suspensives et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation des conditions suspensives suivantes :\n \na.      Libération effective des Locaux Loués par l’actuel occupant, étant précisé que l’occupant a donné congé pour le [X] ;\n \nb. \n \nCi-après les « Conditions Suspensives »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée desdites conditions suspensives sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où ces conditions ne seraient pas réalisées dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance des Conditions Suspensives\n \nA défaut de réalisation des Conditions Suspensives dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail."
+    },
+    {
+      "index": 19,
+      "designation": null,
+      "nom_source": "Conditions suspensives 1, 2, 3, 4.",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITION SUSPENSIVE\n\n\n1.      Condition suspensive et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation de la condition suspensive suivante :\n \n- \n\nCi-après la « Condition Suspensive »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée de ladite condition suspensive sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où cette condition ne serait pas réalisée dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance de la Condition Suspensive\n \nA défaut de réalisation de la Condition Suspensive dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail.\n",
+      "condition_option2": "Si plusieurs conditions suspensives",
+      "option2": "ARTICLE PRELIMINAIRE : BAIL SOUS CONDITIONS SUSPENSIVES\n\n\n1.      Conditions suspensives et délais\n\nLe présent Bail est consenti et accepté par le Bailleur et le Preneur sous réserve de la réalisation des conditions suspensives suivantes :\n \na.\n \nb. \n \nCi-après les « Conditions Suspensives »\n \nChacune des Parties informera par tous moyens écrit l’autre partie de la réalisation de la condition suspensive qui lui incombe. En tout état de cause, la livraison des Locaux Loués au Preneur emportera levée desdites conditions suspensives sans autre formalité, chacune des Parties s’obligeant d’ores et déjà à respecter l’ensemble des clauses et conditions du présent Bail.\n\nDans l'hypothèse où ces conditions ne seraient pas réalisées dans le délai indiqué ci-dessus, éventuellement prorogé, les obligations contractées par chacune des Parties au titre du présent Bail seront nulles et non avenues et les Parties reprendront, à ce titre, leur pleine et entière liberté sans indemnité de part et d’autre, les sommes versées par le Preneur lors de la signature du Bail lui seront remboursées.  \n\n \n2.      Défaillance des Conditions Suspensives\n \nA défaut de réalisation des Conditions Suspensives dans le délai susvisé, les obligations contractées par chacune des Parties seront caduques, et les Parties reprendront leur pleine et entière liberté sans indemnité de part et d’autre, le Preneur ayant parfaitement connaissance de ce que le présent bail s’inscrit dans un contexte de libération desdits locaux laquelle n’est ni garantie et ni prévisible et ne pouvant, à ce titre, engager une quelconque action à l’encontre du Bailleur.\nLe Bailleur s’engageant à restituer au Preneur les sommes versées par le Preneur lors de la signature du Bail."
+    }
+  ],
+  "Article 1": [
+    {
+      "index": 22,
+      "designation": "Désignation",
+      "nom_source": "Surface totale",
+      "donnee_source": null,
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 2": [
+    {
+      "index": 27,
+      "designation": "Durée",
+      "nom_source": "Durée ferme Bail",
+      "donnee_source": null,
+      "condition": "Si \"Durée du Bail\" supérieur à 9",
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 3": [
+    {
+      "index": 28,
+      "designation": "Destination",
+      "nom_source": "Destination",
+      "donnee_source": null,
+      "condition": null,
+      "option1": "Le Preneur devra utiliser les Locaux Loués à usage exclusif de \"[Destination]\" et sous l’enseigne \"[Enseigne] \".",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 29,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Destination",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 30,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Restauration sans extraction",
+      "condition": "Si Restauration sans extraction = \"Oui\"",
+      "option1": "\"Le Preneur reconnaît être pleinement informé qu’au jour de la signature des présentes, il n’existe pas d’extraction dans les Locaux Loués ni de bac à graisse, par conséquent, il s’interdit dans le cadre des activités visées ci-dessus d’effectuer de la cuisson nécessitant une extraction ou une évacuation particulière des graisses.\n\nSi le Preneur souhaite toutefois installer une extraction et/ou un bac à graisse, et ce exclusivement après l’obtention de l’accord du Bailleur, il accepte expressément :\n\n-\tDe faire son affaire personnelle de l’obtention de toutes les autorisations administratives nécessaires à l’installation desdits équipements et de prendre en charge tous les frais liés à l’obtention desdites autorisations,\n\n-\tDe prendre à sa charge exclusive et sous sa responsabilité et à ses frais exclusifs tous les travaux concernant l’installation de ces équipements.\n\nEn tout état de cause, si l’installation de ces équipements s’avérait techniquement impossible ou en cas de refus des autorisations nécessaires pour l’installation de ces équipements, les parties reconnaissent que la responsabilité du Bailleur ne pourra être engagée.\n\nPar ailleurs, le Bailleur se réserve le droit de demander la suppression sans délai des machines ou moteurs qui seraient installés par le Preneur, si leur fonctionnement venait à motiver des réclamations justifiées par des nuisances des locataires ou voisins.\n\nIl fera en sorte que le Bailleur ne puisse être inquiété, ni même recherché au sujet de ses équipements et de son activité.\"",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 5.3": [
+    {
+      "index": 31,
+      "designation": "Entretien et réparation",
+      "nom_source": null,
+      "donnee_source": "Option Accession",
+      "condition": "Si [Option Accession] = \"Immédiate\"",
+      "option1": "Les transformations et améliorations, tous travaux d'aménagement, d'embellissement, d'améliorations et d’installations réalisés par le Preneur dans les Locaux Loués deviendront propriété immédiate du Bailleur, sans indemnité de part et d’autre. ",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 32,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Option Accession",
+      "condition": "Si [Option Accession] = \"Fin de Bail\"",
+      "option1": "Les transformations et améliorations, tous travaux d'aménagement, d'embellissement, d'améliorations et d’installations réalisés par le Preneur dans les Locaux Loués deviendront propriété du Bailleur, sans indemnité de part et d’autre, à la fin du présent bail. ",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 33,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Option Accession",
+      "condition": "Si [Option Accession] = \"Fin de Bail\"",
+      "option1": "Les transformations et améliorations, tous travaux d'aménagement, d'embellissement, d'améliorations et d’installations réalisés par le Preneur dans les Locaux Loués deviendront propriété du Bailleur, sans indemnité de part et d’autre, en fin de jouissance c’est-à-dire au départ du Preneur. ",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 7.1": [
+    {
+      "index": 34,
+      "designation": "Montant du loyer",
+      "nom_source": null,
+      "donnee_source": "Montant du loyer",
+      "condition": null,
+      "option1": "7.1. – Montant du loyer \nLe loyer annuel est fixé, à compter de la prise d’effet du Bail, à la somme de [Montant du loyer] € HT HC ([Montant du loyer en lettres] EUROS HORS TAXES ET HORS CHARGES).",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 7.2": [
+    {
+      "index": 35,
+      "designation": "Actualisation et indexation",
+      "nom_source": null,
+      "donnee_source": "Actualisation",
+      "condition": "Si [Actualisation] = \"Oui\"",
+      "option1": "7.2. – Actualisation et indexation du loyer\n\n7.2.1. Actualisation\nLe loyer sera actualisé de plein droit et sans aucune formalité ni notification préalable en fonction de la variation de l’Indice national des Loyers Commerciaux (ILC) publié trimestriellement par l’INSEE.\n\nCette actualisation interviendra à la date de prise d’effet du Bail, telle que définie à l’Article 2, en prenant pour référence le dernier indice connu à la date de signature du Bail ([.]) et en lui comparant l’indice publié à la date de prise d’effet du Bail. \n\nLe Preneur renonce expressément au bénéfice de discussion et à tous recours envers le Bailleur sur les conséquences résultant de l’actualisation du loyer tel que prévu au présent Article. \n\n7.2.2. Indexation",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 36,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Actualisation",
+      "condition": "Si [Actualisation] =\"Non\"",
+      "option1": "7.2. – Indexation du loyer",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article  7.3": [
+    {
+      "index": 37,
+      "designation": "Paiement des loyers",
+      "nom_source": null,
+      "donnee_source": "Paiement",
+      "condition": "Si [Paiement] = \"Prélèvement\"",
+      "option1": "7.3.2. – Prélèvements sur compte bancaire\nLe Preneur autorise irrévocablement le Bailleur ou son mandataire à prélever sur le compte bancaire du Preneur, lors de leurs échéances, toutes les sommes qui lui seraient dues au titre du présent Bail. Le Bailleur prélèvera sur le compte bancaire du Preneur qui l’autorise dès à présent et irrévocablement, lors de leur échéance, les sommes qui lui seraient dues.\n\nLe Preneur remet au Bailleur le jour de la signature du Bail un mandat de prélèvement SEPA ou un exemplaire de l’imprimé de demande d’autorisation de prélèvement dûment complété, signé et accompagné d’un relevé d’identité bancaire.\n\nLe Preneur prendra toutes dispositions pour que son compte soit suffisamment approvisionné pour satisfaire aux prélèvements. À cet effet, leur montant lui sera notifié par le Bailleur au moins huit jours à l’avance.\n\nEn cas de changement de domiciliation bancaire, le Preneur s’engage à remettre au Bailleur deux mois avant la plus proche échéance, un nouveau mandat de prélèvement SEPA ou un nouvel imprimé de demande d’autorisation de prélèvement dûment complété et signé. ",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 38,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Paiement",
+      "condition": "Si [Paiement] = \"Virement\"",
+      "option1": "7.3.2. – Virements sur compte bancaire\nLe paiement des loyers en principal et accessoires et plus généralement de toutes sommes dues par le Preneur au Bailleur au titre du présent Bail sera effectué par virement bancaire.\n\nIl est toutefois expressément convenu entre les Parties qu’en cas de changement d’exploitant, le Bailleur aura la possibilité d’exiger du nouvel exploitant un paiement par prélèvement bancaire des sommes dues au titre du Bail",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 7.6": [
+    {
+      "index": 39,
+      "designation": "Droit d'entrée",
+      "nom_source": null,
+      "donnee_source": "Droit d'entrée",
+      "condition": "Si [Droit d'entrée] non vide",
+      "option1": "7.6. – Droit d’entrée\n\nLe Preneur verse au Bailleur, à titre de droit d’entrée, le jour de la signature des présentes, en un chèque de banque / virement bancaire, la somme de [Droit d'entrée] € HT ([Droit d'entrée en lettres] EUROS HORS TAXES). \n\nLes Parties conviennent d’un commun accord que ce droit d’entrée correspond à une indemnité en contrepartie des avantages de la propriété commerciale, laquelle ne s’entend pas comme un complément de loyer et n’est pas soumise à la TVA.\n\nCette somme sera totalement et définitivement acquise au Bailleur sans qu’il puisse être tenu d’en restituer tout ou partie au Preneur pour quelque cause que ce soit et alors même que le Bail consenti viendrait à prendre fin avant son expiration normale pour quelque motif que ce soit.",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 8": [
+    {
+      "index": 40,
+      "designation": "Garanties",
+      "nom_source": null,
+      "donnee_source": "Durée DG",
+      "condition": "Si [Durée DG] non vide",
+      "option1": "8.1. – Dépôt de Garantie\n\nPour garantir l’ensemble des obligations lui incombant, le Preneur verse au Bailleur, au jour de la signature des présentes, un dépôt de garantie représentant [Durée du DG] mois de loyer hors charges et hors taxes, soit la somme de [Montant du DG] € ([Montant du DG en lettres]EUROS). \n\nLe dépôt de garantie sera conservé par le Bailleur et ne sera pas productif d’intérêts au profit du Preneur.\n\nIl est expressément convenu que dans le cas où par l’effet de l’indexation, le loyer tel que stipulé ci-dessus, serait augmenté ou diminué, la somme versée à titre de dépôt de garantie sera également, de plein droit et sans formalité, augmentée ou diminuée dans la même proportion.\n\nEn tout état de cause, le dépôt de garantie ne pourra être inférieur au [Période DG] du loyer effectivement exigible au cours de l’année précédente.\n\nLe Bailleur aura le droit de prélever, en cours de Bail, sans formalité sur ledit dépôt de garantie le montant des loyers échus et non réglés ainsi que toute autre somme exigible à un titre quelconque, auquel cas le Preneur sera tenu de compléter à première demande du Bailleur le dépôt de garantie pour le maintenir toujours égal à un terme de loyer.\n\nLa compensation étant expressément prévue, le Bailleur exercera, ainsi, sur les sommes nanties à son profit toutes les prérogatives y attachées en conformité avec les articles 2073 et suivants du Code civil.\n\nEn cas de cession du fonds de commerce ou de cession du droit au Bail dûment autorisé, le montant du dépôt de garantie sera remboursé par le cessionnaire au cédant.\n\nEn cas de résiliation du présent Bail par suite d’inexécution par le Preneur de ses engagements ou pour une cause quelconque imputable au Preneur, ledit dépôt de garantie restera acquis au Bailleur à titre de premiers dommages et intérêts sans préjudice de tous autres.\n\nCette somme sera rendue au Preneur en fin de location après remise des clefs, paiement de tous les loyers et charges, de même que toute somme dont il pourrait être débiteur envers le Bailleur ou dont celui-ci pourrait être rendu responsable par le fait du Preneur à quelque titre que ce soit.\n\nLors du départ du Preneur, pour quelque cause que ce soit, le dépôt de garantie s'imputera par priorité sur le montant des réparations dues par le Preneur.\n\nEn cas de transmission de la propriété des Locaux Loués et sur lesquels porte le Bail, notamment en cas de vente ou d'apport à une autre société, le dépôt de garantie sera transféré de plein droit aux nouveaux propriétaires successifs des Locaux Loués qui deviendront seuls débiteurs à l’égard du Preneur, ce que ce dernier reconnait et s’engage à ne réclamer le remboursement qu’auxdits acquéreurs.",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 41,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Durée GAPD",
+      "condition": "Si [Durée GAPD] non nul",
+      "option1": "8.2. – Garantie à Première Demande\n\nPour garantir l'ensemble des obligations lui incombant au titre des présentes, le Preneur s’engage à remettre au Bailleur, dans un délai de [++] mois de la signature des présentes, soit au plus tard le [+++], une garantie bancaire à première demande émanant d'une banque française de premier ordre ayant son siège social en France conforme au modèle ci-après annexé, couvrant le paiement de l'ensemble des loyers, charges et accessoires, impôts et taxes, indemnités d'occupation ainsi que toutes sommes dues en exécution de l'ensemble des clauses et conditions du présent Bail.\n\nLe Bailleur reconnaît avoir reçu ce jour de la part du Preneur un virement bancaire / un chèque de banque d’un montant équivalent à celui de la garantie à première demande. Le Bailleur restituera ce montant au Preneur dans un délai maximum d’1 (UN) mois à compter de la réception de la garantie bancaire en bonne et due forme. Il est convenu néanmoins que si le Preneur ne remettait pas de garantie bancaire dans le délai accordé ci-dessus, le virement réalisé par le Preneur le jour de la signature du Bail sera définitivement conservé par le Bailleur à titre de garantie complémentaire / le chèque de banque remis par le Preneur le jour de la signature du Bail sera présenté à l’encaissement et servira de garantie complémentaire.\n\nLes Parties conviennent que le montant encaissé ne produira pas d’intérêt en faveur du Preneur et qu’en aucun cas il ne pourra être assimilé à une indemnité forfaitaire et définitive.\n\nDans le cas d’une mise en jeu totale ou partielle de la garantie bancaire, le Preneur s’oblige à délivrer dans le mois au Bailleur une nouvelle garantie bancaire d’un montant identique à celui de la garantie bancaire mise en jeu.\n\nCette garantie sera limitée à [Durée GAPD] ([Durée GAPD en lettres]) mois de loyer HT soit la somme de [Montant GAPD] € ([Montant GAPD en lettres] EUROS TOUTES TAXES COMPRISES) et pourra être mise en jeu par le Bailleur en une ou plusieurs fois. Le montant de cette garantie sera indexé, chaque année à la date d’anniversaire de la prise d’effet du bail en fonction de l’évolution de l’indice des loyers commerciaux publié par l’INSEE dans les mêmes proportions que le loyer du bail.\n\nChaque paiement effectué par la banque en vertu des présentes obligera le Preneur à reconstituer ladite garantie, de telle sorte que celle-ci soit toujours égale à [Durée GAPD] ([Durée GAPD en lettres]) mois de loyer TTC pendant toute la durée du bail. \n\nCette garantie constitue une garantie à première demande autonome et indépendante et ne pourra en aucun cas être interprétée comme un engagement accessoire ou un cautionnement régi par les articles 2288 et suivants du Code civil.\n\nEn cas de mise en jeu de la garantie susmentionnée, de même qu'en cas de réajustement conventionnel du loyer en cours de bail, une nouvelle garantie de même montant et de même durée devra être remise au Bailleur, de telle sorte que la garantie ainsi offerte se trouve renouvelée et que le contrat de bail ne puisse être poursuivi sans garantie.\n\nLa présente garantie bancaire liera les successeurs ayant droit de la banque à quelque titre que ce soit, en ce compris d'un fait d'une fusion, cession ou apport partiel d'actif.\n\nEn outre, en cas de transmission de la propriété des Locaux Loués et sur lesquels porte le bail, notamment en cas de vente ou d'apport à une autre société, la garantie bénéficiera de plein droit aux nouveaux propriétaires successifs des Locaux Loués.\n\nEn cas de transmission du fonds de commerce ou du droit au bail par quelque mode que ce soit y compris en application de l’article L.145-16 du code de commerce, le nouveau Preneur devra remettre au Bailleur une nouvelle garantie bancaire à première demande d’un même montant et aux mêmes conditions et ce le jour de la signature de l’acte actant du transfert.\n\nEn cas de poursuite en tacite prolongation du bail en cours, le Preneur devra remettre au Bailleur une nouvelle garantie dans les mêmes termes et conditions, notamment de durée, au plus tard trois mois précédant le terme contractuel du Bail. À défaut, le Bailleur aura la faculté d’appeler la garantie. Il restituera les sommes perçues de ce chef dès la remise d’une nouvelle garantie. \n\nEn cas de renouvellement de bail, le Preneur s’oblige, dès la prise d’effet du renouvellement de bail à remettre au Bailleur une nouvelle garantie bancaire correspondant à [Durée GAPD] ([Durée GAPD en lettres] LETTRES) mois de loyer TTC du dernier loyer en cours au jour du renouvellement puis à remettre une nouvelle garantie correspondant à [Durée GAPD] ([Durée GAPD en lettres] LETTRES) mois de loyer TTC une fois le loyer de renouvellement fixé, le tout dans les mêmes conditions visées ci-dessus.\n\nEn cas d’ouverture de procédure de redressement ou de liquidation judiciaire à l’encontre du Preneur, le Bailleur pourra demander, si bon lui semble et même en cas de poursuite du bail, la compensation avec les sommes dues au titre du passif, ce conformément aux dispositions des articles L 622-7, L 631-14 et L 641-3 du Code de Commerce.",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 19": [
+    {
+      "index": 42,
+      "designation": "Frais et honoraires",
+      "nom_source": null,
+      "donnee_source": "Honoraires Preneur",
+      "condition": "Si [Honoraires Preneur] non vide",
+      "option1": "Les honoraires de commercialisation dus à la société [Broker] seront répartis comme suit :\n•\t[Honoraires Preneur] € HT HC à la charge du Preneur, exigibles à la livraison des locaux ;\n•\t[Honoraires Bailleur] € HT HC à la charge du Bailleur, exigibles à la livraison des locaux.",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 43,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Honoraires Bailleur",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 44,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Broker",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 22.2": [
+    {
+      "index": 45,
+      "designation": "Validité DPE",
+      "nom_source": null,
+      "donnee_source": "DPE",
+      "condition": "Si [DPE] non nul",
+      "option1": "Le Preneur reconnait avoir reçu avant ce jour le Diagnostic de Performance Énergétique des Locaux Loués, qui en tant que de besoin est annexé aux présentes. Le Bailleur compte mettre à jour le Diagnostic de Performance Énergétique dans les 36 mois à compter de la Date de Prise d’Effet du Bail. A ce titre, le Preneur s’engage à fournir au Bailleur, sur simple demande, les factures d’énergie et d’eau et laissera libre accès aux Locaux Loués au Bailleur ou à son mandataire pour la réalisation dudit diagnostic, sous réserve d’un préavis de 48h.",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 26": [
+    {
+      "index": 46,
+      "designation": "Dispositions particulières",
+      "nom_source": null,
+      "donnee_source": "Nom Preneur",
+      "condition": null,
+      "option1": "ARTICLE 26 – DISPOSITIONS PARTICULIERES\n\nLes Parties insistent sur le fait que le présent Bail a fait l’objet de discussions entre elles.\n\nC’est dans ces conditions que les Parties ont décidé, au moyen du présent article, de conférer à certaines stipulations du Bail et ce, convention expresse entre elles un caractère « intuitu personae » au seul profit de la société [Nom Preneur].\n\nEn conséquence, il est expressément convenu entre les Parties que dans l'hypothèse où celle-ci ne serait plus l'exploitant des Locaux Loués, ou en cas de cession de quelque nature que ce soit, les dispositions du Bail reprendront leur plein et entier effet et que le présent Article deviendra nul et non avenu.\n\nCela étant convenu, le Bail est complété et/ou modifié par les stipulations suivantes : ",
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 26.1": [
+    {
+      "index": 47,
+      "designation": "Paliers",
+      "nom_source": null,
+      "donnee_source": "Montant du loyer",
+      "condition": "Si [Loyer année 1] non vide",
+      "option1": "26.1. – Montant du Loyer – Paliers\nLe loyer annuel est fixé, à compter de la Date de Prise d’Effet du Bail, à la somme de [Montant du loyer] € HT HC ([Montant du loyer en lettres] EUROS HORS TAXES ET HORS CHARGES).\n\nCependant, à titre exceptionnel au Preneur, il est convenu :\n\n‒\tPour la première année du Bail, soit la période de douze (12) mois commençant à courir à compter de la Date de Prise d’Effet des présentes, que le loyer annuel sera réduit de [Montant Palier 1] € HT ([Montant Palier 1 en lettres] EUROS HORS TAXES).\nAutrement dit, pour la première année, le loyer annuel sera de [Loyer année 1] € HT HC ([Loyer année 1 en lettres] EUROS HORS TAXES ET HORS CHARGES).\n\n‒\tPour la deuxième année du Bail, soit la période de douze (12) mois commençant à courir à compter du début de la deuxième année à compter de la Date de Prise d’Effet des présentes, que le loyer annuel indexé (en application de l’article 7.2 du présent Bail) sera réduit de [Montant du Palier 2] € HT ([Montant du Palier 2 en lettres] EUROS HORS TAXES).\nAutrement dit, pour la deuxième année, le loyer annuel sera de [Montant du loyer] € HT HC ([Montant du loyer en lettres] EUROS HORS TAXES ET HORS CHARGES) + indexation - [Montant du Palier 2] € HT ([Montant du Palier 2 en lettres] EUROS HORS TAXES).\n\n‒\tPour la troisième année du Bail, soit la période de douze (12) mois commençant à courir à compter du début de la troisième année à compter de la Date de Prise d’Effet des présentes, que le loyer annuel indexé (en application de l’article 7.2 du présent Bail) sera réduit de [Montant du Palier 3] € HT ([Montant du Palier 3 en lettres] EUROS HORS TAXES).\nAutrement dit, pour la deuxième année, le loyer annuel sera de [Montant du loyer] € HT HC ([Montant du loyer en lettres] EUROS HORS TAXES ET HORS CHARGES) + indexation - [Montant du Palier 3] € HT ([Montant du Palier 3 en lettres] EUROS HORS TAXES).\n\nEn conséquence, le loyer de base annuel, indexé dans les conditions du Bail, sera dû en totalité à compter du [Periode paliers] ème anniversaire de la Date de Prise d’Effet du Bail.\n\nIl est convenu entre les Parties comme dispositions essentielles et déterminantes du Bail, que les réductions de Loyer susvisées cesseront de s’appliquer, en cas de résolution du Bail aux torts du Preneur pour un (des) motif(s) survenus durant la période ferme de [Durée ferme] ans prévue à l’article 2, le Loyer défini à l’article 7.1 du Bail, indexé redevenant immédiatement exigible.",
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 48,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 1",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 49,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 2",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 50,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 3",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 51,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 4",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 52,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 5",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 53,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Loyer année 6",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    },
+    {
+      "index": 54,
+      "designation": null,
+      "nom_source": null,
+      "donnee_source": "Durée ferme Bail",
+      "condition": null,
+      "option1": null,
+      "condition_option2": null,
+      "option2": null
+    }
+  ],
+  "Article 26.2": [
+    {
+      "index": 55,
+      "designation": "Franchise",
+      "nom_source": null,
+      "donnee_source": "Durée Franchise",
+      "condition": "Si [Durée franchise] non vide",
+      "option1": "26.2. – Paiement du loyer – Franchise de loyer\nPar dérogation à l’article 7.3 du Bail, le Loyer ne sera dû qu’à compter de l’expiration d’un délai de [Durée Franchise] ([Durée Franchise en lettres]) mois suivant la Date de Prise d’Effet du Bail, les autres stipulations de l’article 7.3 du Bail restant inchangées.",
+      "condition_option2": null,
+      "option2": null
+    }
+  ]
+}

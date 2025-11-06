@@ -29,7 +29,7 @@ with col1:
     - Export Word
     """)
     if st.button("🚀 Générer une LOI", use_container_width=True, type="primary"):
-        st.switch_page("pages/1_📄_LOI.py")
+        st.switch_page("pages/1_LOI.py")
 
 with col2:
     st.markdown("### 📜 Bail Commercial")
@@ -39,7 +39,7 @@ with col2:
     - Export Word
     """)
     if st.button("🚀 Générer un BAIL", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_📜_BAIL.py")
+        st.switch_page("pages/2_BAIL.py")
 
 st.markdown("---")
 st.markdown("""

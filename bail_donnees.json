@@ -1,0 +1,218 @@
+[
+  {
+    "Données Primaire":"Nom",
+    "Unnamed: 1":"Source"
+  },
+  {
+    "Données Primaire":"Nom Preneur",
+    "Unnamed: 1":"=Validation!B23"
+  },
+  {
+    "Données Primaire":"Type Preneur",
+    "Unnamed: 1":"=Validation!B24"
+  },
+  {
+    "Données Primaire":"Siret Preneur",
+    "Unnamed: 1":"=Validation!B25"
+  },
+  {
+    "Données Primaire":"Société Bailleur",
+    "Unnamed: 1":"='1. Données historiques'!B4"
+  },
+  {
+    "Données Primaire":"Ville ou arrondissement",
+    "Unnamed: 1":"='1. Données historiques'!E4"
+  },
+  {
+    "Données Primaire":"Numéro et rue",
+    "Unnamed: 1":"='1. Données historiques'!D4"
+  },
+  {
+    "Données Primaire":"Date LOI",
+    "Unnamed: 1":"=Validation!B22"
+  },
+  {
+    "Données Primaire":"Enseigne",
+    "Unnamed: 1":"='3. Hypothèses'!E45"
+  },
+  {
+    "Données Primaire":"Statut Locaux loués",
+    "Unnamed: 1":"='1. Données historiques'!J4"
+  },
+  {
+    "Données Primaire":"Durée Bail",
+    "Unnamed: 1":"='3. Hypothèses'!E10"
+  },
+  {
+    "Données Primaire":"Durée ferme Bail",
+    "Unnamed: 1":"='3. Hypothèses'!E11"
+  },
+  {
+    "Données Primaire":"Date prise d'effet",
+    "Unnamed: 1":"='3. Hypothèses'!E7"
+  },
+  {
+    "Données Primaire":"Destination",
+    "Unnamed: 1":"=Validation!B27"
+  },
+  {
+    "Données Primaire":"Condition suspensive 1",
+    "Unnamed: 1":"='3. Hypothèses'!E38"
+  },
+  {
+    "Données Primaire":"Condition suspensive 2",
+    "Unnamed: 1":"='3. Hypothèses'!E39"
+  },
+  {
+    "Données Primaire":"Condition suspensive 3",
+    "Unnamed: 1":"='3. Hypothèses'!E40"
+  },
+  {
+    "Données Primaire":"Condition suspensive 4",
+    "Unnamed: 1":"='3. Hypothèses'!E41"
+  },
+  {
+    "Données Primaire":"Montant du loyer ",
+    "Unnamed: 1":"='3. Hypothèses'!E8"
+  },
+  {
+    "Données Primaire":"Loyer année 1",
+    "Unnamed: 1":"='3. Hypothèses'!F16"
+  },
+  {
+    "Données Primaire":"Loyer année 2",
+    "Unnamed: 1":"='3. Hypothèses'!F17"
+  },
+  {
+    "Données Primaire":"Loyer année 3",
+    "Unnamed: 1":"='3. Hypothèses'!F18"
+  },
+  {
+    "Données Primaire":"Loyer année 4",
+    "Unnamed: 1":"='3. Hypothèses'!F19"
+  },
+  {
+    "Données Primaire":"Loyer année 5",
+    "Unnamed: 1":"='3. Hypothèses'!F20"
+  },
+  {
+    "Données Primaire":"Loyer année 6",
+    "Unnamed: 1":"='3. Hypothèses'!F21"
+  },
+  {
+    "Données Primaire":"Droit d'entrée",
+    "Unnamed: 1":"='3. Hypothèses'!E9"
+  },
+  {
+    "Données Primaire":"Accession",
+    "Unnamed: 1":"='3. Hypothèses'!E47"
+  },
+  {
+    "Données Primaire":"Actualisation",
+    "Unnamed: 1":"='3. Hypothèses'!E48"
+  },
+  {
+    "Données Primaire":"Durée Franchise",
+    "Unnamed: 1":"='3. Hypothèses'!E23"
+  },
+  {
+    "Données Primaire":"Participation Travaux",
+    "Unnamed: 1":"='3. Hypothèses'!E25"
+  },
+  {
+    "Données Primaire":"Remboursement",
+    "Unnamed: 1":"='3. Hypothèses'!E53"
+  },
+  {
+    "Données Primaire":"Paiement",
+    "Unnamed: 1":"='3. Hypothèses'!E49"
+  },
+  {
+    "Données Primaire":"Durée DG",
+    "Unnamed: 1":"='3. Hypothèses'!E42"
+  },
+  {
+    "Données Primaire":"Duré GAPD",
+    "Unnamed: 1":"='3. Hypothèses'!E43"
+  },
+  {
+    "Données Primaire":"Surface totale",
+    "Unnamed: 1":"='1. Données historiques'!G4"
+  },
+  {
+    "Données Primaire":"Surface RDC",
+    "Unnamed: 1":"='1. Données historiques'!I4"
+  },
+  {
+    "Données Primaire":"Broker",
+    "Unnamed: 1":"='3. Hypothèses'!E50"
+  },
+  {
+    "Données Primaire":"Honoraires Preneur",
+    "Unnamed: 1":"='3. Hypothèses'!E51"
+  },
+  {
+    "Données Primaire":"Honoraires Bailleur",
+    "Unnamed: 1":"='3. Hypothèses'!E52"
+  },
+  {
+    "Données Primaire":"DPE",
+    "Unnamed: 1":"='4. Grille ESG'!H91"
+  },
+  {
+    "Données Primaire":"Restauration sans extraction",
+    "Unnamed: 1":"='3. Hypothèses'!E46"
+  },
+  {
+    "Données Primaire":"Adresse Locaux Loués",
+    "Unnamed: 1":"\"[Ville ou arrondissement], [Numéro et rue]\""
+  },
+  {
+    "Données Primaire":"Montant du palier 1",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 1]"
+  },
+  {
+    "Données Primaire":"Montant du palier 2",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 2]"
+  },
+  {
+    "Données Primaire":"Montant du palier 3",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 3]"
+  },
+  {
+    "Données Primaire":"Montant du palier 4",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 4]"
+  },
+  {
+    "Données Primaire":"Montant du palier 5",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 5]"
+  },
+  {
+    "Données Primaire":"Montant du palier 6",
+    "Unnamed: 1":"=[Montant du loyer] - [Loyer année 6]"
+  },
+  {
+    "Données Primaire":"Surface R-1",
+    "Unnamed: 1":"=[Surface totale] - [Surface RDC]"
+  },
+  {
+    "Données Primaire":"Type Bail ",
+    "Unnamed: 1":"Si [Durée Bail] = 9 ; \"3\/6\/9\";\nSi [Durée Bail] = 10 ; \"6\/9\/10\"."
+  },
+  {
+    "Données Primaire":null,
+    "Unnamed: 1":null
+  },
+  {
+    "Données Primaire":"Date de signature",
+    "Unnamed: 1":"=[Date d'aujourd'hui] + 15 jours"
+  },
+  {
+    "Données Primaire":"Montant du DG",
+    "Unnamed: 1":"=[Montant du loyer]\/12*[Durée DG]"
+  },
+  {
+    "Données Primaire":"Période DG",
+    "Unnamed: 1":"Si [Durée DG] = 3 ; \"quart\" ;\nSi [Durée DG] = 4 ; \"tiers\";\nSi [Durée DG] = 6 ; \"moitier\";"
+  }
+]

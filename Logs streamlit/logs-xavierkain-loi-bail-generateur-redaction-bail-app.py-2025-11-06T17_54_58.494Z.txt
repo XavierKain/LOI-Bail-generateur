@@ -1,0 +1,699 @@
+
+[     UTC     ] Logs for redaction-bail.streamlit.app/
+────────────────────────────────────────────────────────────────────────────────────────
+[17:04:26] 🚀 Starting up repository: 'loi-bail-generateur', branch: 'redaction-bail', main module: 'app.py'
+[17:04:26] 🐙 Cloning repository...
+[17:04:27] 🐙 Cloning into '/mount/src/loi-bail-generateur'...
+
+[17:04:27] 🐙 Cloned repository!
+[17:04:27] 🐙 Pulling code changes from Github...
+[17:04:27] 📦 Processing dependencies...
+
+──────────────────────────────────────── uv ───────────────────────────────────────────
+
+Using uv pip install.
+Using Python 3.13.9 environment at /home/adminuser/venv
+Resolved 48 packages in 1.48s
+Prepared 48 packages in 1.97s
+Installed 48 packages in 187ms
+ + altair==5.5.0
+ + attrs==25.4.0
+ + beautifulsoup4==4.14.2
+ + blinker==1.9.0
+ + cachetools==6.2.1
+ + certifi==2025.10.5
+ + charset-normalizer==3.4.4
+ + click==8.3.0
+ + cloudscraper==1.2.71
+ + et-xmlfile==2.0.0
+ + gitdb==4.0.12
+ +[2025-11-06 17:04:31.892789]  gitpython==3.1.45
+ + idna==3.11
+ + jinja2==3.1.6
+ + jsonschema==4.25.1
+ + jsonschema-specifications==2025.9.1
+ + lxml==6.0.2
+ + markupsafe==3.0.3
+ + narwhals==2.10.2
+ + numpy==2.3.4
+ + openpyxl==3.1.5
+ + packaging==25.0
+ + pandas==2.3.3
+ + pillow==12.0.0
+ + protobuf==6.33.0
+ + pyarrow==21.0.0
+ + pydeck==0.9.1
+ + pyparsing==3.2.5[2025-11-06 17:04:31.893283] 
+ + python-dateutil==2.9.0.post0
+ + python-docx==1.2.0
+ + python-dotenv==1.2.1
+ + pytz==2025.2
+ + ratelimit==2.2.1
+ + referencing==0.37.0
+ + [2025-11-06 17:04:31.893470] requests==2.32.5
+ + requests-toolbelt==1.0.0
+ + rpds-py==0.28.0
+ + six==1.17.0
+ + smmap==5.0.2
+ + soupsieve==2.8
+ + streamlit==[2025-11-06 17:04:31.893654] 1.51.0
+ + tenacity==9.1.2
+ + toml==0.10.2
+ + tornado==6.5.2
+ + typing-extensions==4.15.0
+ + tzdata==2025.2
+ + urllib3[2025-11-06 17:04:31.893830] ==2.5.0
+ + watchdog==6.0.0
+Checking if Streamlit is installed
+Found Streamlit version 1.51.0 in the environment
+Installing rich for an improved exception logging
+Using uv pip install.
+Using Python 3.13.9 environment at /home/adminuser/venv
+Resolved 4 packages in 150ms
+Prepared 4 packages in 162ms
+Installed 4 packages in 14ms
+ + markdown-it-py==[2025-11-06 17:04:33.514667] 4.0.0
+ + mdurl==0.1.2
+ + pygments==2.19.2
+ + rich==14.2.0
+
+────────────────────────────────────────────────────────────────────────────────────────
+
+[17:04:33] 🐍 Python dependencies were installed from /mount/src/loi-bail-generateur/requirements.txt using uv.
+Check if streamlit is installed
+Streamlit is already installed
+[17:04:35] 📦 Processed dependencies!
+2025-11-06 17:04:35.957 "client.showWarningOnDirectExecution" is not a valid config option. If you previously had this config option set, it may have been removed.
+
+
+
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Data Validation extension is not supported and will be removed
+  warn(msg)
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Unknown extension is not supported and will be removed
+  warn(msg)
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Conditional Formatting extension is not supported and will be removed
+  warn(msg)
+2025-11-06 17:05:02,653 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:05:02,654 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:05:02,655 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:05:02,655 - modules.inpi_client - WARNING - Credentials INPI non configurés - enrichissement désactivé
+2025-11-06 17:05:02,655 - modules.excel_parser - WARNING - Client INPI non configuré (credentials manquants)
+2025-11-06 17:05:02,655 - modules.excel_parser - WARNING - ✗ Enrichissement INPI échoué: Client INPI non configuré (credentials manquants)
+2025-11-06 17:05:02,655 - modules.excel_parser - INFO - 44 variables extraites
+2025-11-06 17:05:02,656 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+2025-11-06 17:05:52,543 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:05:52,543 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:05:52,545 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:05:52,545 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:05:52,545 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:05:52,545 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:05:53,744 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:05:54,769 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:05:54,770 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:05:56,084 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:05:56,604 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:05:56,606 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:05:56,607 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:05:56,607 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:05:56,608 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+2025-11-06 17:07:08,704 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:07:08,704 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:07:08,705 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:07:08,705 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:07:08,705 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:07:08,705 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:07:09,847 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:07:10,863 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:07:10,863 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:07:12,124 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:07:12,359 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:07:12,361 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:07:12,361 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:07:12,361 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:07:12,361 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+[17:35:32] 🐙 Pulling code changes from Github...
+[17:35:33] 📦 Processing dependencies...
+[17:35:33] 📦 Processed dependencies!
+[17:35:34] 🔄 Updated app!
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Data Validation extension is not supported and will be removed
+  warn(msg)
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Unknown extension is not supported and will be removed
+  warn(msg)
+/home/adminuser/venv/lib/python3.13/site-packages/openpyxl/worksheet/_reader.py:329: UserWarning: Conditional Formatting extension is not supported and will be removed
+  warn(msg)
+2025-11-06 17:36:30,470 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:36:30,470 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:36:30,471 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:36:30,471 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:36:30,471 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:36:30,471 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:36:31,338 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:36:32,363 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:36:32,363 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:36:33,694 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:36:33,938 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:36:33,939 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:36:33,940 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:36:33,940 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:36:33,940 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+2025-11-06 17:37:24,956 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:37:24,956 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:37:24,957 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:37:24,957 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:37:24,957 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:37:24,957 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:37:26,094 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:37:27,071 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:37:27,071 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:37:28,338 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:37:28,674 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:37:28,675 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:37:28,676 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:37:28,676 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:37:28,676 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+2025-11-06 17:37:55,432 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:37:55,432 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:37:55,434 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:37:55,434 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:37:55,434 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:37:55,434 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:37:56,534 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:37:57,597 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:37:57,598 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:37:58,889 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:37:59,282 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:37:59,283 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:37:59,284 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:37:59,284 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:37:59,284 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+2025-11-06 17:37:59,372 - modules.loi_generator - INFO - Générateur LOI initialisé
+2025-11-06 17:37:59,372 - modules.loi_generator - INFO - Génération du document LOI: output/2025 10 08 - LOI KARAVEL.docx
+2025-11-06 17:37:59,389 - modules.loi_generator - WARNING - Placeholder manquant (rouge): A l’attention de M./Mme [.]...
+2025-11-06 17:37:59,404 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Signataire du bail : [Nom Preneur], représentée pa...
+2025-11-06 17:37:59,415 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Condition(s) suspensive(s) : à réaliser au plus ta...
+2025-11-06 17:37:59,441 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Charges : bail net de toutes charges. Seront refac...
+2025-11-06 17:37:59,445 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Taxe foncière : remboursée par le preneur au baill...
+2025-11-06 17:37:59,449 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Honoraires de commercialisation : à la charge du p...
+2025-11-06 17:37:59,466 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Date de prise d’effet : à la levée des condition(s...
+2025-11-06 17:37:59,475 - modules.loi_generator - WARNING - Placeholder manquant (rouge): Cette contre-offre est valable jusqu’au [.], passé...
+2025-11-06 17:37:59,481 - modules.loi_generator - WARNING - Placeholder manquant (rouge): La présente proposition et son contenu sont strict...
+2025-11-06 17:37:59,489 - modules.loi_generator - WARNING - Placeholder manquant (rouge): [Nom Preneur],
+représentée par M./Mme [.], fonctio...
+2025-11-06 17:37:59,492 - modules.loi_generator - INFO - Headers/Footers mis à jour pour: SCI HSR 2
+2025-11-06 17:37:59,506 - modules.loi_generator - INFO - Document généré: output/2025 10 08 - LOI KARAVEL.docx
+2025-11-06 17:38:24,023 - modules.excel_parser - INFO - Fichier Excel chargé: temp_uploaded.xlsx
+2025-11-06 17:38:24,023 - modules.excel_parser - INFO - Configuration chargée: Rédaction LOI.xlsx
+2025-11-06 17:38:24,025 - modules.excel_parser - INFO - SIRET détecté: 532321916 - Enrichissement INPI en cours...
+2025-11-06 17:38:24,026 - modules.inpi_client - INFO - Client INPI initialisé
+2025-11-06 17:38:24,026 - modules.inpi_client - INFO - Recherche INPI pour SIREN: 532321916
+2025-11-06 17:38:24,026 - modules.inpi_client - INFO - Authentification INPI en cours...
+2025-11-06 17:38:25,218 - modules.inpi_client - INFO - Authentification INPI réussie
+2025-11-06 17:38:26,209 - modules.inpi_client - INFO - Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...
+2025-11-06 17:38:26,210 - modules.inpi_client - INFO - Tentative de scraping INPI pour SIREN 532321916
+2025-11-06 17:38:27,506 - modules.inpi_client - INFO - Scraping INPI réussi (HTTP 200) pour SIREN 532321916
+2025-11-06 17:38:27,933 - modules.inpi_client - INFO - Dirigeant (dénomination) trouvé pour SIREN 532321916: CHARLES
+2025-11-06 17:38:27,936 - modules.inpi_client - INFO - Enrichissement INPI réussi pour CARAVEL-KARAVELLE-KARAVELE-CARAVELL-CARVAIL-KVL VOYAGES
+2025-11-06 17:38:27,936 - modules.excel_parser - INFO - ✓ Enrichissement INPI réussi
+2025-11-06 17:38:27,937 - modules.excel_parser - INFO - 43 variables extraites
+2025-11-06 17:38:27,938 - modules.excel_parser - INFO - 10 sociétés bailleures chargées
+[17:42:05] 🐙 Pulling code changes from Github...
+2025-11-06 17:42:05.719 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:42:05.722 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+[17:42:05] 📦 Processing dependencies...
+[17:42:05] 📦 Processed dependencies!
+[17:42:07] 🔄 Updated app!
+2025-11-06 17:42:48.899 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:42:48.900 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:28.347 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:28.348 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+[17:44:28] ❗️ 
+2025-11-06 17:44:28.446 503 GET /script-health-check (127.0.0.1) 101.90ms
+2025-11-06 17:44:33.342 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:33.343 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:33.441 503 GET /script-health-check (127.0.0.1) 101.50ms
+2025-11-06 17:44:38.346 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:38.348 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:38.446 503 GET /script-health-check (127.0.0.1) 101.93ms
+2025-11-06 17:44:43.342 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:43.344 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:43.441 503 GET /script-health-check (127.0.0.1) 101.85ms
+2025-11-06 17:44:48.341 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:48.343 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:48.441 503 GET /script-health-check (127.0.0.1) 102.17ms
+2025-11-06 17:44:53.348 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:53.349 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:53.448 503 GET /script-health-check (127.0.0.1) 102.82ms
+2025-11-06 17:44:58.339 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:44:58.340 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:44:58.439 503 GET /script-health-check (127.0.0.1) 101.96ms
+2025-11-06 17:45:03.349 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:03.351 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:03.449 503 GET /script-health-check (127.0.0.1) 101.65ms
+2025-11-06 17:45:08.347 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:08.349 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:08.447 503 GET /script-health-check (127.0.0.1) 101.98ms
+2025-11-06 17:45:13.357 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:13.359 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:13.457 503 GET /script-health-check (127.0.0.1) 102.51ms
+2025-11-06 17:45:18.354 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:18.355 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:18.453 503 GET /script-health-check (127.0.0.1) 102.29ms
+2025-11-06 17:45:23.351 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:23.353 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:23.451 503 GET /script-health-check (127.0.0.1) 101.99ms
+2025-11-06 17:45:28.347 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:28.348 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:28.447 503 GET /script-health-check (127.0.0.1) 102.41ms
+2025-11-06 17:45:33.349 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:33.350 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:33.449 503 GET /script-health-check (127.0.0.1) 102.26ms
+2025-11-06 17:45:38.358 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:38.360 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:38.457 503 GET /script-health-check (127.0.0.1) 101.47ms
+2025-11-06 17:45:43.345 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:43.347 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:43.445 503 GET /script-health-check (127.0.0.1) 101.48ms
+2025-11-06 17:45:48.351 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:48.352 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:48.450 503 GET /script-health-check (127.0.0.1) 102.23ms
+2025-11-06 17:45:53.358 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:53.359 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:53.457 503 GET /script-health-check (127.0.0.1) 101.73ms
+2025-11-06 17:45:58.347 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:45:58.349 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-11-06 17:45:58.446 503 GET /script-health-check (127.0.0.1) 101.81ms
+2025-11-06 17:46:03.351 Script compilation error
+Traceback (most recent call last):
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 571, in _run_script
+    code = self._script_cache.get_bytecode(script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/script_cache.py", line 72, in get_bytecode
+    filebody = magic.add_magic(filebody, script_path)
+  File "/home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptrunner/magic.py", line 45, in add_magic
+    tree = ast.parse(code, script_path, "exec")
+  File "/usr/local/lib/python3.13/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "/mount/src/loi-bail-generateur/app.py", line 71
+    if uploaded_file is not None:
+                                 ^
+IndentationError: unindent does not match any outer indentation level
+2025-11-06 17:46:03.353 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+[17:46:03] 🐙 Pulling code changes from Github...
+2025-11-06 17:46:03.450 503 GET /script-health-check (127.0.0.1) 102.18ms
+[17:46:03] 📦 Processing dependencies...
+[17:46:03] 📦 Processed dependencies!
+[17:46:05] 🔄 Updated app!
+2025-11-06 17:46:46,709 - modules.bail_generator - INFO - Règles BAIL chargées: 56 lignes
+2025-11-06 17:46:46,709 - modules.bail_generator - INFO - Début de la génération du BAIL
+2025-11-06 17:46:46,710 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Comparution'
+2025-11-06 17:46:46,710 - modules.bail_generator - WARNING - Article non généré: Comparution
+2025-11-06 17:46:46,710 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article préliminaire'
+2025-11-06 17:46:46,711 - modules.bail_generator - WARNING - Article non généré: Article préliminaire
+2025-11-06 17:46:46,711 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Adresse Locaux Loués]
+2025-11-06 17:46:46,711 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Surface totale]
+2025-11-06 17:46:46,711 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [.]
+2025-11-06 17:46:46,711 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [.]
+2025-11-06 17:46:46,712 - modules.bail_generator - WARNING - Impossible de comparer None avec 9
+2025-11-06 17:46:46,712 - modules.bail_generator - WARNING - Impossible de comparer None avec 9
+2025-11-06 17:46:46,712 - modules.bail_generator - WARNING - Impossible de comparer None avec 9
+2025-11-06 17:46:46,712 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 2'
+2025-11-06 17:46:46,712 - modules.bail_generator - WARNING - Article non généré: Article 2
+2025-11-06 17:46:46,713 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Destination]
+2025-11-06 17:46:46,713 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Enseigne]
+2025-11-06 17:46:46,713 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 5.3'
+2025-11-06 17:46:46,713 - modules.bail_generator - WARNING - Article non généré: Article 5.3
+2025-11-06 17:46:46,714 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Montant du loyer]
+2025-11-06 17:46:46,714 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Montant du loyer en lettres]
+2025-11-06 17:46:46,714 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 7.2'
+2025-11-06 17:46:46,714 - modules.bail_generator - WARNING - Article non généré: Article 7.2
+2025-11-06 17:46:46,715 - modules.bail_generator - WARNING - Aucune règle trouvée pour l'article 'Article 7.3'
+2025-11-06 17:46:46,715 - modules.bail_generator - WARNING - Article non généré: Article 7.3
+2025-11-06 17:46:46,715 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 7.6'
+2025-11-06 17:46:46,715 - modules.bail_generator - WARNING - Article non généré: Article 7.6
+2025-11-06 17:46:46,716 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 8'
+2025-11-06 17:46:46,716 - modules.bail_generator - WARNING - Article non généré: Article 8
+2025-11-06 17:46:46,716 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 19'
+2025-11-06 17:46:46,716 - modules.bail_generator - WARNING - Article non généré: Article 19
+2025-11-06 17:46:46,716 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 22.2'
+2025-11-06 17:46:46,717 - modules.bail_generator - WARNING - Article non généré: Article 22.2
+2025-11-06 17:46:46,717 - modules.bail_generator - WARNING - Placeholder non trouvé dans les données: [Nom Preneur]
+2025-11-06 17:46:46,717 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 26.1'
+2025-11-06 17:46:46,717 - modules.bail_generator - WARNING - Article non généré: Article 26.1
+2025-11-06 17:46:46,718 - modules.bail_generator - WARNING - Aucune condition satisfaite pour l'article 'Article 26.2'
+2025-11-06 17:46:46,718 - modules.bail_generator - WARNING - Article non généré: Article 26.2
+2025-11-06 17:46:46,718 - modules.bail_generator - INFO - Génération terminée: 4 articles générés
+2025-11-06 17:46:46,722 - modules.bail_word_generator - INFO - Template BAIL chargé: Template BAIL avec placeholder.docx
+2025-11-06 17:46:46,723 - modules.bail_word_generator - INFO - Début de la génération du document BAIL Word
+2025-11-06 17:46:46,762 - modules.bail_word_generator - INFO - Document BAIL généré: output/BAIL - Client - .docx
+[17:52:51] 🐙 Pulling code changes from Github...
+[17:52:51] 📦 Processing dependencies...
+[17:52:51] 📦 Processed dependencies!
+[17:52:52] 🔄 Updated app!
+────────────────────── Traceback (most recent call last) ───────────────────────
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/exec_code.py:129 in exec_func_with_error_handling                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:669 in code_to_exec                                     
+                                                                                
+  /mount/src/loi-bail-generateur/app.py:32 in <module>                          
+                                                                                
+     29 # Description                                                           
+     30 st.markdown("""                                                         
+     31 Cette application génère automatiquement des documents LOI (Lettres d'  
+  ❱  32                                                                         
+     33 ### Comment ça marche ?                                                 
+     34 1. **Uploadez** votre fichier Excel (Fiche de décision)                 
+     35 2. **Vérifiez** les données extraites                                   
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/metrics_  
+  util.py:447 in wrapped_func                                                   
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/commands/executi  
+  on_control.py:222 in switch_page                                              
+────────────────────────────────────────────────────────────────────────────────
+StreamlitAPIException: Could not find page: `pages/1_📄_LOI.py`. Must be the 
+file path relative to the main script, from the directory: 
+`loi-bail-generateur`. Only the main app file and files in the `pages/` 
+directory are supported.
+────────────────────── Traceback (most recent call last) ───────────────────────
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/exec_code.py:129 in exec_func_with_error_handling                        
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/scriptru  
+  nner/script_runner.py:669 in code_to_exec                                     
+                                                                                
+  /mount/src/loi-bail-generateur/app.py:42 in <module>                          
+                                                                                
+    39 │   - Export Word                                                        
+    40 │   """)                                                                 
+    41 │   if st.button("🚀 Générer un BAIL", use_container_width=True, type="  
+  ❱ 42 │   │   st.switch_page("pages/2_📜_BAIL.py")                             
+    43                                                                          
+    44 st.markdown("---")                                                       
+    45 st.markdown("""                                                          
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/runtime/metrics_  
+  util.py:447 in wrapped_func                                                   
+                                                                                
+  /home/adminuser/venv/lib/python3.13/site-packages/streamlit/commands/executi  
+  on_control.py:222 in switch_page                                              
+────────────────────────────────────────────────────────────────────────────────
+StreamlitAPIException: Could not find page: `pages/2_📜_BAIL.py`. Must be the 
+file path relative to the main script, from the directory: 
+`loi-bail-generateur`. Only the main app file and files in the `pages/` 
+directory are supported.

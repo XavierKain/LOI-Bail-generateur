@@ -5,7 +5,7 @@ Page de génération de BAIL Commercial
 import streamlit as st
 import logging
 from pathlib import Path
-from modules import BailExcelParser, BailGenerator, BailWordGenerator
+from modules import ExcelParser, BailGenerator, BailWordGenerator
 import traceback
 
 # Configuration du logging
@@ -70,9 +70,14 @@ if uploaded_file is not None:
 
         # Extraire les données
         with st.spinner("Extraction des données..."):
-            parser = BailExcelParser(str(temp_path), str(config_path))
-            donnees = parser.extract_variables()
-            output_filename = parser.get_output_filename(donnees)
+            parser = ExcelParser(str(temp_path))
+            donnees = parser.extract_all_variables()
+
+            # Générer le nom du fichier de sortie
+            nom_preneur = donnees.get("Nom Preneur", "Client")
+            date_loi = donnees.get("Date LOI", "")
+            output_filename = f"BAIL - {nom_preneur} - {date_loi}.docx"
+            output_filename = output_filename.replace("/", "-").replace("\\", "-")
 
         st.success(f"✅ {len(donnees)} variables extraites")
 

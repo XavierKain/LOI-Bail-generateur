@@ -1,0 +1,1147 @@
+{
+  "updatedAt": "2025-11-05T18:35:48+01:00",
+  "nombreRepresentantsActifs": 3,
+  "nombreEtablissementsOuverts": 5,
+  "id": "63c06757a4305058d30c0fbf",
+  "formality": {
+    "indicateurStructureEtablissement": false,
+    "siren": "481283901",
+    "content": {
+      "succursaleOuFiliale": "AVEC_ETABLISSEMENT",
+      "formeExerciceActivitePrincipale": "COMMERCIALE",
+      "natureCreation": {
+        "dateCreation": "2005-03-14",
+        "societeEtrangere": false,
+        "formeJuridique": "5499",
+        "formeJuridiqueInsee": "5499",
+        "microEntreprise": false,
+        "etablieEnFrance": true,
+        "salarieEnFrance": true,
+        "relieeEntrepriseAgricole": false,
+        "entrepriseAgricole": false,
+        "eirl": false
+      },
+      "personneMorale": {
+        "adresseEntreprise": {
+          "caracteristiques": {
+            "ambulant": false,
+            "domiciliataire": false
+          },
+          "adresse": {
+            "roleAdressePresent": false,
+            "codePostalPresent": true,
+            "communePresent": true,
+            "codeInseeCommunePresent": true,
+            "typeVoiePresent": true,
+            "voiePresent": true,
+            "voieCodifieePresent": false,
+            "numVoiePresent": true,
+            "indiceRepetitionPresent": false,
+            "distributionSpecialePresent": false,
+            "communeAnciennePresent": false,
+            "rgpdPresent": false,
+            "datePriseEffetAdressePresent": false,
+            "complementLocalisationPresent": false,
+            "communeDeRattachementPresent": false,
+            "caracteristiquesPresent": true,
+            "indicateurValidationBANPresent": true,
+            "cedexPresent": false,
+            "pays": "FRANCE",
+            "codePays": "FRA",
+            "codePostal": "75004",
+            "commune": "PARIS 4E ARRONDISSEMENT",
+            "codeInseeCommune": "75104",
+            "typeVoie": "RUE",
+            "voie": "STE CROIX BRETONNERIE",
+            "numVoie": "39",
+            "caracteristiques": {
+              "ambulant": false,
+              "domiciliataire": false
+            }
+          }
+        },
+        "etablissementPrincipal": {
+          "descriptionEtablissement": {
+            "rolePourEntreprise": "2",
+            "pays": "FRANCE",
+            "siret": "48128390100025",
+            "activiteNonSedentaire": false,
+            "sansActiviteAutreActiviteSiege": false,
+            "indicateurEtablissementPrincipal": true,
+            "statutPourFormalite": "4",
+            "etablissementCorrected": true,
+            "codeApe": "4719B",
+            "etablissementValidated": false,
+            "etablissementRdd": true
+          },
+          "adresse": {
+            "roleAdressePresent": false,
+            "codePostalPresent": true,
+            "communePresent": true,
+            "codeInseeCommunePresent": true,
+            "typeVoiePresent": true,
+            "voiePresent": true,
+            "voieCodifieePresent": false,
+            "numVoiePresent": true,
+            "indiceRepetitionPresent": false,
+            "distributionSpecialePresent": false,
+            "communeAnciennePresent": false,
+            "rgpdPresent": false,
+            "datePriseEffetAdressePresent": false,
+            "complementLocalisationPresent": false,
+            "communeDeRattachementPresent": false,
+            "caracteristiquesPresent": true,
+            "indicateurValidationBANPresent": true,
+            "cedexPresent": false,
+            "pays": "FRANCE",
+            "codePays": "FRA",
+            "codePostal": "75004",
+            "commune": "PARIS 4E ARRONDISSEMENT",
+            "codeInseeCommune": "75104",
+            "typeVoie": "RUE",
+            "voie": "STE CROIX BRETONNERIE",
+            "numVoie": "39",
+            "caracteristiques": {
+              "ambulant": false,
+              "domiciliataire": false
+            }
+          },
+          "activites": [
+            {
+              "categoryCode": "06030100",
+              "activiteId": "9406d8ea-c0db-4262-8232-4181c34ce904",
+              "indicateurPrincipal": true,
+              "indicateurProlongement": false,
+              "dateDebut": "2005-02-25",
+              "exerciceActivite": "P",
+              "indicateurNonSedentaire": false,
+              "formeExercice": "COMMERCIALE",
+              "categorisationActivite1": "06",
+              "categorisationActivite2": "03",
+              "categorisationActivite3": "01",
+              "descriptionDetaillee": "IMPORT, EXPORT, COMMERCE DE DETAILS ET COMMERCE DE GROS D'OBJETSDE MAROQUINERIE, DE GADGETS DIVERS, DE DECORATION, DE MATERIELSRADIO, VIDEO, HIFI, DE CADEAUX, BIMBELOTERIE, DE STYLOS, ACCESSOIRES DE BUREAUX, FLEURS, VETEMENTS, CONFECTION, ACCESSOIRES DE MODE ET TOUTES ACTIVITES DE NEGOCE QUI S'Y RAPPORTERA SANS QUE LA LISTE SOIT LIMITATIVE, CONSEIL EN DECORATION, CONSEIL EN STYLISME DE MODE",
+              "indicateurActiviteeApe": false,
+              "precisionActivite": "10",
+              "indicateurArtisteAuteur": false,
+              "indicateurMarinProfessionnel": false,
+              "rolePrincipalPourEntreprise": true,
+              "codeApe": "4719B",
+              "activiteRattacheeEirl": false,
+              "origine": {
+                "typeOrigine": "3"
+              },
+              "isLocationGeranceOrGeranceMandat": false,
+              "metierArt": false
+            }
+          ],
+          "isLocationGeranceOrGeranceMandat": false
+        },
+        "autresEtablissements": [
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "14",
+              "siret": "48128390100017",
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "dateEffetFermeture": "2007-04-25",
+              "codeApe": "514S",
+              "etablissementValidated": false,
+              "etablissementRdd": true
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": false,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS 04",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "STE CROIX BRETONNERIE",
+              "numVoie": "48"
+            },
+            "activites": [
+              {
+                "activiteId": "6119ebb0-6d74-4cb8-8aa7-718e826cf7e2",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2005-02-25",
+                "dateFin": "2007-04-25",
+                "descriptionDetaillee": "Activité déduite de la reconstitution des données. Il vous est demandé de la reformuler.",
+                "indicateurActiviteeApe": true,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "514S",
+                "activiteRattacheeEirl": false
+              }
+            ]
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "14",
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "siret": "48128390100033",
+              "activiteNonSedentaire": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "dateEffetFermeture": "2020-11-07",
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": true
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "DU TEMPLE",
+              "numVoie": "18",
+              "caracteristiques": {
+                "ambulant": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "fcfcaf3b-0ab0-4bb8-af97-ee93efd22099",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2018-01-01",
+                "dateFin": "2021-06-09",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import, export, commerce de détails et commerce de gros d'objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements, confection, accessoires de mode et toutes activités de négoce qui s'y rapportera sans que la liste soit limitative, conseil en décoration, conseil en stylisme de mode",
+                "indicateurActiviteeApe": false,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                }
+              }
+            ],
+            "registreAnterieur": {
+              "raa": {
+                "estPresent": false
+              },
+              "rnm": {
+                "estPresent": false
+              },
+              "rncs": {
+                "estPresent": true,
+                "dateDebut": "2018-01-01T00:00:00+01:00",
+                "dateFin": "2021-06-09T00:00:00+02:00"
+              }
+            }
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "4",
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "siret": "48128390100041",
+              "activiteNonSedentaire": false,
+              "sansActiviteAutreActiviteSiege": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "etablissementCorrected": true,
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": false
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS 4E ARRONDISSEMENT",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "STE CROIX BRETONNERIE",
+              "numVoie": "52",
+              "caracteristiques": {
+                "ambulant": false,
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "5e3b1267-3853-4986-96ee-eff8bbbb1d0d",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2018-01-01",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import-export, commerce de détails et commerce de gros objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements, confection, accessoire de mode et toutes activités de négoce qui s'y rapportera sans que la liste soit limitative. Conseil en décoration, en stylisme de mode.",
+                "indicateurActiviteeApe": false,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                }
+              }
+            ],
+            "registreAnterieur": {
+              "raa": {
+                "estPresent": false
+              },
+              "rnm": {
+                "estPresent": false
+              },
+              "rncs": {
+                "estPresent": true,
+                "dateDebut": "2018-01-01T00:00:00+01:00"
+              }
+            },
+            "isLocationGeranceOrGeranceMandat": false
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "4",
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "siret": "48128390100058",
+              "activiteNonSedentaire": false,
+              "sansActiviteAutreActiviteSiege": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "etablissementCorrected": true,
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": false
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS 4E ARRONDISSEMENT",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "STE CROIX BRETONNERIE",
+              "numVoie": "42",
+              "caracteristiques": {
+                "ambulant": false,
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "d8361ac1-2c04-4972-8e92-685e3ec4ff69",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2018-01-01",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import-Export, commerce de détails et commerce de gros d'objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, Hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements confection, accessoire de mode, et toutes activités de négoce qui s'y rapportera sans que la liste soit limitative. Conseil en décoration. Conseil en stylisme de mode.",
+                "indicateurActiviteeApe": false,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                }
+              }
+            ],
+            "registreAnterieur": {
+              "raa": {
+                "estPresent": false
+              },
+              "rnm": {
+                "estPresent": false
+              },
+              "rncs": {
+                "estPresent": true,
+                "dateDebut": "2018-01-01T00:00:00+01:00"
+              }
+            },
+            "isLocationGeranceOrGeranceMandat": false
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "14",
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "siret": "48128390100066",
+              "activiteNonSedentaire": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "dateEffetFermeture": "2023-03-01",
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": true
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS 04",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "STE CROIX BRETONNERIE",
+              "numVoie": "43",
+              "caracteristiques": {
+                "ambulant": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "b190b6b2-c999-482b-b416-498ad52c775e",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2018-09-01",
+                "dateFin": "2023-05-31",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import-export, commerce de détails et commerce de gros d'objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements confection, accessoire de mode, et toutes activités de négoce qui s'y rapportera sans que la liste soit limitative. Conseil en décoration. Conseil en stylisme de mode.",
+                "indicateurActiviteeApe": false,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                }
+              }
+            ],
+            "registreAnterieur": {
+              "raa": {
+                "estPresent": false
+              },
+              "rnm": {
+                "estPresent": false
+              },
+              "rncs": {
+                "estPresent": true,
+                "dateDebut": "2018-09-01T00:00:00+02:00",
+                "dateFin": "2023-05-31T00:00:00+02:00"
+              }
+            }
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "4",
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "siret": "48128390100074",
+              "activiteNonSedentaire": false,
+              "sansActiviteAutreActiviteSiege": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "etablissementCorrected": true,
+              "codeApe": "4719B",
+              "etablissementValidated": true,
+              "etablissementRdd": false
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75004",
+              "commune": "PARIS 4E ARRONDISSEMENT",
+              "codeInseeCommune": "75104",
+              "typeVoie": "RUE",
+              "voie": "STE CROIX BRETONNERIE",
+              "numVoie": "40",
+              "caracteristiques": {
+                "ambulant": false,
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "d3a01319-0cfc-4aab-84ba-45266f2b9ba0",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2019-01-01",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import-export, commerce de détails et commerce de gros d'objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements confection, accessoire de mode,toutes activités de négoce qui s'y rapportera sans que la liste soit limitative. Conseil en décoration. Conseil en style.",
+                "indicateurActiviteeApe": false,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                }
+              }
+            ],
+            "registreAnterieur": {
+              "raa": {
+                "estPresent": false
+              },
+              "rnm": {
+                "estPresent": false
+              },
+              "rncs": {
+                "estPresent": true,
+                "dateDebut": "2019-01-01T00:00:00+01:00"
+              }
+            },
+            "isLocationGeranceOrGeranceMandat": false
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "14",
+              "siret": "48128390100082",
+              "sansActiviteAutreActiviteSiege": false,
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "dateEffetFermeture": "2024-09-18",
+              "indicateurSuppression": true,
+              "dateEffetSuppression": "2024-09-18",
+              "motifSuppression": "DUPLICATE_OF_EXISTING_ESTABLISHMENT",
+              "etablissementCorrected": true,
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": false
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "92100",
+              "commune": "BOULOGNE-BILLANCOURT",
+              "codeInseeCommune": "92012",
+              "typeVoie": "BD",
+              "voie": "JEAN JAURES",
+              "numVoie": "177",
+              "caracteristiques": {
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "e3498a76-d65a-45de-a292-153d2fa72a07",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2024-09-18",
+                "dateFin": "2024-09-18",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Concept store pour enfants et adultes, vente de produits de décoration, de mode et d'accessoires de mode. À titre accessoire, vente de produits d'épicerie et de high-tech. ",
+                "indicateurActiviteeApe": false,
+                "precisionActivite": "10",
+                "surface": 200,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                },
+                "isLocationGeranceOrGeranceMandat": false,
+                "metierArt": false
+              }
+            ],
+            "isLocationGeranceOrGeranceMandat": false
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "4",
+              "siret": "48128390100082",
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": true
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "92100",
+              "commune": "Boulogne-Billancourt",
+              "codeInseeCommune": "92012",
+              "typeVoie": "BD",
+              "voie": "Jean Jaurès",
+              "numVoie": "177",
+              "caracteristiques": {
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "e3498a76-d65a-45de-a292-153d2fa72a07",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2024-09-18",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Concept store pour enfants et adultes, vente de produits de décoration, de mode et d'accessoires de mode. À titre accessoire, vente de produits d'épicerie et de high-tech. ",
+                "indicateurActiviteeApe": false,
+                "precisionActivite": "10",
+                "surface": 200,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                },
+                "isLocationGeranceOrGeranceMandat": false,
+                "metierArt": false
+              }
+            ],
+            "isLocationGeranceOrGeranceMandat": false
+          },
+          {
+            "descriptionEtablissement": {
+              "rolePourEntreprise": "4",
+              "siret": "48128390100090",
+              "indicateurEtablissementPrincipal": false,
+              "statutPourFormalite": "4",
+              "codeApe": "4719B",
+              "etablissementValidated": false,
+              "etablissementRdd": true
+            },
+            "adresse": {
+              "roleAdressePresent": false,
+              "codePostalPresent": true,
+              "communePresent": true,
+              "codeInseeCommunePresent": true,
+              "typeVoiePresent": true,
+              "voiePresent": true,
+              "voieCodifieePresent": false,
+              "numVoiePresent": true,
+              "indiceRepetitionPresent": false,
+              "distributionSpecialePresent": false,
+              "communeAnciennePresent": false,
+              "rgpdPresent": false,
+              "datePriseEffetAdressePresent": false,
+              "complementLocalisationPresent": false,
+              "communeDeRattachementPresent": false,
+              "caracteristiquesPresent": true,
+              "indicateurValidationBANPresent": true,
+              "cedexPresent": false,
+              "pays": "FRANCE",
+              "codePays": "FRA",
+              "codePostal": "75016",
+              "commune": "Paris",
+              "codeInseeCommune": "75116",
+              "typeVoie": "RUE",
+              "voie": "de Passy",
+              "numVoie": "50",
+              "caracteristiques": {
+                "domiciliataire": false
+              }
+            },
+            "activites": [
+              {
+                "categoryCode": "06030100",
+                "activiteId": "efdeedb5-5974-4b1d-acbf-a6165ee9de42",
+                "indicateurPrincipal": true,
+                "indicateurProlongement": false,
+                "dateDebut": "2025-10-14",
+                "exerciceActivite": "P",
+                "indicateurNonSedentaire": false,
+                "formeExercice": "COMMERCIALE",
+                "categorisationActivite1": "06",
+                "categorisationActivite2": "03",
+                "categorisationActivite3": "01",
+                "descriptionDetaillee": "Import-export, commerce de détails et commerce de gros d'objets de maroquinerie, de gadgets divers, de décoration, de matériels radio, vidéo, hifi, de cadeaux, bimbeloterie, de stylos, accessoires de bureaux, fleurs, vêtements ? confection, accessoire de mode, et toutes activités de négoce qui s'y rapportera sans que la liste soit limitative.",
+                "indicateurActiviteeApe": false,
+                "precisionActivite": "10",
+                "surface": 545,
+                "indicateurArtisteAuteur": false,
+                "indicateurMarinProfessionnel": false,
+                "rolePrincipalPourEntreprise": false,
+                "codeApe": "4719B",
+                "activiteRattacheeEirl": false,
+                "origine": {
+                  "typeOrigine": "1"
+                },
+                "isLocationGeranceOrGeranceMandat": false,
+                "metierArt": false
+              }
+            ],
+            "isLocationGeranceOrGeranceMandat": false
+          }
+        ],
+        "composition": {
+          "pouvoirs": [
+            {
+              "roleEntreprise": "71",
+              "typeDePersonne": "INDIVIDU",
+              "indicateurSecondRoleEntreprise": false,
+              "indicateurActifAgricole": false,
+              "representantId": "5e3f5fa2-e8ef-4aa3-bc89-4af4751ebc0a",
+              "individu": {
+                "descriptionPersonne": {
+                  "sirenPresent": false,
+                  "dateEffetRoleDeclarantPresent": false,
+                  "genrePresent": false,
+                  "titrePresent": false,
+                  "dateDeNaissance": "1966-06",
+                  "dateDeNaissancePresent": true,
+                  "paysNaissancePresent": true,
+                  "codePaysNaissancePresent": true,
+                  "lieuDeNaissancePresent": true,
+                  "codePostalNaissancePresent": true,
+                  "codeInseeGeographiquePresent": true,
+                  "situationMatrimonialePresent": true,
+                  "qualiteDeNonSedentaritePresent": false,
+                  "indicateurDeNonSedentaritePresent": false,
+                  "role": "71",
+                  "nom": "Chaillou",
+                  "prenoms": [
+                    "DENIS"
+                  ]
+                },
+                "adresseDomicile": {
+                  "roleAdressePresent": false,
+                  "codePostalPresent": true,
+                  "communePresent": true,
+                  "codeInseeCommunePresent": true,
+                  "typeVoiePresent": false,
+                  "voiePresent": true,
+                  "voieCodifieePresent": false,
+                  "numVoiePresent": false,
+                  "indiceRepetitionPresent": false,
+                  "distributionSpecialePresent": false,
+                  "communeAnciennePresent": false,
+                  "rgpdPresent": false,
+                  "datePriseEffetAdressePresent": false,
+                  "complementLocalisationPresent": false,
+                  "communeDeRattachementPresent": false,
+                  "caracteristiquesPresent": false,
+                  "indicateurValidationBANPresent": true,
+                  "cedexPresent": false,
+                  "pays": "FRANCE",
+                  "codePays": "FRA",
+                  "codePostal": "91210",
+                  "commune": "DRAVEIL",
+                  "codeInseeCommune": "91201"
+                }
+              },
+              "actif": true,
+              "mentionDemissionOrdre": false
+            },
+            {
+              "roleEntreprise": "30",
+              "typeDePersonne": "INDIVIDU",
+              "indicateurSecondRoleEntreprise": false,
+              "indicateurActifAgricole": false,
+              "representantId": "fa524b84-f3be-4059-8d68-e46ede5a2299",
+              "individu": {
+                "descriptionPersonne": {
+                  "sirenPresent": false,
+                  "dateEffetRoleDeclarantPresent": false,
+                  "genrePresent": false,
+                  "titrePresent": false,
+                  "dateDeNaissance": "1971-09",
+                  "dateDeNaissancePresent": true,
+                  "paysNaissancePresent": true,
+                  "codePaysNaissancePresent": true,
+                  "lieuDeNaissancePresent": false,
+                  "codePostalNaissancePresent": false,
+                  "codeInseeGeographiquePresent": false,
+                  "situationMatrimonialePresent": true,
+                  "qualiteDeNonSedentaritePresent": false,
+                  "indicateurDeNonSedentaritePresent": false,
+                  "role": "30",
+                  "nom": "MOULIN",
+                  "prenoms": [
+                    "LUC"
+                  ]
+                },
+                "adresseDomicile": {
+                  "roleAdressePresent": false,
+                  "codePostalPresent": true,
+                  "communePresent": true,
+                  "codeInseeCommunePresent": true,
+                  "typeVoiePresent": false,
+                  "voiePresent": true,
+                  "voieCodifieePresent": false,
+                  "numVoiePresent": false,
+                  "indiceRepetitionPresent": false,
+                  "distributionSpecialePresent": false,
+                  "communeAnciennePresent": false,
+                  "rgpdPresent": false,
+                  "datePriseEffetAdressePresent": false,
+                  "complementLocalisationPresent": false,
+                  "communeDeRattachementPresent": false,
+                  "caracteristiquesPresent": false,
+                  "indicateurValidationBANPresent": true,
+                  "cedexPresent": false,
+                  "pays": "FRANCE",
+                  "codePays": "FRA",
+                  "codePostal": "75002",
+                  "commune": "PARIS 2E ARRONDISSEMENT",
+                  "codeInseeCommune": "75102"
+                }
+              },
+              "actif": true,
+              "mentionDemissionOrdre": false
+            },
+            {
+              "roleEntreprise": "72",
+              "typeDePersonne": "ENTREPRISE",
+              "indicateurSecondRoleEntreprise": false,
+              "indicateurActifAgricole": false,
+              "representantId": "ee39cda8-d48b-4c9d-b89f-8781c2aef33c",
+              "entreprise": {
+                "roleEntreprise": "72",
+                "pays": "FRA",
+                "siren": "481805240",
+                "denomination": "RICHEMONT CAPERAA AUDIT",
+                "formeJuridique": "5499"
+              },
+              "adresseEntreprise": {
+                "roleAdressePresent": false,
+                "codePostalPresent": true,
+                "communePresent": true,
+                "codeInseeCommunePresent": true,
+                "typeVoiePresent": false,
+                "voiePresent": true,
+                "voieCodifieePresent": false,
+                "numVoiePresent": false,
+                "indiceRepetitionPresent": false,
+                "distributionSpecialePresent": false,
+                "communeAnciennePresent": false,
+                "rgpdPresent": false,
+                "datePriseEffetAdressePresent": false,
+                "complementLocalisationPresent": false,
+                "communeDeRattachementPresent": false,
+                "caracteristiquesPresent": false,
+                "indicateurValidationBANPresent": true,
+                "cedexPresent": false,
+                "pays": "FRANCE",
+                "codePays": "FRA",
+                "codePostal": "78000",
+                "commune": "Versailles",
+                "codeInseeCommune": "78646",
+                "voie": "38 rue des Etats Généraux "
+              },
+              "representant": {
+                "descriptionPersonne": {
+                  "sirenPresent": false,
+                  "dateEffetRoleDeclarantPresent": false,
+                  "genrePresent": false,
+                  "titrePresent": false,
+                  "dateDeNaissancePresent": false,
+                  "paysNaissancePresent": false,
+                  "codePaysNaissancePresent": false,
+                  "lieuDeNaissancePresent": false,
+                  "codePostalNaissancePresent": false,
+                  "codeInseeGeographiquePresent": false,
+                  "situationMatrimonialePresent": false,
+                  "qualiteDeNonSedentaritePresent": false,
+                  "indicateurDeNonSedentaritePresent": false
+                },
+                "adresseDomicile": {
+                  "roleAdressePresent": false,
+                  "codePostalPresent": false,
+                  "communePresent": false,
+                  "codeInseeCommunePresent": false,
+                  "typeVoiePresent": false,
+                  "voiePresent": true,
+                  "voieCodifieePresent": false,
+                  "numVoiePresent": false,
+                  "indiceRepetitionPresent": false,
+                  "distributionSpecialePresent": false,
+                  "communeAnciennePresent": false,
+                  "rgpdPresent": false,
+                  "datePriseEffetAdressePresent": false,
+                  "complementLocalisationPresent": false,
+                  "communeDeRattachementPresent": false,
+                  "caracteristiquesPresent": false,
+                  "indicateurValidationBANPresent": true,
+                  "cedexPresent": false
+                },
+                "indicateurActifAgricole": false
+              },
+              "actif": true,
+              "mentionDemissionOrdre": false
+            }
+          ]
+        },
+        "identite": {
+          "entreprise": {
+            "siren": "481283901",
+            "denomination": "FLEUX",
+            "formeJuridique": "5499",
+            "nicSiege": "00025",
+            "codeApe": "4719B",
+            "dateImmat": "2005-03-14",
+            "dateDebutActiv": "2005-02-25",
+            "entrepriseCorrected": true,
+            "entrepriseValidated": true,
+            "entrepriseRdd": false
+          },
+          "description": {
+            "objet": "MPORT, EXPORT, COMMERCE DE DETAILS ET COMMERCE DE GROS D'OBJETSDE\nMAROQUINERIE, DE GADGETS DIVERS, DE DECORATION, DE MATERIELSRADIO, VIDEO,\nHIFI, DE CADEAUX, BIMBELOTERIE, DE STYLOS, ACCESSOIRES DE BUREAUX, FLEURS,\nVETEMENTS, CONFECTION, ACCESSOIRES DE MODE ET TOUTES ACTIVITES DE NEGOCE\nQUI S'Y RAPPORTERA SANS QUE LA LISTE SOIT LIMITATIVE, CONSEIL EN DECORATION,\nCONSEIL EN STYLISME DE MODE",
+            "duree": 99,
+            "dateClotureExerciceSocial": "3107",
+            "ess": false,
+            "capitalVariable": false,
+            "montantCapital": 1200000.0,
+            "deviseCapital": "EUR",
+            "typeDeStatuts": "2",
+            "indicateurOrigineFusionScission": false,
+            "indicateurAssocieUnique": true,
+            "depotDemandeAcre": false,
+            "indicateurAssocieUniqueDirigeant": true,
+            "natureGerance": "1",
+            "continuationAvecActifNetInferieurMoitieCapital": false,
+            "reconstitutionCapitauxPropres": false,
+            "dateFinExistence": "2104-03-13"
+          },
+          "contratDAppuiDeclare": false
+        },
+        "structureEntreprise": {
+          "indicateurPrincipalIdemSiege": true,
+          "aucuneActivite": false
+        }
+      },
+      "registreAnterieur": {
+        "raa": {
+          "estPresent": false
+        },
+        "rnm": {
+          "estPresent": false
+        },
+        "rncs": {
+          "estPresent": true,
+          "dateImmatriculation": "2005-03-14T00:00:00+01:00"
+        }
+      },
+      "inscriptionsOffices": [
+        {
+          "dateEffet": "2025-06-30",
+          "partnerCenter": "URSSAF CN",
+          "partnerCode": "U"
+        }
+      ]
+    },
+    "diffusionINSEE": "N",
+    "typePersonne": "M",
+    "diffusionCommerciale": false,
+    "historique": [
+      {
+        "dateIntegration": "2024-09-12T01:09:19+02:00",
+        "codeEvenement": "54M",
+        "numeroLiasse": "J00090845306",
+        "dateEffet": "2024-09-18",
+        "cheminDateEffet": "content.personneMorale.autresEtablissements[0].dateEffetOuvertureEtablissement",
+        "cheminDateEffetId": "content.personneMorale.autresEtablissements[48128390100082].dateEffetOuvertureEtablissement"
+      },
+      {
+        "dateIntegration": "2024-11-28T11:38:25+01:00",
+        "codeEvenement": "01Y",
+        "numeroLiasse": "Y00106864549"
+      },
+      {
+        "dateIntegration": "2025-01-20T18:32:26+01:00",
+        "codeEvenement": "15M",
+        "numeroLiasse": "J00107545592",
+        "dateEffet": "2024-11-25",
+        "cheminDateEffet": "content.personneMorale.identite.description.dateEffet15M",
+        "cheminDateEffetId": "content.personneMorale.identite.description.dateEffet15M"
+      },
+      {
+        "dateIntegration": "2025-07-30T00:33:39+02:00",
+        "codeEvenement": "IN_23",
+        "numeroLiasse": "J00163799711",
+        "dateEffet": "2025-06-30"
+      },
+      {
+        "dateIntegration": "2025-11-05T18:35:48+01:00",
+        "codeEvenement": "54M",
+        "numeroLiasse": "J00181852724",
+        "dateEffet": "2025-10-14",
+        "cheminDateEffet": "content.personneMorale.autresEtablissements[0].dateEffetOuvertureEtablissement",
+        "cheminDateEffetId": "content.personneMorale.autresEtablissements[48128390100090].dateEffetOuvertureEtablissement"
+      }
+    ],
+    "formeJuridique": "5499"
+  },
+  "siren": "481283901"
+}
