@@ -221,12 +221,12 @@ class INPIClient:
             logger.error(f"Erreur lors de l'extraction du dirigeant depuis l'API: {str(e)}")
             return None
 
-    def _scrape_pappers_dirigeant(self, siren: str) -> Optional[str]:
+    def _scrape_inpi_dirigeant(self, siren: str) -> Optional[str]:
         """
-        Scrape le nom du dirigeant depuis Pappers.fr.
+        Scrape le nom du dirigeant depuis data.inpi.fr.
 
         Note: Cette méthode utilise le web scraping pour récupérer les informations
-        de dirigeants qui ne sont pas disponibles via l'API INPI (protection RGPD).
+        de dirigeants qui ne sont pas disponibles via l'API INPI.
         Utilisé uniquement pour un usage légitime et limité.
 
         Args:
@@ -236,141 +236,91 @@ class INPIClient:
             Nom du dirigeant ou None si non trouvé
         """
         if not SCRAPING_AVAILABLE:
-            logger.warning("Scraping non disponible (cloudscraper/beautifulsoup4 manquant)")
+            logger.warning("Scraping non disponible (beautifulsoup4 manquant)")
             return None
 
-        url = f"https://www.pappers.fr/entreprise/{siren}"
+        url = f"https://data.inpi.fr/entreprises/{siren}"
 
         try:
-            # Créer un scraper qui contourne Cloudflare
-            # Utiliser 'linux' comme plateforme pour compatibilité Streamlit Cloud
-            import platform
-            current_platform = 'linux' if platform.system() == 'Linux' else 'darwin'
+            logger.info(f"Tentative de scraping INPI pour SIREN {siren}")
 
-            scraper = cloudscraper.create_scraper(
-                browser={
-                    'browser': 'chrome',
-                    'platform': current_platform,
-                    'desktop': True
-                }
-            )
-
-            logger.info(f"Tentative de scraping Pappers pour SIREN {siren} (plateforme: {current_platform})")
-            response = scraper.get(url, timeout=45)  # Timeout augmenté pour Streamlit Cloud
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=30)
 
             if response.status_code != 200:
-                logger.warning(f"Scraping Pappers échoué (HTTP {response.status_code}) pour SIREN {siren}")
+                logger.warning(f"Scraping INPI échoué (HTTP {response.status_code}) pour SIREN {siren}")
                 return None
 
-            logger.info(f"Scraping Pappers réussi (HTTP 200) pour SIREN {siren}")
-            soup = BeautifulSoup(response.text, 'html.parser')
+            logger.info(f"Scraping INPI réussi (HTTP 200) pour SIREN {siren}")
+            soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Méthode 1: Chercher dans le texte des mentions légales
-            # Pattern: "représentée par XXX agissant et ayant les pouvoirs nécessaires en tant que président"
-            mentions = soup.find('generate-mentions')
-            if mentions and mentions.get('mentions'):
-                mentions_text = mentions.get('mentions')
-                match = re.search(
-                    r'représentée par ([A-Z\s]+) agissant et ayant les pouvoirs nécessaires en tant que (?:président|gérant|directeur général)',
-                    mentions_text,
-                    re.IGNORECASE
-                )
-                if match:
-                    dirigeant = match.group(1).strip()
-                    logger.info(f"Dirigeant trouvé pour SIREN {siren}: {dirigeant}")
-                    return dirigeant
+            # Chercher la section "Gestion et Direction"
+            # Le h3 contient "Gestion et Direction" avec id="representants"
+            gestion_h3 = soup.find('h3', id='representants')
 
-            # Méthode 2: Chercher les liens <a> contenant un nom en majuscules
-            for link in soup.find_all('a', href=True):
-                href = link.get('href', '')
-                # Pattern: nom-en-minuscules-suivi-de-chiffres
-                if re.match(r'^[a-z-]+-\d{9}$', href):
-                    text = link.get_text(strip=True)
-                    # Vérifier que c'est bien un nom (tout en majuscules, pas d'adresse)
-                    if text and text.isupper() and len(text) > 2:
-                        excluded_words = ['AVENUE', 'RUE', 'BOULEVARD', 'PARIS', 'FRANCE', 'GAULLE']
-                        if not any(word in text for word in excluded_words):
-                            # Vérifier le contexte autour
-                            parent_text = link.parent.get_text() if link.parent else ''
-                            keywords = ['président', 'dirigeant', 'gérant', 'directeur']
-                            if any(keyword in parent_text.lower() for keyword in keywords):
-                                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {text}")
-                                return text
+            if not gestion_h3:
+                logger.warning(f"Section 'Gestion et Direction' non trouvée pour SIREN {siren}")
+                return None
 
-            # Méthode 3: Chercher dans le texte brut
-            text = soup.get_text()
-            match = re.search(r'(?:nomination du )?Président\s*:\s*([A-Z][A-Za-z\s\-]+?)(?:\s|$|;|,)', text)
-            if match:
-                dirigeant = match.group(1).strip()
-                logger.info(f"Dirigeant trouvé pour SIREN {siren}: {dirigeant}")
-                return dirigeant
+            logger.debug("Section 'Gestion et Direction' trouvée")
 
-            # Méthode 4: Chercher la structure HTML Pappers "Dirigeant :"
-            # Structure: <td>Dirigeant :</td> suivi de <td class="info-dirigeant"><a>Nom Prénom</a></td>
-            logger.debug(f"Méthode 4: Recherche des cellules info-dirigeant...")
-            dirigeant_cells = soup.find_all('td', class_='info-dirigeant')
-            logger.debug(f"Méthode 4: {len(dirigeant_cells)} cellule(s) trouvée(s)")
-            for cell in dirigeant_cells:
-                link = cell.find('a')
-                if link:
-                    text = link.get_text(strip=True)
-                    logger.debug(f"Méthode 4: Texte trouvé: '{text}'")
-                    # Vérifier que c'est un nom de personne (au moins 2 mots)
-                    if text and len(text.split()) >= 2:
-                        logger.info(f"Dirigeant trouvé (méthode 4) pour SIREN {siren}: {text}")
-                        return text
+            # Trouver le parent row qui contient les blocs dirigeant
+            section_row = gestion_h3.find_parent('div', class_='row')
+            if not section_row:
+                logger.warning("Impossible de trouver la section row")
+                return None
 
-            # Méthode 5: Chercher "Dirigeant :" dans le HTML
-            # Utiliser BeautifulSoup pour trouver le motif
-            logger.debug(f"Méthode 5: Recherche du pattern 'Dirigeant :'...")
-            dirigeant_labels = soup.find_all(text=re.compile(r'Dirigeant\s*:', re.IGNORECASE))
-            logger.debug(f"Méthode 5: {len(dirigeant_labels)} label(s) trouvé(s)")
-            for elem in dirigeant_labels:
-                # Chercher les éléments suivants qui pourraient contenir le nom
-                parent = elem.parent
-                if parent:
-                    next_elem = parent.find_next_sibling()
-                    if next_elem:
-                        # Chercher un lien ou du texte
-                        link = next_elem.find('a')
-                        if link:
-                            text = link.get_text(strip=True)
-                            logger.debug(f"Méthode 5: Texte trouvé: '{text}'")
-                            if text and len(text.split()) >= 2:
-                                logger.info(f"Dirigeant trouvé (méthode 5) pour SIREN {siren}: {text}")
-                                return text
+            # Trouver tous les blocs dirigeant
+            blocs = section_row.find_all('div', class_='bloc-dirigeant')
+            logger.debug(f"Nombre de blocs dirigeant trouvés: {len(blocs)}")
 
-            logger.warning(f"Aucun dirigeant trouvé pour SIREN {siren} (toutes méthodes échouées)")
-            return None
+            if not blocs:
+                logger.warning(f"Aucun bloc dirigeant trouvé pour SIREN {siren}")
+                return None
+
+            # Extraire les informations des blocs
+            dirigeant_info = {}
+            for bloc in blocs:
+                paragraphs = bloc.find_all('p')
+                if len(paragraphs) >= 2:
+                    label = paragraphs[0].get_text().strip()
+                    valeur = paragraphs[1].get_text().strip()
+                    dirigeant_info[label] = valeur
+                    logger.debug(f"  {label}: {valeur}")
+
+            # Extraire le dirigeant selon les données disponibles
+            dirigeant = None
+
+            # Cas 1: Dénomination (entreprise dirigeante)
+            if 'Dénomination' in dirigeant_info:
+                dirigeant = dirigeant_info['Dénomination']
+                logger.info(f"Dirigeant (dénomination) trouvé pour SIREN {siren}: {dirigeant}")
+
+            # Cas 2: Nom + Prénom (personne physique)
+            elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
+                nom = dirigeant_info['Nom']
+                prenom = dirigeant_info['Prénom']
+                # Capitaliser si tout en majuscules
+                nom_formatted = nom.capitalize() if nom.isupper() else nom
+                prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
+                dirigeant = f"{prenom_formatted} {nom_formatted}"
+                logger.info(f"Dirigeant (nom/prénom) trouvé pour SIREN {siren}: {dirigeant}")
+
+            # Cas 3: Nom seulement
+            elif 'Nom' in dirigeant_info:
+                nom = dirigeant_info['Nom']
+                dirigeant = nom.capitalize() if nom.isupper() else nom
+                logger.info(f"Dirigeant (nom) trouvé pour SIREN {siren}: {dirigeant}")
+
+            if not dirigeant:
+                logger.warning(f"Impossible d'extraire le nom du dirigeant pour SIREN {siren}")
+
+            return dirigeant
 
         except Exception as e:
-            logger.error(f"Erreur lors du scraping Pappers avec cloudscraper pour SIREN {siren}: {str(e)}")
-
-            # Fallback: Essayer avec requests simple (peut être bloqué par Cloudflare mais on essaie)
-            try:
-                logger.info(f"Tentative de fallback avec requests simple pour SIREN {siren}")
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                }
-                response = requests.get(url, headers=headers, timeout=10)
-
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-
-                    # Méthode 4 uniquement (la plus robuste)
-                    dirigeant_cells = soup.find_all('td', class_='info-dirigeant')
-                    for cell in dirigeant_cells:
-                        link = cell.find('a')
-                        if link:
-                            text = link.get_text(strip=True)
-                            if text and len(text.split()) >= 2:
-                                logger.info(f"Dirigeant trouvé via fallback pour SIREN {siren}: {text}")
-                                return text
-                else:
-                    logger.warning(f"Fallback échoué (HTTP {response.status_code})")
-            except Exception as fallback_error:
-                logger.error(f"Fallback échoué pour SIREN {siren}: {str(fallback_error)}")
-
+            logger.error(f"Erreur lors du scraping INPI pour SIREN {siren}: {str(e)}")
             return None
 
     def get_company_info(self, siret: str) -> Dict[str, str]:
@@ -511,11 +461,11 @@ class INPIClient:
             # Essayer d'abord depuis l'API INPI (composition.pouvoirs)
             dirigeant = self._extract_dirigeant_from_api(personne_morale)
 
-            # Fallback: Si pas trouvé dans l'API, essayer le scraping Pappers
+            # Fallback: Si pas trouvé dans l'API, essayer le scraping INPI web
             if not dirigeant:
                 try:
-                    logger.info("Dirigeant non trouvé dans API INPI, tentative de scraping Pappers...")
-                    dirigeant = self._scrape_pappers_dirigeant(siren)
+                    logger.info("Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...")
+                    dirigeant = self._scrape_inpi_dirigeant(siren)
                 except Exception as e:
                     logger.warning(f"Échec du scraping du dirigeant: {str(e)}")
 
