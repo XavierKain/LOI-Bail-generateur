@@ -1,5 +1,6 @@
 """
 Page d'accueil - Sélection LOI ou BAIL
+Version avec pages sans emojis pour compatibilité Streamlit Cloud
 """
 
 import streamlit as st
