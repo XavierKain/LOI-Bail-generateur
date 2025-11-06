@@ -1,11 +1,11 @@
 """
-Interface Streamlit pour la génération automatique de documents LOI.
+Interface Streamlit pour la génération automatique de documents LOI et BAIL.
 """
 
 import streamlit as st
 import logging
 from pathlib import Path
-from modules import ExcelParser, LOIGenerator
+from modules import ExcelParser, LOIGenerator, BailGenerator, BailWordGenerator
 import traceback
 
 # Configuration du logging
@@ -17,47 +17,55 @@ logger = logging.getLogger(__name__)
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Générateur de LOI",
+    page_title="Générateur de LOI et BAIL",
     page_icon="📄",
     layout="wide"
 )
 
 # Titre de l'application
-st.title("📄 Générateur automatique de Lettres d'Intention (LOI)")
+st.title("📄 Générateur automatique de documents LOI et BAIL")
 st.markdown("---")
 
-# Description
-st.markdown("""
-Cette application génère automatiquement des documents LOI (Lettres d'Intention) pour des baux commerciaux.
+# Tabs pour sélectionner le type de document
+tab_loi, tab_bail = st.tabs(["📄 Lettre d'Intention (LOI)", "📜 Bail Commercial"])
 
-### Comment ça marche ?
-1. **Uploadez** votre fichier Excel (Fiche de décision)
-2. **Vérifiez** les données extraites
-3. **Générez** le document LOI
-4. **Téléchargez** le fichier DOCX généré
-""")
+# ============================================================================
+# TAB LOI
+# ============================================================================
+with tab_loi:
+    # Description
+    st.markdown("""
+    Cette application génère automatiquement des documents LOI (Lettres d'Intention) pour des baux commerciaux.
 
-st.markdown("---")
+    ### Comment ça marche ?
+    1. **Uploadez** votre fichier Excel (Fiche de décision)
+    2. **Vérifiez** les données extraites
+    3. **Générez** le document LOI
+    4. **Téléchargez** le fichier DOCX généré
+    """)
 
-# Vérifier que les fichiers nécessaires existent
-config_path = Path("Rédaction LOI.xlsx")
-template_path = Path("Template LOI avec placeholder.docx")
+    st.markdown("---")
 
-if not config_path.exists():
-    st.error(f"❌ Fichier de configuration manquant: {config_path}")
-    st.stop()
+    # Vérifier que les fichiers nécessaires existent
+    config_path = Path("Rédaction LOI.xlsx")
+    template_path = Path("Template LOI avec placeholder.docx")
 
-if not template_path.exists():
-    st.error(f"❌ Template manquant: {template_path}")
-    st.stop()
+    if not config_path.exists():
+        st.error(f"❌ Fichier de configuration manquant: {config_path}")
+        st.stop()
 
-# Upload du fichier Excel
-st.header("1. Upload du fichier Excel")
-uploaded_file = st.file_uploader(
-    "Choisissez votre fichier Excel (Fiche de décision)",
-    type=["xlsx", "xls"],
-    help="Uploadez le fichier Excel contenant les données pour la LOI"
-)
+    if not template_path.exists():
+        st.error(f"❌ Template manquant: {template_path}")
+        st.stop()
+
+    # Upload du fichier Excel
+    st.header("1. Upload du fichier Excel")
+    uploaded_file = st.file_uploader(
+        "Choisissez votre fichier Excel (Fiche de décision)",
+        type=["xlsx", "xls"],
+        help="Uploadez le fichier Excel contenant les données pour la LOI",
+        key="loi_uploader"
+    )
 
 if uploaded_file is not None:
     try:
