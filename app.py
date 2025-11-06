@@ -29,8 +29,7 @@ with col1:
     - Enrichissement INPI
     - Export Word
     """)
-    if st.button("🚀 Générer une LOI", use_container_width=True, type="primary"):
-        st.switch_page("pages/1_LOI.py")
+    st.page_link("pages/1_LOI.py", label="🚀 Générer une LOI", use_container_width=True)
 
 with col2:
     st.markdown("### 📜 Bail Commercial")
@@ -39,8 +38,7 @@ with col2:
     - Variables dérivées automatiques
     - Export Word
     """)
-    if st.button("🚀 Générer un BAIL", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_BAIL.py")
+    st.page_link("pages/2_BAIL.py", label="🚀 Générer un BAIL", use_container_width=True)
 
 st.markdown("---")
 st.markdown("""
