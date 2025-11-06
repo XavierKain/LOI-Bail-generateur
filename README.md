@@ -51,6 +51,30 @@ L'application sera accessible à `http://localhost:8501`
 - `Rédaction LOI.xlsx` - Configuration et mapping des variables
 - `Template LOI avec placeholder.docx` - Template Word avec placeholders
 
+## Configuration (Enrichissement INPI)
+
+### Développement local
+
+Créez un fichier `.env` à la racine du projet:
+
+```bash
+INPI_USERNAME=votre_username
+INPI_PASSWORD=votre_password
+```
+
+### Déploiement Streamlit Cloud
+
+1. Allez dans les paramètres de votre app sur https://share.streamlit.io
+2. Cliquez sur "Secrets" dans le menu latéral
+3. Ajoutez vos credentials:
+
+```toml
+INPI_USERNAME = "votre_username"
+INPI_PASSWORD = "votre_password"
+```
+
+Voir [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example) pour un template.
+
 ## Auteur
 
 Xavier Kain

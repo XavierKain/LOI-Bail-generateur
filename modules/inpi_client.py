@@ -20,7 +20,7 @@ except ImportError:
     logger = logging.getLogger(__name__)
     logger.warning("cloudscraper ou beautifulsoup4 non installé. Le scraping des dirigeants ne sera pas disponible.")
 
-from .config import Config
+from .config import Config, _get_secret
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ class INPIClient:
             password: Password INPI (ou depuis config)
         """
         self.base_url = Config.INPI_BASE_URL
-        self.username = username or Config.INPI_USERNAME
-        self.password = password or Config.INPI_PASSWORD
+        self.username = username or _get_secret('INPI_USERNAME', '')
+        self.password = password or _get_secret('INPI_PASSWORD', '')
         self.token = None
         self._token_expiry = 0
 

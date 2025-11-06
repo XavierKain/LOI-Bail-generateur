@@ -44,6 +44,7 @@ output/*.docx
 
 # Fichiers de configuration sensibles
 .env
+.streamlit/secrets.toml
 
 # Fichiers sensibles - Données d'entreprises
 Exemples/*.xlsx
