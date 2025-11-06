@@ -164,6 +164,63 @@ class INPIClient:
 
         return None
 
+    def _extract_dirigeant_from_api(self, personne_morale: dict) -> Optional[str]:
+        """
+        Extrait le nom du dirigeant depuis les données INPI (composition.pouvoirs).
+
+        Les données de dirigeants sont disponibles dans l'API INPI via composition.pouvoirs.
+        Rôles à rechercher:
+        - 30: Président
+        - 71: Président SAS
+        - 50: Gérant
+
+        Args:
+            personne_morale: Dict contenant les données personneMorale de l'API
+
+        Returns:
+            Nom complet du dirigeant ou None si non trouvé
+        """
+        try:
+            composition = personne_morale.get("composition", {})
+            pouvoirs = composition.get("pouvoirs", [])
+
+            # Rôles de dirigeants principaux
+            roles_dirigeants = ["30", "71", "50"]  # Président, Président SAS, Gérant
+
+            for pouvoir in pouvoirs:
+                role = pouvoir.get("roleEntreprise")
+                type_personne = pouvoir.get("typeDePersonne")
+                actif = pouvoir.get("actif", False)
+
+                # Vérifier que c'est un dirigeant actif et une personne physique
+                if actif and role in roles_dirigeants and type_personne == "INDIVIDU":
+                    individu = pouvoir.get("individu", {})
+                    desc = individu.get("descriptionPersonne", {})
+
+                    nom = desc.get("nom", "")
+                    prenoms = desc.get("prenoms", [])
+
+                    if nom:
+                        # Formater: "NOM Prénom" ou "Nom Prénom"
+                        prenom = prenoms[0] if prenoms else ""
+                        if prenom:
+                            # Capitaliser correctement: "MOULIN" -> "Moulin", "LUC" -> "Luc"
+                            nom_formatted = nom.capitalize() if nom.isupper() else nom
+                            prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
+                            dirigeant = f"{nom_formatted} {prenom_formatted}"
+                        else:
+                            dirigeant = nom.capitalize() if nom.isupper() else nom
+
+                        logger.info(f"Dirigeant trouvé dans API INPI (rôle {role}): {dirigeant}")
+                        return dirigeant
+
+            logger.debug("Aucun dirigeant trouvé dans composition.pouvoirs")
+            return None
+
+        except Exception as e:
+            logger.error(f"Erreur lors de l'extraction du dirigeant depuis l'API: {str(e)}")
+            return None
+
     def _scrape_pappers_dirigeant(self, siren: str) -> Optional[str]:
         """
         Scrape le nom du dirigeant depuis Pappers.fr.
@@ -451,14 +508,18 @@ class INPIClient:
                 result["LOCALITE RCS"] = commune_clean.strip()
 
             # Président/gérant (représentant légal)
-            # Les données personnelles des dirigeants sont protégées par RGPD dans l'API INPI
-            # On utilise le scraping de Pappers.fr pour obtenir cette information
-            try:
-                dirigeant = self._scrape_pappers_dirigeant(siren)
-                result["PRESIDENT DE LA SOCIETE"] = dirigeant if dirigeant else ""
-            except Exception as e:
-                logger.warning(f"Échec du scraping du dirigeant: {str(e)}")
-                result["PRESIDENT DE LA SOCIETE"] = ""
+            # Essayer d'abord depuis l'API INPI (composition.pouvoirs)
+            dirigeant = self._extract_dirigeant_from_api(personne_morale)
+
+            # Fallback: Si pas trouvé dans l'API, essayer le scraping Pappers
+            if not dirigeant:
+                try:
+                    logger.info("Dirigeant non trouvé dans API INPI, tentative de scraping Pappers...")
+                    dirigeant = self._scrape_pappers_dirigeant(siren)
+                except Exception as e:
+                    logger.warning(f"Échec du scraping du dirigeant: {str(e)}")
+
+            result["PRESIDENT DE LA SOCIETE"] = dirigeant if dirigeant else ""
 
             result["enrichment_status"] = "success"
             logger.info(f"Enrichissement INPI réussi pour {result['NOM DE LA SOCIETE']}")
