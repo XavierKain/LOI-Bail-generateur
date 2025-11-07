@@ -89,7 +89,7 @@ if uploaded_file is not None:
         st.success(f"✅ {len(variables)} variables extraites et enrichies")
 
         # Afficher les données extraites
-        st.header("2. Données extraites")
+        st.header("2. Données extraites et enrichies")
 
         # Informations principales
         col1, col2, col3 = st.columns(3)
@@ -107,6 +107,24 @@ if uploaded_file is not None:
             duree_bail = variables.get("Durée Bail", "Non défini")
             st.metric("Durée Bail", f"{duree_bail} ans" if duree_bail != "Non défini" else "Non défini")
             st.metric("Enseigne", variables.get("Enseigne", "Non défini"))
+
+        # Informations INPI enrichies
+        st.subheader("Enrichissement INPI")
+
+        # Afficher les informations des sociétés bailleures enrichies
+        societe_bailleur = variables.get("Société Bailleur", "")
+        if societe_bailleur and societe_bailleur in societes_info:
+            st.success(f"✅ Société '{societe_bailleur}' enrichie avec INPI")
+
+            col_inpi1, col_inpi2 = st.columns(2)
+            with col_inpi1:
+                if societes_info[societe_bailleur].get("header"):
+                    st.markdown(f"**Header:** {societes_info[societe_bailleur]['header']}")
+            with col_inpi2:
+                if societes_info[societe_bailleur].get("footer"):
+                    st.markdown(f"**Footer:** {societes_info[societe_bailleur]['footer']}")
+        else:
+            st.warning("⚠️ Enrichissement INPI non disponible pour cette société")
 
         # Détails complets
         with st.expander("📋 Voir toutes les variables extraites"):
