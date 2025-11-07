@@ -111,21 +111,22 @@ if uploaded_file is not None:
         # Informations INPI enrichies
         st.subheader("Enrichissement INPI")
 
-        # Afficher les informations des sociétés bailleures enrichies
-        # Chercher d'abord "Entreprise", puis "Société Bailleur"
-        entreprise = variables.get("Entreprise", "") or variables.get("Société Bailleur", "")
+        # Afficher les informations des sociétés enrichies
+        # Utiliser uniquement "Entreprise" (comme pour LOI)
+        entreprise = variables.get("Entreprise", "")
         if entreprise and entreprise in societes_info:
             st.success(f"✅ Entreprise '{entreprise}' enrichie avec INPI")
 
+            # Afficher les valeurs INPI récupérées
             col_inpi1, col_inpi2 = st.columns(2)
             with col_inpi1:
-                if societes_info[entreprise].get("header"):
-                    st.markdown(f"**Header:** {societes_info[entreprise]['header']}")
+                st.markdown("**Header INPI:**")
+                st.code(societes_info[entreprise].get("header", ""), language=None)
             with col_inpi2:
-                if societes_info[entreprise].get("footer"):
-                    st.markdown(f"**Footer:** {societes_info[entreprise]['footer']}")
+                st.markdown("**Footer INPI:**")
+                st.code(societes_info[entreprise].get("footer", ""), language=None)
         else:
-            st.warning(f"⚠️ Enrichissement INPI non disponible pour '{entreprise}'" if entreprise else "⚠️ Aucune entreprise détectée")
+            st.warning(f"⚠️ Enrichissement INPI non disponible pour '{entreprise}'" if entreprise else "⚠️ Variable 'Entreprise' non trouvée")
 
         # Détails complets
         with st.expander("📋 Voir toutes les variables extraites", expanded=False):

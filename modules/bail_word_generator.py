@@ -20,6 +20,38 @@ logger = logging.getLogger(__name__)
 class BailWordGenerator:
     """Générateur de documents BAIL au format Word."""
 
+    def _normalize_variable_name(self, var_name: str, donnees: Dict[str, any]) -> str:
+        """
+        Normalise le nom de variable pour gérer les variations.
+
+        Args:
+            var_name: Nom de variable brut
+            donnees: Données disponibles
+
+        Returns:
+            Nom de variable normalisé ou original si trouvé directement
+        """
+        # Si la variable existe telle quelle, la retourner
+        if var_name in donnees:
+            return var_name
+
+        # Mappings courants
+        mappings = {
+            # Montant Palier X → Montant du palier X
+            **{f"Montant Palier {i}": f"Montant du palier {i}" for i in range(1, 7)},
+            **{f"Montant palier {i}": f"Montant du palier {i}" for i in range(1, 7)},
+        }
+
+        normalized = mappings.get(var_name, var_name)
+
+        # Si toujours pas trouvé, chercher avec des variations de casse
+        if normalized not in donnees:
+            for key in donnees.keys():
+                if key.lower() == normalized.lower():
+                    return key
+
+        return normalized
+
     def __init__(self, template_path: str = "Template BAIL avec placeholder.docx"):
         """
         Initialise le générateur Word pour BAIL.
@@ -220,9 +252,13 @@ class BailWordGenerator:
             if placeholder.endswith(" en lettres"):
                 # Extraire le nom de la variable de base
                 base_variable = placeholder.replace(" en lettres", "")
+                # Normaliser le nom de variable
+                base_variable = self._normalize_variable_name(base_variable, donnees)
                 value = donnees.get(base_variable)
             else:
-                value = donnees.get(placeholder)
+                # Normaliser le nom de variable
+                normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
+                value = donnees.get(normalized_placeholder)
 
             if not value or str(value).strip() == "":
                 missing_data = True
@@ -248,6 +284,8 @@ class BailWordGenerator:
                 # Gestion spéciale pour les placeholders "en lettres"
                 if placeholder.endswith(" en lettres"):
                     base_variable = placeholder.replace(" en lettres", "")
+                    # Normaliser le nom de variable
+                    base_variable = self._normalize_variable_name(base_variable, donnees)
                     value = donnees.get(base_variable)
 
                     if value and str(value).strip():
@@ -271,7 +309,9 @@ class BailWordGenerator:
                         run.font.color.rgb = RGBColor(255, 0, 0)
                 else:
                     # Placeholder normal
-                    value = donnees.get(placeholder)
+                    # Normaliser le nom de variable
+                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
+                    value = donnees.get(normalized_placeholder)
 
                     if value and str(value).strip():
                         # Données présentes: texte en noir
@@ -296,6 +336,8 @@ class BailWordGenerator:
                 # Gestion spéciale pour les placeholders "en lettres"
                 if placeholder.endswith(" en lettres"):
                     base_variable = placeholder.replace(" en lettres", "")
+                    # Normaliser le nom de variable
+                    base_variable = self._normalize_variable_name(base_variable, donnees)
                     value = donnees.get(base_variable, "")
 
                     if value and str(value).strip():
@@ -313,7 +355,9 @@ class BailWordGenerator:
                             pass
                 else:
                     # Placeholder normal
-                    value = donnees.get(placeholder, "")
+                    # Normaliser le nom de variable
+                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
+                    value = donnees.get(normalized_placeholder, "")
                     new_text = new_text.replace(f"[{placeholder}]", str(value))
 
             # Mettre à jour le paragraphe

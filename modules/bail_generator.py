@@ -326,8 +326,17 @@ class BailGenerator:
 
             if pd.notna(donnee_source) and pd.notna(nom_source):
                 # C'est un lookup: vérifier si la valeur correspond
-                valeur_actuelle = donnees.get(nom_source)
-                if str(valeur_actuelle) != str(donnee_source):
+                # Gérer le cas où Nom Source contient plusieurs variables (multiligne)
+                noms_sources = [n.strip() for n in str(nom_source).split('\n') if n.strip()]
+
+                match_found = False
+                for nom in noms_sources:
+                    valeur_actuelle = donnees.get(nom)
+                    if str(valeur_actuelle) == str(donnee_source):
+                        match_found = True
+                        break
+
+                if not match_found:
                     continue  # Passer à la ligne suivante
 
             # Évaluer Condition Option 1
