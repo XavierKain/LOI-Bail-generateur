@@ -75,6 +75,7 @@ class BailGenerator:
             "Date prise d'effet": "Date de prise d'effet",
             "Date de prise d'effet du bail": "Date de prise d'effet",
             "Date début bail": "Date de prise d'effet",
+            "Date de Prise d'effet + 9 ans": "Date de prise d'effet + 9 ans",
         }
 
         return mappings.get(nom, nom)
@@ -173,8 +174,11 @@ class BailGenerator:
                         date_prise_effet = datetime.strptime(str(date_prise_effet_str).strip(), fmt)
                         # Ajouter 9 ans
                         date_fin_bail = date_prise_effet + timedelta(days=365*9)
-                        derivees["Date de prise d'effet + 9 ans"] = date_fin_bail.strftime("%d/%m/%Y")
-                        logger.debug(f"Date de prise d'effet + 9 ans calculée: {date_fin_bail.strftime('%d/%m/%Y')}")
+                        date_str = date_fin_bail.strftime("%d/%m/%Y")
+                        # Ajouter les deux variantes de casse
+                        derivees["Date de prise d'effet + 9 ans"] = date_str
+                        derivees["Date de Prise d'effet + 9 ans"] = date_str
+                        logger.debug(f"Date de prise d'effet + 9 ans calculée: {date_str}")
                         break
                     except ValueError:
                         continue
@@ -305,7 +309,8 @@ class BailGenerator:
         # Filtrer les lignes correspondantes
         mask = self.regles_df['Article'] == article_name
         if designation:
-            mask = mask | (self.regles_df['Désignation'] == designation)
+            # Si designation est spécifiée, on veut Article ET Désignation
+            mask = mask & (self.regles_df['Désignation'] == designation)
 
         lignes = self.regles_df[mask]
 
@@ -404,34 +409,45 @@ class BailGenerator:
 
         # Liste des articles à générer (dans l'ordre)
         articles_order = [
-            "Comparution",
-            "Article préliminaire",
-            "Article 1",
-            "Article 2",
-            "Article 3",
-            "Article 5.3",
-            "Article 7.1",
-            "Article 7.2",
-            "Article 7.3",
-            "Article 7.6",
-            "Article 8",
-            "Article 19",
-            "Article 22.2",
-            "Article 26",
-            "Article 26.1",
-            "Article 26.2"
+            ("Comparution", "Comparution Bailleur"),
+            ("Comparution", "Comparution Preneur"),
+            ("Article préliminaire", None),
+            ("Article 1", None),
+            ("Article 2", None),
+            ("Article 3", None),
+            ("Article 5.3", None),
+            ("Article 7.1", None),
+            ("Article 7.2", None),
+            ("Article 7.3", None),
+            ("Article 7.6", None),
+            ("Article 8", None),
+            ("Article 19", None),
+            ("Article 22.2", None),
+            ("Article 26", None),
+            ("Article 26.1", None),
+            ("Article 26.2", None)
         ]
 
-        for article_name in articles_order:
-            texte = self.obtenir_texte_article(article_name, None, donnees_complete)
+        for item in articles_order:
+            # item peut être un tuple (article_name, designation) ou juste article_name
+            if isinstance(item, tuple):
+                article_name, designation = item
+            else:
+                article_name = item
+                designation = None
+
+            texte = self.obtenir_texte_article(article_name, designation, donnees_complete)
 
             if texte:
                 # Remplacer les placeholders
                 texte_final = self.remplacer_placeholders(texte, donnees_complete)
-                articles_generes[article_name] = texte_final
-                logger.debug(f"Article généré: {article_name}")
+
+                # Clé: utiliser designation si présente, sinon article_name
+                key = designation if designation else article_name
+                articles_generes[key] = texte_final
+                logger.debug(f"Article généré: {key}")
             else:
-                logger.warning(f"Article non généré: {article_name}")
+                logger.warning(f"Article non généré: {article_name} (designation={designation})")
 
         logger.info(f"Génération terminée: {len(articles_generes)} articles générés")
         return articles_generes

@@ -112,22 +112,23 @@ if uploaded_file is not None:
         st.subheader("Enrichissement INPI")
 
         # Afficher les informations des sociétés bailleures enrichies
-        societe_bailleur = variables.get("Société Bailleur", "")
-        if societe_bailleur and societe_bailleur in societes_info:
-            st.success(f"✅ Société '{societe_bailleur}' enrichie avec INPI")
+        # Chercher d'abord "Entreprise", puis "Société Bailleur"
+        entreprise = variables.get("Entreprise", "") or variables.get("Société Bailleur", "")
+        if entreprise and entreprise in societes_info:
+            st.success(f"✅ Entreprise '{entreprise}' enrichie avec INPI")
 
             col_inpi1, col_inpi2 = st.columns(2)
             with col_inpi1:
-                if societes_info[societe_bailleur].get("header"):
-                    st.markdown(f"**Header:** {societes_info[societe_bailleur]['header']}")
+                if societes_info[entreprise].get("header"):
+                    st.markdown(f"**Header:** {societes_info[entreprise]['header']}")
             with col_inpi2:
-                if societes_info[societe_bailleur].get("footer"):
-                    st.markdown(f"**Footer:** {societes_info[societe_bailleur]['footer']}")
+                if societes_info[entreprise].get("footer"):
+                    st.markdown(f"**Footer:** {societes_info[entreprise]['footer']}")
         else:
-            st.warning("⚠️ Enrichissement INPI non disponible pour cette société")
+            st.warning(f"⚠️ Enrichissement INPI non disponible pour '{entreprise}'" if entreprise else "⚠️ Aucune entreprise détectée")
 
         # Détails complets
-        with st.expander("📋 Voir toutes les variables extraites"):
+        with st.expander("📋 Voir toutes les variables extraites", expanded=False):
             # Filtrer les variables spéciales (formules, descriptions)
             display_vars = {
                 k: v for k, v in variables.items()
@@ -137,16 +138,30 @@ if uploaded_file is not None:
             # Trier par ordre alphabétique
             sorted_vars = dict(sorted(display_vars.items()))
 
-            # Afficher dans un tableau
+            # Compter les variables manquantes
+            missing_count = sum(1 for v in display_vars.values() if not v or str(v).strip() == "")
+            total_count = len(display_vars)
+
+            if missing_count > 0:
+                st.warning(f"⚠️ {missing_count}/{total_count} variables manquantes")
+            else:
+                st.success(f"✅ Toutes les {total_count} variables sont renseignées")
+
+            # Afficher dans un tableau avec codes couleur
             for key, value in sorted_vars.items():
-                col1, col2 = st.columns([1, 2])
+                col1, col2, col3 = st.columns([2, 3, 1])
                 with col1:
                     st.markdown(f"**{key}**")
                 with col2:
-                    if value:
-                        st.text(value)
+                    if value and str(value).strip():
+                        st.text(str(value))
                     else:
                         st.markdown("*Non défini*")
+                with col3:
+                    if value and str(value).strip():
+                        st.markdown("✅")
+                    else:
+                        st.markdown("⚠️")
 
         st.markdown("---")
 
@@ -249,6 +264,31 @@ if uploaded_file is not None:
 
                         # Calculer les données complètes (avec variables dérivées)
                         donnees_complete = bail_generator.calculer_variables_derivees(variables)
+
+                        # Afficher les variables dérivées calculées
+                        with st.expander("🔍 Variables dérivées calculées"):
+                            # Identifier les nouvelles variables (dérivées)
+                            derived_vars = {k: v for k, v in donnees_complete.items() if k not in variables}
+
+                            if derived_vars:
+                                st.info(f"✨ {len(derived_vars)} variables calculées automatiquement")
+
+                                for key, value in sorted(derived_vars.items()):
+                                    col1, col2, col3 = st.columns([2, 3, 1])
+                                    with col1:
+                                        st.markdown(f"**{key}**")
+                                    with col2:
+                                        if value and str(value).strip():
+                                            st.text(str(value))
+                                        else:
+                                            st.markdown("*Non calculé*")
+                                    with col3:
+                                        if value and str(value).strip():
+                                            st.markdown("✅")
+                                        else:
+                                            st.markdown("⚠️")
+                            else:
+                                st.warning("Aucune variable dérivée calculée")
 
                         # Générer le document Word
                         word_generator = BailWordGenerator(str(template_bail_path))

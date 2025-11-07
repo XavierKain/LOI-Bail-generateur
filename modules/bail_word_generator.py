@@ -57,8 +57,8 @@ class BailWordGenerator:
 
         # ÉTAPE 1: Remplacer les placeholders {{ARTICLE}}
         placeholder_mapping = {
-            "{{COMPARUTION_BAILLEUR}}": self._get_comparution_bailleur(articles_generes),
-            "{{COMPARUTION_PRENEUR}}": self._get_comparution_preneur(articles_generes),
+            "{{COMPARUTION_BAILLEUR}}": articles_generes.get("Comparution Bailleur", ""),
+            "{{COMPARUTION_PRENEUR}}": articles_generes.get("Comparution Preneur", ""),
             "{{ARTICLE_PRELIMINAIRE}}": articles_generes.get("Article préliminaire", ""),
             "{{ARTICLE_1}}": articles_generes.get("Article 1", ""),
             "{{ARTICLE_2}}": articles_generes.get("Article 2", ""),
