@@ -103,41 +103,74 @@ class BailGenerator:
         if ville and rue:
             derivees["Adresse Locaux Loués"] = f"{ville}, {rue}"
 
-        # Montants des paliers
-        montant_loyer = donnees.get("Montant du loyer")
-        if montant_loyer:
-            for i in range(1, 7):
-                key_annee = f"Loyer année {i}"
-                loyer_annee = donnees.get(key_annee)
-                if loyer_annee:
-                    derivees[f"Montant du palier {i}"] = montant_loyer - loyer_annee
+        # Montants des paliers et conversion du loyer
+        montant_loyer = None
+        montant_loyer_str = donnees.get("Montant du loyer")
+        if montant_loyer_str:
+            try:
+                # Convertir en float (gérer les espaces et virgules)
+                montant_loyer_clean = str(montant_loyer_str).replace(" ", "").replace(",", ".")
+                montant_loyer = float(montant_loyer_clean)
+
+                for i in range(1, 7):
+                    key_annee = f"Loyer année {i}"
+                    loyer_annee_str = donnees.get(key_annee)
+                    if loyer_annee_str:
+                        try:
+                            loyer_annee_clean = str(loyer_annee_str).replace(" ", "").replace(",", ".")
+                            loyer_annee = float(loyer_annee_clean)
+                            derivees[f"Montant du palier {i}"] = montant_loyer - loyer_annee
+                        except (ValueError, TypeError):
+                            logger.warning(f"Impossible de convertir Loyer année {i}: {loyer_annee_str}")
+            except (ValueError, TypeError):
+                logger.warning(f"Impossible de convertir Montant du loyer: {montant_loyer_str}")
 
         # Surface R-1
-        surface_totale = donnees.get("Surface totale")
-        surface_rdc = donnees.get("Surface RDC")
-        if surface_totale and surface_rdc:
-            derivees["Surface R-1"] = surface_totale - surface_rdc
+        surface_totale_str = donnees.get("Surface totale")
+        surface_rdc_str = donnees.get("Surface RDC")
+        if surface_totale_str and surface_rdc_str:
+            try:
+                # Convertir en float (gérer les espaces et virgules)
+                surface_totale_clean = str(surface_totale_str).replace(" ", "").replace(",", ".")
+                surface_rdc_clean = str(surface_rdc_str).replace(" ", "").replace(",", ".")
+                surface_totale = float(surface_totale_clean)
+                surface_rdc = float(surface_rdc_clean)
+                derivees["Surface R-1"] = surface_totale - surface_rdc
+            except (ValueError, TypeError):
+                logger.warning(f"Impossible de convertir les surfaces: totale={surface_totale_str}, RDC={surface_rdc_str}")
 
         # Type Bail
-        duree_bail = donnees.get("Durée Bail")
-        if duree_bail == 9:
-            derivees["Type Bail"] = "3/6/9"
-        elif duree_bail == 10:
-            derivees["Type Bail"] = "6/9/10"
+        duree_bail_str = donnees.get("Durée Bail")
+        if duree_bail_str:
+            try:
+                duree_bail = int(float(str(duree_bail_str).replace(" ", "").replace(",", ".")))
+                if duree_bail == 9:
+                    derivees["Type Bail"] = "3/6/9"
+                elif duree_bail == 10:
+                    derivees["Type Bail"] = "6/9/10"
+            except (ValueError, TypeError):
+                logger.warning(f"Impossible de convertir Durée Bail: {duree_bail_str}")
 
         # Date de signature (aujourd'hui + 15 jours)
         date_signature = datetime.now() + timedelta(days=15)
         derivees["Date de signature"] = date_signature.strftime("%d/%m/%Y")
 
         # Montant du DG
-        duree_dg = donnees.get("Durée DG")
+        duree_dg_str = donnees.get("Durée DG")
+        duree_dg = None
+        if duree_dg_str:
+            try:
+                duree_dg = float(str(duree_dg_str).replace(" ", "").replace(",", "."))
+            except (ValueError, TypeError):
+                logger.warning(f"Impossible de convertir Durée DG: {duree_dg_str}")
+
         if montant_loyer and duree_dg:
             derivees["Montant du DG"] = (montant_loyer / 12) * duree_dg
 
         # Période DG
         if duree_dg:
             periode_map = {3: "quart", 4: "tiers", 6: "moitier"}
-            derivees["Période DG"] = periode_map.get(duree_dg, "")
+            derivees["Période DG"] = periode_map.get(int(duree_dg), "")
 
         logger.debug(f"Variables dérivées calculées: {list(derivees.keys())}")
         return derivees

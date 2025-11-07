@@ -154,27 +154,33 @@ def show_loi():
             if st.button("🚀 Générer le document LOI", type="primary", use_container_width=True, key="gen_loi"):
                 try:
                     with st.spinner("Génération en cours..."):
-                        # Générer la LOI
-                        generator = LOIGenerator()
-
                         # Nom du fichier de sortie
                         nom_preneur = donnees.get("Nom Preneur", "Client")
                         date_loi = donnees.get("Date LOI", "")
                         output_filename = f"{date_loi} - LOI {nom_preneur}.docx"
                         output_filename = output_filename.replace("/", "-").replace("\\", "-")
 
-                        # Générer
+                        # Chemin du template
+                        template_path = Path("Template LOI avec placeholder.docx")
+
+                        # Récupérer les informations des sociétés bailleures
+                        societes_info = parser.get_societes_bailleures()
+
+                        # Générer la LOI
+                        generator = LOIGenerator(donnees, societes_info, str(template_path))
+
+                        # Générer le document
                         output_path = Path("output") / output_filename
                         output_path.parent.mkdir(exist_ok=True)
 
-                        generator.generer_document(donnees, str(output_path))
+                        generated_path = generator.generate(str(output_path))
 
                     st.success("✅ Document LOI généré avec succès!")
 
                     # Téléchargement
                     st.header("4. Téléchargement")
 
-                    with open(output_path, "rb") as f:
+                    with open(generated_path, "rb") as f:
                         st.download_button(
                             label="📥 Télécharger le document LOI",
                             data=f,
@@ -184,7 +190,7 @@ def show_loi():
                             key="download_loi"
                         )
 
-                    st.info(f"📁 Fichier également sauvegardé dans: `{output_path}`")
+                    st.info(f"📁 Fichier également sauvegardé dans: `{generated_path}`")
 
                 except Exception as e:
                     st.error(f"❌ Erreur lors de la génération: {str(e)}")
