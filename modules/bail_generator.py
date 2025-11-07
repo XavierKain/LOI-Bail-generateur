@@ -72,6 +72,9 @@ class BailGenerator:
             "Montant du Palier 1": "Montant du palier 1",
             "Montant du Palier 2": "Montant du palier 2",
             "Montant du Palier 3": "Montant du palier 3",
+            "Date prise d'effet": "Date de prise d'effet",
+            "Date de prise d'effet du bail": "Date de prise d'effet",
+            "Date début bail": "Date de prise d'effet",
         }
 
         return mappings.get(nom, nom)
@@ -86,6 +89,7 @@ class BailGenerator:
         - Surface R-1
         - Type Bail
         - Date de signature
+        - Date de prise d'effet + 9 ans
         - Montant du DG
         - Période DG
 
@@ -95,17 +99,21 @@ class BailGenerator:
         Returns:
             Dictionnaire avec données primaires + dérivées
         """
-        derivees = donnees.copy()
+        # Normaliser les noms de variables en entrée
+        derivees = {}
+        for key, value in donnees.items():
+            normalized_key = self._normaliser_nom_variable(key)
+            derivees[normalized_key] = value
 
         # Adresse Locaux Loués
-        ville = donnees.get("Ville ou arrondissement", "")
-        rue = donnees.get("Numéro et rue", "")
+        ville = derivees.get("Ville ou arrondissement", "")
+        rue = derivees.get("Numéro et rue", "")
         if ville and rue:
             derivees["Adresse Locaux Loués"] = f"{ville}, {rue}"
 
         # Montants des paliers et conversion du loyer
         montant_loyer = None
-        montant_loyer_str = donnees.get("Montant du loyer")
+        montant_loyer_str = derivees.get("Montant du loyer")
         if montant_loyer_str:
             try:
                 # Convertir en float (gérer les espaces et virgules)
@@ -114,7 +122,7 @@ class BailGenerator:
 
                 for i in range(1, 7):
                     key_annee = f"Loyer année {i}"
-                    loyer_annee_str = donnees.get(key_annee)
+                    loyer_annee_str = derivees.get(key_annee)
                     if loyer_annee_str:
                         try:
                             loyer_annee_clean = str(loyer_annee_str).replace(" ", "").replace(",", ".")
@@ -126,8 +134,8 @@ class BailGenerator:
                 logger.warning(f"Impossible de convertir Montant du loyer: {montant_loyer_str}")
 
         # Surface R-1
-        surface_totale_str = donnees.get("Surface totale")
-        surface_rdc_str = donnees.get("Surface RDC")
+        surface_totale_str = derivees.get("Surface totale")
+        surface_rdc_str = derivees.get("Surface RDC")
         if surface_totale_str and surface_rdc_str:
             try:
                 # Convertir en float (gérer les espaces et virgules)
@@ -140,7 +148,7 @@ class BailGenerator:
                 logger.warning(f"Impossible de convertir les surfaces: totale={surface_totale_str}, RDC={surface_rdc_str}")
 
         # Type Bail
-        duree_bail_str = donnees.get("Durée Bail")
+        duree_bail_str = derivees.get("Durée Bail")
         if duree_bail_str:
             try:
                 duree_bail = int(float(str(duree_bail_str).replace(" ", "").replace(",", ".")))
@@ -155,8 +163,26 @@ class BailGenerator:
         date_signature = datetime.now() + timedelta(days=15)
         derivees["Date de signature"] = date_signature.strftime("%d/%m/%Y")
 
+        # Date de prise d'effet + 9 ans
+        date_prise_effet_str = derivees.get("Date de prise d'effet")
+        if date_prise_effet_str:
+            try:
+                # Parser la date (format DD/MM/YYYY ou DD-MM-YYYY ou autres formats courants)
+                for fmt in ["%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d.%m.%Y"]:
+                    try:
+                        date_prise_effet = datetime.strptime(str(date_prise_effet_str).strip(), fmt)
+                        # Ajouter 9 ans
+                        date_fin_bail = date_prise_effet + timedelta(days=365*9)
+                        derivees["Date de prise d'effet + 9 ans"] = date_fin_bail.strftime("%d/%m/%Y")
+                        logger.debug(f"Date de prise d'effet + 9 ans calculée: {date_fin_bail.strftime('%d/%m/%Y')}")
+                        break
+                    except ValueError:
+                        continue
+            except Exception as e:
+                logger.warning(f"Impossible de calculer Date de prise d'effet + 9 ans: {e}")
+
         # Montant du DG
-        duree_dg_str = donnees.get("Durée DG")
+        duree_dg_str = derivees.get("Durée DG")
         duree_dg = None
         if duree_dg_str:
             try:

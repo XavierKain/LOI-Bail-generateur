@@ -111,13 +111,14 @@ def number_to_french_words(number: float) -> str:
     return convert_with_scale(n)
 
 
-def format_amount_with_words(amount: float, currency: str = "EUROS") -> str:
+def format_amount_with_words(amount: float, currency: str = "EUROS", add_space: bool = True) -> str:
     """
     Formate un montant avec sa représentation en lettres.
 
     Args:
         amount: Montant numérique
         currency: Devise (défaut: "EUROS")
+        add_space: Ajouter un espace avant la devise (défaut: True)
 
     Returns:
         Montant formaté selon le modèle BAIL
@@ -132,4 +133,7 @@ def format_amount_with_words(amount: float, currency: str = "EUROS") -> str:
     if amount == 1:
         currency = "EURO"
 
-    return f"{words} {currency}"
+    if add_space:
+        return f"{words} {currency}"
+    else:
+        return f"{words}{currency}"

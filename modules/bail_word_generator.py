@@ -256,9 +256,10 @@ class BailWordGenerator:
                             # Nettoyer et convertir en float
                             value_clean = str(value).replace(" ", "").replace(",", ".")
                             numeric_value = float(value_clean)
-                            # Convertir en mots français
+                            # Convertir en mots français (juste le nombre, pas "EUROS")
                             words = number_to_french_words(numeric_value)
-                            run = paragraph.add_run(words)
+                            # Ajouter un espace après pour séparer du mot "euros" qui suit
+                            run = paragraph.add_run(words + " ")
                             run.font.color.rgb = RGBColor(0, 0, 0)
                         except (ValueError, TypeError) as e:
                             logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
@@ -302,9 +303,10 @@ class BailWordGenerator:
                             # Nettoyer et convertir en float
                             value_clean = str(value).replace(" ", "").replace(",", ".")
                             numeric_value = float(value_clean)
-                            # Convertir en mots français
+                            # Convertir en mots français (juste le nombre, pas "EUROS")
                             words = number_to_french_words(numeric_value)
-                            new_text = new_text.replace(f"[{placeholder}]", words)
+                            # Ajouter un espace après pour séparer du mot "euros" qui suit
+                            new_text = new_text.replace(f"[{placeholder}]", words + " ")
                         except (ValueError, TypeError) as e:
                             logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
                             # Laisser le placeholder tel quel en cas d'erreur
