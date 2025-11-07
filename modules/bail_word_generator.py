@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict
 import logging
 import re
+from .number_to_french import number_to_french_words
 
 logger = logging.getLogger(__name__)
 
@@ -198,6 +199,7 @@ class BailWordGenerator:
         """
         Remplace les placeholders [Variable] dans un paragraphe.
         Met les placeholders manquants en ROUGE.
+        Gère les placeholders "en lettres" pour conversion numérique.
 
         Args:
             paragraph: Paragraphe docx
@@ -214,7 +216,14 @@ class BailWordGenerator:
         # Vérifier si des données manquent
         missing_data = False
         for placeholder in placeholders:
-            value = donnees.get(placeholder)
+            # Gestion spéciale pour les placeholders "en lettres"
+            if placeholder.endswith(" en lettres"):
+                # Extraire le nom de la variable de base
+                base_variable = placeholder.replace(" en lettres", "")
+                value = donnees.get(base_variable)
+            else:
+                value = donnees.get(placeholder)
+
             if not value or str(value).strip() == "":
                 missing_data = True
                 break
@@ -235,16 +244,42 @@ class BailWordGenerator:
 
                 # Le placeholder
                 placeholder = match.group(1)
-                value = donnees.get(placeholder)
 
-                if value and str(value).strip():
-                    # Données présentes: texte en noir
-                    run = paragraph.add_run(str(value))
-                    run.font.color.rgb = RGBColor(0, 0, 0)
+                # Gestion spéciale pour les placeholders "en lettres"
+                if placeholder.endswith(" en lettres"):
+                    base_variable = placeholder.replace(" en lettres", "")
+                    value = donnees.get(base_variable)
+
+                    if value and str(value).strip():
+                        # Convertir le nombre en lettres
+                        try:
+                            # Nettoyer et convertir en float
+                            value_clean = str(value).replace(" ", "").replace(",", ".")
+                            numeric_value = float(value_clean)
+                            # Convertir en mots français
+                            words = number_to_french_words(numeric_value)
+                            run = paragraph.add_run(words)
+                            run.font.color.rgb = RGBColor(0, 0, 0)
+                        except (ValueError, TypeError) as e:
+                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
+                            run = paragraph.add_run(f"[{placeholder}]")
+                            run.font.color.rgb = RGBColor(255, 0, 0)
+                    else:
+                        # Données manquantes: placeholder en rouge
+                        run = paragraph.add_run(f"[{placeholder}]")
+                        run.font.color.rgb = RGBColor(255, 0, 0)
                 else:
-                    # Données manquantes: placeholder en rouge
-                    run = paragraph.add_run(f"[{placeholder}]")
-                    run.font.color.rgb = RGBColor(255, 0, 0)
+                    # Placeholder normal
+                    value = donnees.get(placeholder)
+
+                    if value and str(value).strip():
+                        # Données présentes: texte en noir
+                        run = paragraph.add_run(str(value))
+                        run.font.color.rgb = RGBColor(0, 0, 0)
+                    else:
+                        # Données manquantes: placeholder en rouge
+                        run = paragraph.add_run(f"[{placeholder}]")
+                        run.font.color.rgb = RGBColor(255, 0, 0)
 
                 current_pos = match.end()
 
@@ -257,8 +292,27 @@ class BailWordGenerator:
             # Toutes les données présentes: remplacement simple
             new_text = full_text
             for placeholder in placeholders:
-                value = donnees.get(placeholder, "")
-                new_text = new_text.replace(f"[{placeholder}]", str(value))
+                # Gestion spéciale pour les placeholders "en lettres"
+                if placeholder.endswith(" en lettres"):
+                    base_variable = placeholder.replace(" en lettres", "")
+                    value = donnees.get(base_variable, "")
+
+                    if value and str(value).strip():
+                        try:
+                            # Nettoyer et convertir en float
+                            value_clean = str(value).replace(" ", "").replace(",", ".")
+                            numeric_value = float(value_clean)
+                            # Convertir en mots français
+                            words = number_to_french_words(numeric_value)
+                            new_text = new_text.replace(f"[{placeholder}]", words)
+                        except (ValueError, TypeError) as e:
+                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
+                            # Laisser le placeholder tel quel en cas d'erreur
+                            pass
+                else:
+                    # Placeholder normal
+                    value = donnees.get(placeholder, "")
+                    new_text = new_text.replace(f"[{placeholder}]", str(value))
 
             # Mettre à jour le paragraphe
             if new_text != full_text:
