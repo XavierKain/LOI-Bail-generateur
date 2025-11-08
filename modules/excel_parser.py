@@ -35,6 +35,8 @@ class ExcelParser:
         try:
             self.workbook = openpyxl.load_workbook(self.excel_path, data_only=True)
             self.config_workbook = openpyxl.load_workbook(self.config_path, data_only=True)
+            # Also load config with formulas to handle cases where cached values are missing
+            self.config_workbook_formulas = openpyxl.load_workbook(self.config_path, data_only=False)
             logger.info(f"Fichier Excel chargé: {self.excel_path.name}")
             logger.info(f"Configuration chargée: {self.config_path.name}")
         except InvalidFileException as e:
@@ -112,11 +114,16 @@ class ExcelParser:
 
         # Lire la configuration depuis Rédaction LOI
         config_sheet = self.config_workbook["Rédaction LOI"]
+        config_sheet_formulas = self.config_workbook_formulas["Rédaction LOI"]
 
         # Parcourir les lignes de configuration (ligne 2 à 40+)
-        for row in range(2, config_sheet.max_row + 1):
+        for row in range(2, max(config_sheet.max_row, config_sheet_formulas.max_row) + 1):
             nom = config_sheet.cell(row, 1).value  # Colonne A: Nom
             source = config_sheet.cell(row, 2).value  # Colonne B: Source
+
+            # If source is None, try getting the formula
+            if not source:
+                source = config_sheet_formulas.cell(row, 2).value
 
             if not nom:
                 continue
