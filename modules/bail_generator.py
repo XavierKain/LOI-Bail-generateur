@@ -35,11 +35,27 @@ class BailGenerator:
     def _load_rules(self):
         """Charge les règles depuis le fichier Excel."""
         try:
-            # Charger l'onglet Rédaction BAIL
-            self.regles_df = pd.read_excel(
-                self.excel_path,
-                sheet_name="Rédaction BAIL"
-            )
+            import openpyxl
+
+            # Charger avec openpyxl pour lire TOUTES les lignes (même celles avec Article vide)
+            wb = openpyxl.load_workbook(self.excel_path, data_only=True)
+            ws_bail = wb["Rédaction BAIL"]
+
+            # Lire toutes les lignes dans une liste de dict
+            regles_list = []
+            headers = [cell.value for cell in ws_bail[1]]  # Row 1 = headers
+
+            for row_idx in range(2, ws_bail.max_row + 1):
+                row_data = {}
+                for col_idx, header in enumerate(headers, start=1):
+                    if header:  # Skip empty headers
+                        cell_value = ws_bail.cell(row_idx, col_idx).value
+                        row_data[header] = cell_value
+
+                # Ajouter la ligne même si Article est None
+                regles_list.append(row_data)
+
+            self.regles_df = pd.DataFrame(regles_list)
 
             # Charger l'onglet Liste données BAIL
             self.donnees_df = pd.read_excel(
@@ -306,20 +322,45 @@ class BailGenerator:
         Returns:
             Texte de l'article ou None si non trouvé
         """
-        # Filtrer les lignes correspondantes
-        mask = self.regles_df['Article'] == article_name
-        if designation:
-            # Si designation est spécifiée, on veut Article ET Désignation
-            mask = mask & (self.regles_df['Désignation'] == designation)
+        # NOUVELLE LOGIQUE: Chercher d'abord la ligne avec Article + Désignation
+        # puis inclure toutes les lignes suivantes jusqu'au prochain Article non-null
 
-        lignes = self.regles_df[mask]
+        lignes_candidates = []
+        found_start = False
+        current_designation = None
 
-        if lignes.empty:
+        for idx, row in self.regles_df.iterrows():
+            article_val = row['Article']
+            designation_val = row['Désignation']
+
+            # Nouvelle section d'article
+            if pd.notna(article_val):
+                # Si on était déjà dans notre section, on s'arrête
+                if found_start and article_val != article_name:
+                    break
+
+                # Vérifier si c'est le début de notre article
+                if article_val == article_name:
+                    if designation is None or designation_val == designation:
+                        found_start = True
+                        current_designation = designation_val
+                        lignes_candidates.append(row)
+                    elif found_start:
+                        # Nouvelle désignation du même article, on s'arrête
+                        break
+                else:
+                    found_start = False
+
+            # Ligne de continuation (Article = None)
+            elif found_start:
+                lignes_candidates.append(row)
+
+        if not lignes_candidates:
             logger.warning(f"Aucune règle trouvée pour l'article '{article_name}'")
             return None
 
-        # Parcourir les lignes et évaluer les conditions
-        for _, ligne in lignes.iterrows():
+        # Parcourir les lignes candidates et évaluer les conditions
+        for ligne in lignes_candidates:
             # Vérifier si la donnée source correspond (pour les lookup tables)
             donnee_source = ligne.get('Donnée source')
             nom_source = ligne.get('Nom Source')
