@@ -7,6 +7,7 @@ import streamlit as st
 import logging
 from pathlib import Path
 from modules import ExcelParser, LOIGenerator, BailGenerator, BailWordGenerator
+from modules.placeholder_extractor import extract_all_placeholders, categorize_placeholders
 import traceback
 
 # Configuration du logging
@@ -108,25 +109,44 @@ if uploaded_file is not None:
             st.metric("Durée Bail", f"{duree_bail} ans" if duree_bail != "Non défini" else "Non défini")
             st.metric("Enseigne", variables.get("Enseigne", "Non défini"))
 
-        # Informations INPI enrichies
-        st.subheader("Enrichissement INPI")
+        # Section INPI (si données enrichies via SIRET)
+        siret = variables.get("N° DE SIRET", "")
+        if siret:
+            st.markdown("---")
+            inpi_enriched = variables.get("_inpi_enriched", "false") == "true"
 
-        # Afficher les informations des sociétés enrichies
-        # Utiliser uniquement "Entreprise" (comme pour LOI)
-        entreprise = variables.get("Entreprise", "")
-        if entreprise and entreprise in societes_info:
-            st.success(f"✅ Entreprise '{entreprise}' enrichie avec INPI")
+            if inpi_enriched:
+                st.success("🏢 Données INPI enrichies automatiquement ✅")
+            else:
+                error_msg = variables.get("_inpi_error", "Erreur inconnue")
+                st.warning(f"⚠️ Enrichissement INPI échoué: {error_msg}")
 
-            # Afficher les valeurs INPI récupérées
-            col_inpi1, col_inpi2 = st.columns(2)
-            with col_inpi1:
-                st.markdown("**Header INPI:**")
-                st.code(societes_info[entreprise].get("header", ""), language=None)
-            with col_inpi2:
-                st.markdown("**Footer INPI:**")
-                st.code(societes_info[entreprise].get("footer", ""), language=None)
-        else:
-            st.warning(f"⚠️ Enrichissement INPI non disponible pour '{entreprise}'" if entreprise else "⚠️ Variable 'Entreprise' non trouvée")
+            # Afficher les données INPI
+            with st.expander("📊 Informations INPI", expanded=inpi_enriched):
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("**SIRET**")
+                    st.text(siret)
+
+                    st.markdown("**Nom de la société**")
+                    st.text(variables.get("NOM DE LA SOCIETE", "Non disponible"))
+
+                    st.markdown("**Type de société**")
+                    st.text(variables.get("TYPE DE SOCIETE", "Non disponible"))
+
+                with col2:
+                    st.markdown("**Capital social**")
+                    st.text(variables.get("CAPITAL SOCIAL", "Non disponible"))
+
+                    st.markdown("**Localité RCS**")
+                    st.text(variables.get("LOCALITE RCS", "Non disponible"))
+
+                st.markdown("**Adresse de domiciliation**")
+                st.text(variables.get("ADRESSE DE DOMICILIATION", "Non disponible"))
+
+                st.markdown("**Président / Gérant**")
+                st.text(variables.get("PRESIDENT DE LA SOCIETE", "Non disponible"))
 
         # Détails complets
         with st.expander("📋 Voir toutes les variables extraites", expanded=False):
@@ -317,6 +337,71 @@ if uploaded_file is not None:
                         )
 
                     st.info(f"📁 Fichier sauvegardé: `{output_path}`")
+
+                    # Afficher tous les placeholders du template avec leur statut
+                    with st.expander("📝 Statut des placeholders du template"):
+                        # Extraire tous les placeholders du template
+                        all_placeholders = extract_all_placeholders(str(template_bail_path))
+                        categorized = categorize_placeholders(all_placeholders)
+
+                        # Compter les placeholders par statut
+                        filled_count = 0
+                        missing_count = 0
+
+                        st.markdown("### Variables normales")
+                        for placeholder in categorized["variables_normales"]:
+                            # Normaliser et chercher la valeur
+                            value = donnees_complete.get(placeholder)
+                            if not value:
+                                # Essayer avec normalisation
+                                from modules.bail_word_generator import BailWordGenerator
+                                wg = BailWordGenerator()
+                                normalized = wg._normalize_variable_name(placeholder, donnees_complete)
+                                value = donnees_complete.get(normalized)
+
+                            col1, col2, col3 = st.columns([2, 3, 1])
+                            with col1:
+                                st.markdown(f"**[{placeholder}]**")
+                            with col2:
+                                if value and str(value).strip():
+                                    st.text(str(value)[:50] + ("..." if len(str(value)) > 50 else ""))
+                                    filled_count += 1
+                                else:
+                                    st.markdown("*Non trouvé*")
+                                    missing_count += 1
+                            with col3:
+                                if value and str(value).strip():
+                                    st.markdown("✅")
+                                else:
+                                    st.markdown("❌")
+
+                        if categorized["variables_lettres"]:
+                            st.markdown("### Variables 'en lettres'")
+                            for placeholder in categorized["variables_lettres"]:
+                                base_var = placeholder.replace(" en lettres", "")
+                                value = donnees_complete.get(base_var)
+
+                                col1, col2, col3 = st.columns([2, 3, 1])
+                                with col1:
+                                    st.markdown(f"**[{placeholder}]**")
+                                with col2:
+                                    if value:
+                                        st.text(f"Basé sur: {base_var} = {value}")
+                                        filled_count += 1
+                                    else:
+                                        st.markdown(f"*Variable de base '{base_var}' non trouvée*")
+                                        missing_count += 1
+                                with col3:
+                                    if value:
+                                        st.markdown("✅")
+                                    else:
+                                        st.markdown("❌")
+
+                        st.markdown("---")
+                        if missing_count > 0:
+                            st.warning(f"⚠️ {missing_count} placeholders non remplacés sur {filled_count + missing_count} total")
+                        else:
+                            st.success(f"✅ Tous les {filled_count} placeholders seront remplacés")
 
                     # Informations
                     with st.expander("ℹ️ Informations BAIL"):
