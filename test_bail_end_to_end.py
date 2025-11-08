@@ -54,7 +54,7 @@ def test_bail_generation():
     print("\n2️⃣ GÉNÉRATION DU BAIL")
     print("-" * 60)
 
-    bail_generator = BailGenerator(config_bail)
+    bail_generator = BailGenerator(config_bail, source_file=test_file)
 
     # Générer les articles
     articles_generes = bail_generator.generer_bail(variables)

@@ -20,17 +20,25 @@ logger = logging.getLogger(__name__)
 class BailGenerator:
     """Générateur de documents BAIL avec logique conditionnelle."""
 
-    def __init__(self, excel_path: str = "Redaction BAIL.xlsx"):
+    def __init__(self, excel_path: str = "Redaction BAIL.xlsx", source_file: Optional[str] = None):
         """
         Initialise le générateur avec les règles depuis Excel.
 
         Args:
             excel_path: Chemin vers le fichier Excel contenant les règles
+            source_file: Chemin vers le fichier source (Fiche de décision) pour résoudre les formules
         """
         self.excel_path = excel_path
+        self.source_file = source_file
+        self.source_workbook = None
         self.regles_df = None
         self.donnees_df = None
         self._load_rules()
+
+        # Charger le fichier source si fourni
+        if source_file:
+            import openpyxl
+            self.source_workbook = openpyxl.load_workbook(source_file, data_only=True)
 
     def _load_rules(self):
         """Charge les règles depuis le fichier Excel."""
@@ -67,6 +75,75 @@ class BailGenerator:
         except Exception as e:
             logger.error(f"Erreur lors du chargement des règles BAIL: {e}")
             raise
+
+    def _resolve_formula(self, formula: str) -> Any:
+        """
+        Résout une formule Excel en lisant la valeur depuis le fichier source.
+
+        Args:
+            formula: Formule Excel (ex: "='3. Hypothèses'!E47" ou "='3. Hypothèses'!E38:E41")
+
+        Returns:
+            Valeur lue depuis le fichier source, ou liste de valeurs pour les plages
+        """
+        if not self.source_workbook or not formula:
+            return None
+
+        # Retirer le signe =
+        formula = str(formula).strip()
+        if formula.startswith("="):
+            formula = formula[1:]
+
+        # Parser la formule: 'Sheet Name'!CellRef ou Sheet!CellRange
+        if "!" not in formula:
+            return None
+
+        try:
+            parts = formula.split("!")
+            sheet_name = parts[0].strip("'")
+            cell_ref = parts[1].strip()
+
+            if sheet_name not in self.source_workbook.sheetnames:
+                logger.warning(f"Onglet '{sheet_name}' introuvable dans le fichier source")
+                return None
+
+            sheet = self.source_workbook[sheet_name]
+
+            # Gérer les plages de cellules (ex: E38:E41)
+            if ":" in cell_ref:
+                start_cell, end_cell = cell_ref.split(":")
+
+                # Extraire les coordonnées
+                from openpyxl.utils import column_index_from_string
+
+                start_col = ''.join([c for c in start_cell if c.isalpha()])
+                start_row = int(''.join([c for c in start_cell if c.isdigit()]))
+                end_col = ''.join([c for c in end_cell if c.isalpha()])
+                end_row = int(''.join([c for c in end_cell if c.isdigit()]))
+
+                # Lire toutes les valeurs de la plage
+                values = []
+                for row in range(start_row, end_row + 1):
+                    value = sheet[f"{start_col}{row}"].value
+                    if value:  # Ajouter seulement les valeurs non-vides
+                        values.append(str(value).strip())
+
+                return values if values else None
+            else:
+                # Cellule unique
+                value = sheet[cell_ref].value
+                if value is None:
+                    return None
+                elif isinstance(value, datetime):
+                    return value.strftime("%d/%m/%Y")
+                elif isinstance(value, (int, float)):
+                    return str(value)
+                else:
+                    return str(value).strip()
+
+        except Exception as e:
+            logger.warning(f"Erreur lors de la résolution de la formule '{formula}': {e}")
+            return None
 
     def _normaliser_nom_variable(self, nom: str) -> str:
         """
@@ -366,16 +443,55 @@ class BailGenerator:
             nom_source = ligne.get('Nom Source')
 
             if pd.notna(donnee_source) and pd.notna(nom_source):
+                # Résoudre la formule si nécessaire
+                valeur_attendue = donnee_source
+                if str(donnee_source).startswith('='):
+                    resolved = self._resolve_formula(donnee_source)
+                    if resolved is not None:
+                        valeur_attendue = resolved
+                    else:
+                        # Si la formule ne peut pas être résolue, passer à la ligne suivante
+                        logger.warning(f"Impossible de résoudre la formule: {donnee_source}")
+                        continue
+
                 # C'est un lookup: vérifier si la valeur correspond
-                # Gérer le cas où Nom Source contient plusieurs variables (multiligne)
-                noms_sources = [n.strip() for n in str(nom_source).split('\n') if n.strip()]
+                # Gérer le cas où Nom Source contient plusieurs variables (multiligne ou séparées par virgule)
+                # Pattern: "Conditions suspensives 1, 2, 3, 4." → ["Condition suspensive 1", "Condition suspensive 2", ...]
+                noms_sources = []
+
+                # Vérifier si c'est un pattern "BASE 1, 2, 3, 4"
+                import re
+                pattern_match = re.match(r'^(.+?)\s+(\d+)(?:,\s*(\d+))*', str(nom_source))
+                if pattern_match and ',' in str(nom_source):
+                    # Extraire la base et les nombres
+                    base = pattern_match.group(1).strip().rstrip('.')
+                    numbers = re.findall(r'\d+', str(nom_source))
+                    for num in numbers:
+                        noms_sources.append(f"{base} {num}")
+                else:
+                    # Split normal par newline
+                    for n in str(nom_source).split('\n'):
+                        n = n.strip().rstrip('.')
+                        if n:
+                            noms_sources.append(n)
 
                 match_found = False
-                for nom in noms_sources:
-                    valeur_actuelle = donnees.get(nom)
-                    if str(valeur_actuelle) == str(donnee_source):
-                        match_found = True
-                        break
+
+                # Gérer le cas des plages (liste de valeurs)
+                if isinstance(valeur_attendue, list):
+                    # Pour les plages, vérifier si au moins une valeur correspond
+                    for nom in noms_sources:
+                        valeur_actuelle = donnees.get(nom)
+                        if valeur_actuelle and str(valeur_actuelle) in valeur_attendue:
+                            match_found = True
+                            break
+                else:
+                    # Comparaison simple
+                    for nom in noms_sources:
+                        valeur_actuelle = donnees.get(nom)
+                        if str(valeur_actuelle) == str(valeur_attendue):
+                            match_found = True
+                            break
 
                 if not match_found:
                     continue  # Passer à la ligne suivante
@@ -468,7 +584,7 @@ class BailGenerator:
             ("Article 5.3", None),
             ("Article 7.1", None),
             ("Article 7.2", None),
-            ("Article 7.3", None),
+            ("Article  7.3", None),  # Note: 2 espaces dans le nom
             ("Article 7.6", None),
             ("Article 8", None),
             ("Article 19", None),
