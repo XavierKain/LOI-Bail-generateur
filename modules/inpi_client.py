@@ -20,6 +20,12 @@ except ImportError:
     logger = logging.getLogger(__name__)
     logger.warning("cloudscraper ou beautifulsoup4 non installé. Le scraping des dirigeants ne sera pas disponible.")
 
+try:
+    from playwright.sync_api import sync_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+
 from .config import Config, _get_secret
 
 logger = logging.getLogger(__name__)
@@ -235,92 +241,172 @@ class INPIClient:
         Returns:
             Nom du dirigeant ou None si non trouvé
         """
-        if not SCRAPING_AVAILABLE:
-            logger.warning("Scraping non disponible (beautifulsoup4 manquant)")
+        # Utiliser la méthode complète et retourner uniquement le dirigeant
+        full_data = self._scrape_inpi_full(siren)
+        if full_data:
+            return full_data.get("PRESIDENT DE LA SOCIETE")
+        return None
+
+    def _scrape_inpi_full(self, siren: str) -> Optional[Dict[str, str]]:
+        """
+        Scrape toutes les informations disponibles depuis data.inpi.fr avec Playwright.
+
+        Note: Cette méthode utilise Playwright pour récupérer les informations complètes
+        qui sont chargées dynamiquement via JavaScript sur data.inpi.fr.
+        Utilisé uniquement pour un usage légitime et limité.
+
+        Args:
+            siren: Numéro SIREN (9 chiffres)
+
+        Returns:
+            Dict avec toutes les informations trouvées ou None si erreur
+        """
+        if not PLAYWRIGHT_AVAILABLE:
+            logger.warning("Playwright non disponible - impossible de scraper les données complètes")
             return None
 
         url = f"https://data.inpi.fr/entreprises/{siren}"
 
         try:
-            logger.info(f"Tentative de scraping INPI pour SIREN {siren}")
+            logger.info(f"Tentative de scraping INPI complet avec Playwright pour SIREN {siren}")
 
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            response = requests.get(url, headers=headers, timeout=30)
+            result = {}
 
-            if response.status_code != 200:
-                logger.warning(f"Scraping INPI échoué (HTTP {response.status_code}) pour SIREN {siren}")
-                return None
+            with sync_playwright() as p:
+                # Lancer le navigateur en mode headless
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
 
-            logger.info(f"Scraping INPI réussi (HTTP 200) pour SIREN {siren}")
-            soup = BeautifulSoup(response.content, 'html.parser')
+                # Aller sur la page avec timeout plus long et stratégie de chargement moins stricte
+                logger.debug(f"Navigation vers {url}")
+                try:
+                    # Utiliser "domcontentloaded" au lieu de "networkidle" pour être moins strict
+                    page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                except Exception as e:
+                    logger.warning(f"Timeout lors du chargement complet, mais continuons: {e}")
 
-            # Chercher la section "Gestion et Direction"
-            # Le h3 contient "Gestion et Direction" avec id="representants"
-            gestion_h3 = soup.find('h3', id='representants')
+                # Attendre que le contenu soit chargé
+                page.wait_for_timeout(3000)  # 3 secondes pour que le JS s'exécute
 
-            if not gestion_h3:
-                logger.warning(f"Section 'Gestion et Direction' non trouvée pour SIREN {siren}")
-                return None
+                # 1. NOM DE LA SOCIETE - H1
+                try:
+                    h1_element = page.locator('h1').first
+                    if h1_element:
+                        nom_societe = h1_element.text_content().strip()
+                        # Nettoyer "Entreprise : NAME - SIREN XXX" → "NAME"
+                        if " - SIREN" in nom_societe:
+                            nom_societe = nom_societe.split(" - SIREN")[0]
+                        if nom_societe.startswith("Entreprise : "):
+                            nom_societe = nom_societe.replace("Entreprise : ", "")
+                        result["NOM DE LA SOCIETE"] = nom_societe.strip()
+                        logger.debug(f"Nom société trouvé: {result['NOM DE LA SOCIETE']}")
+                except Exception as e:
+                    logger.debug(f"Impossible d'extraire le nom: {e}")
 
-            logger.debug("Section 'Gestion et Direction' trouvée")
+                # 2. TYPE DE SOCIETE - Chercher "Forme juridique"
+                try:
+                    # Chercher le texte contenant "Forme juridique"
+                    forme_element = page.locator('text=/Forme juridique/').first
+                    if forme_element:
+                        # Le sibling suivant contient la valeur
+                        sibling = forme_element.locator('xpath=following-sibling::*[1]')
+                        forme = sibling.text_content().strip()
+                        result["TYPE DE SOCIETE"] = forme
+                        logger.debug(f"Type société trouvé: {forme}")
+                except Exception as e:
+                    logger.debug(f"Impossible d'extraire le type: {e}")
 
-            # Trouver le parent row qui contient les blocs dirigeant
-            section_row = gestion_h3.find_parent('div', class_='row')
-            if not section_row:
-                logger.warning("Impossible de trouver la section row")
-                return None
+                # 3. CAPITAL SOCIAL
+                try:
+                    capital_element = page.locator('text=/Capital/').first
+                    if capital_element:
+                        # Le sibling suivant contient la valeur
+                        sibling = capital_element.locator('xpath=following-sibling::*[1]')
+                        capital = sibling.text_content().strip()
+                        result["CAPITAL SOCIAL"] = capital
+                        logger.debug(f"Capital trouvé: {capital}")
+                except Exception as e:
+                    logger.debug(f"Impossible d'extraire le capital: {e}")
 
-            # Trouver tous les blocs dirigeant
-            blocs = section_row.find_all('div', class_='bloc-dirigeant')
-            logger.debug(f"Nombre de blocs dirigeant trouvés: {len(blocs)}")
+                # 4. ADRESSE DE DOMICILIATION
+                try:
+                    # Chercher "Adresse du siège"
+                    adresse_element = page.locator('text=/Adresse du siège/').first
+                    if adresse_element:
+                        # Le sibling suivant contient la valeur
+                        sibling = adresse_element.locator('xpath=following-sibling::*[1]')
+                        adresse = sibling.text_content().strip()
+                        result["ADRESSE DE DOMICILIATION"] = adresse
+                        logger.debug(f"Adresse trouvée: {adresse}")
 
-            if not blocs:
-                logger.warning(f"Aucun bloc dirigeant trouvé pour SIREN {siren}")
-                return None
+                        # 5. LOCALITE RCS - Extraire de l'adresse
+                        parts = adresse.split()
+                        for i, part in enumerate(parts):
+                            if part.isdigit() and len(part) == 5:  # Code postal
+                                if i + 1 < len(parts):
+                                    ville = ' '.join(parts[i+1:])
+                                    # Nettoyer les arrondissements et "FRANCE"
+                                    ville_clean = ville.replace(" 1ER ARRONDISSEMENT", "")
+                                    ville_clean = ville_clean.replace(" 2E ARRONDISSEMENT", "")
+                                    for j in range(3, 21):
+                                        ville_clean = ville_clean.replace(f" {j}E ARRONDISSEMENT", "")
+                                    ville_clean = ville_clean.replace(" FRANCE", "")
+                                    result["LOCALITE RCS"] = ville_clean.strip()
+                                    logger.debug(f"Localité RCS trouvée: {ville_clean}")
+                                    break
+                except Exception as e:
+                    logger.debug(f"Impossible d'extraire l'adresse: {e}")
 
-            # Extraire les informations des blocs
-            dirigeant_info = {}
-            for bloc in blocs:
-                paragraphs = bloc.find_all('p')
-                if len(paragraphs) >= 2:
-                    label = paragraphs[0].get_text().strip()
-                    valeur = paragraphs[1].get_text().strip()
-                    dirigeant_info[label] = valeur
-                    logger.debug(f"  {label}: {valeur}")
+                # 6. PRESIDENT DE LA SOCIETE - Section "Gestion et Direction"
+                try:
+                    # Attendre que la section dirigeants soit visible
+                    page.wait_for_selector('h3#representants', timeout=5000)
 
-            # Extraire le dirigeant selon les données disponibles
-            dirigeant = None
+                    # Chercher les blocs dirigeant
+                    blocs_dirigeant = page.locator('.bloc-dirigeant').all()
+                    logger.debug(f"Nombre de blocs dirigeant trouvés: {len(blocs_dirigeant)}")
 
-            # Cas 1: Dénomination (entreprise dirigeante)
-            if 'Dénomination' in dirigeant_info:
-                dirigeant = dirigeant_info['Dénomination']
-                logger.info(f"Dirigeant (dénomination) trouvé pour SIREN {siren}: {dirigeant}")
+                    if blocs_dirigeant:
+                        # Prendre le premier bloc (généralement le président)
+                        premier_bloc = blocs_dirigeant[0]
+                        paragraphes = premier_bloc.locator('p').all()
 
-            # Cas 2: Nom + Prénom (personne physique)
-            elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
-                nom = dirigeant_info['Nom']
-                prenom = dirigeant_info['Prénom']
-                # Capitaliser si tout en majuscules
-                nom_formatted = nom.capitalize() if nom.isupper() else nom
-                prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
-                dirigeant = f"{prenom_formatted} {nom_formatted}"
-                logger.info(f"Dirigeant (nom/prénom) trouvé pour SIREN {siren}: {dirigeant}")
+                        dirigeant_info = {}
+                        for i in range(0, len(paragraphes), 2):
+                            if i + 1 < len(paragraphes):
+                                label = paragraphes[i].text_content().strip()
+                                valeur = paragraphes[i + 1].text_content().strip()
+                                dirigeant_info[label] = valeur
+                                logger.debug(f"  {label}: {valeur}")
 
-            # Cas 3: Nom seulement
-            elif 'Nom' in dirigeant_info:
-                nom = dirigeant_info['Nom']
-                dirigeant = nom.capitalize() if nom.isupper() else nom
-                logger.info(f"Dirigeant (nom) trouvé pour SIREN {siren}: {dirigeant}")
+                        # Extraire le dirigeant
+                        dirigeant = None
+                        if 'Dénomination' in dirigeant_info:
+                            dirigeant = dirigeant_info['Dénomination']
+                        elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
+                            nom = dirigeant_info['Nom']
+                            prenom = dirigeant_info['Prénom']
+                            nom_formatted = nom.capitalize() if nom.isupper() else nom
+                            prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
+                            dirigeant = f"{prenom_formatted} {nom_formatted}"
+                        elif 'Nom' in dirigeant_info:
+                            nom = dirigeant_info['Nom']
+                            dirigeant = nom.capitalize() if nom.isupper() else nom
 
-            if not dirigeant:
-                logger.warning(f"Impossible d'extraire le nom du dirigeant pour SIREN {siren}")
+                        if dirigeant:
+                            result["PRESIDENT DE LA SOCIETE"] = dirigeant
+                            logger.info(f"Dirigeant trouvé: {dirigeant}")
 
-            return dirigeant
+                except Exception as e:
+                    logger.debug(f"Impossible d'extraire le dirigeant: {e}")
+
+                browser.close()
+
+            logger.info(f"Scraping Playwright réussi: {len(result)} champs récupérés")
+            return result if result else None
 
         except Exception as e:
-            logger.error(f"Erreur lors du scraping INPI pour SIREN {siren}: {str(e)}")
+            logger.error(f"Erreur lors du scraping Playwright INPI pour SIREN {siren}: {str(e)}")
             return None
 
     def get_company_info(self, siret: str) -> Dict[str, str]:
@@ -375,12 +461,16 @@ class INPIClient:
                 # Fallback: essayer le scraping direct si l'API ne répond pas
                 logger.info("API INPI non disponible, tentative de scraping direct...")
                 try:
-                    dirigeant_scraping = self._scrape_inpi_dirigeant(siren)
-                    if dirigeant_scraping:
-                        result["PRESIDENT DE LA SOCIETE"] = dirigeant_scraping
-                        result["enrichment_status"] = "partial"  # Seulement le dirigeant récupéré
-                        result["error_message"] = "Seul le dirigeant a pu être récupéré via scraping (API indisponible)"
-                        logger.info(f"Dirigeant récupéré via scraping: {dirigeant_scraping}")
+                    scraped_data = self._scrape_inpi_full(siren)
+                    if scraped_data:
+                        # Copier toutes les données récupérées par scraping
+                        for key, value in scraped_data.items():
+                            if value:  # Seulement si la valeur n'est pas vide
+                                result[key] = value
+
+                        result["enrichment_status"] = "success"  # Données récupérées via scraping
+                        result["error_message"] = "Données récupérées via scraping (API indisponible)"
+                        logger.info(f"Scraping complet réussi: {len(scraped_data)} champs récupérés")
                         return result
                 except Exception as e:
                     logger.warning(f"Échec du scraping fallback: {str(e)}")
