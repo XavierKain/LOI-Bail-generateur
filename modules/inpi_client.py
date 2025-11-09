@@ -229,10 +229,10 @@ class INPIClient:
 
     def _scrape_inpi_dirigeant(self, siren: str) -> Optional[str]:
         """
-        Scrape le nom du dirigeant depuis data.inpi.fr.
+        Scrape le nom du dirigeant depuis data.inpi.fr avec BeautifulSoup.
 
-        Note: Cette méthode utilise le web scraping pour récupérer les informations
-        de dirigeants qui ne sont pas disponibles via l'API INPI.
+        Note: Cette méthode utilise le web scraping léger (BeautifulSoup)
+        compatible avec Streamlit Cloud pour récupérer le dirigeant.
         Utilisé uniquement pour un usage légitime et limité.
 
         Args:
@@ -241,11 +241,74 @@ class INPIClient:
         Returns:
             Nom du dirigeant ou None si non trouvé
         """
-        # Utiliser la méthode complète et retourner uniquement le dirigeant
-        full_data = self._scrape_inpi_full(siren)
-        if full_data:
-            return full_data.get("PRESIDENT DE LA SOCIETE")
-        return None
+        if not SCRAPING_AVAILABLE:
+            logger.warning("BeautifulSoup non disponible")
+            return None
+
+        url = f"https://data.inpi.fr/entreprises/{siren}"
+
+        try:
+            logger.info(f"Tentative de scraping BeautifulSoup pour SIREN {siren}")
+
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=30)
+
+            if response.status_code != 200:
+                logger.warning(f"Scraping échoué (HTTP {response.status_code})")
+                return None
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Chercher la section "Gestion et Direction"
+            gestion_h3 = soup.find('h3', id='representants')
+            if not gestion_h3:
+                logger.warning("Section 'Gestion et Direction' non trouvée")
+                return None
+
+            # Trouver les blocs dirigeant
+            section_row = gestion_h3.find_parent('div', class_='row')
+            if not section_row:
+                return None
+
+            blocs = section_row.find_all('div', class_='bloc-dirigeant')
+            if not blocs:
+                logger.warning("Aucun bloc dirigeant trouvé")
+                return None
+
+            # Extraire les informations du premier bloc
+            dirigeant_info = {}
+            for bloc in blocs:
+                paragraphs = bloc.find_all('p')
+                if len(paragraphs) >= 2:
+                    label = paragraphs[0].get_text().strip()
+                    valeur = paragraphs[1].get_text().strip()
+                    dirigeant_info[label] = valeur
+
+            # Extraire le dirigeant
+            dirigeant = None
+            if 'Dénomination' in dirigeant_info:
+                dirigeant = dirigeant_info['Dénomination']
+            elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
+                nom = dirigeant_info['Nom']
+                prenom = dirigeant_info['Prénom']
+                nom_formatted = nom.capitalize() if nom.isupper() else nom
+                prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
+                dirigeant = f"{prenom_formatted} {nom_formatted}"
+            elif 'Nom' in dirigeant_info:
+                nom = dirigeant_info['Nom']
+                dirigeant = nom.capitalize() if nom.isupper() else nom
+
+            if dirigeant:
+                logger.info(f"Dirigeant trouvé: {dirigeant}")
+                return dirigeant
+
+            return None
+
+        except Exception as e:
+            logger.error(f"Erreur lors du scraping BeautifulSoup: {str(e)}")
+            return None
 
     def _scrape_inpi_full(self, siren: str) -> Optional[Dict[str, str]]:
         """
@@ -466,24 +529,37 @@ class INPIClient:
             company_data = self._search_by_siren(siren)
 
             if not company_data:
-                # Fallback: essayer le scraping direct si l'API ne répond pas
+                # Fallback 1: Essayer le scraping complet avec Playwright (si disponible)
                 logger.info("API INPI non disponible, tentative de scraping direct...")
                 try:
                     scraped_data = self._scrape_inpi_full(siren)
-                    if scraped_data:
+                    if scraped_data and len(scraped_data) > 0:
                         # Copier toutes les données récupérées par scraping
                         for key, value in scraped_data.items():
                             if value:  # Seulement si la valeur n'est pas vide
                                 result[key] = value
 
                         result["enrichment_status"] = "success"  # Données récupérées via scraping
-                        result["error_message"] = "Données récupérées via scraping (API indisponible)"
+                        result["error_message"] = "Données récupérées via scraping Playwright (API indisponible)"
                         logger.info(f"Scraping complet réussi: {len(scraped_data)} champs récupérés")
                         return result
                 except Exception as e:
-                    logger.warning(f"Échec du scraping fallback: {str(e)}")
+                    logger.warning(f"Échec du scraping Playwright: {str(e)}")
 
-                result["error_message"] = "Entreprise non trouvée dans la base INPI"
+                # Fallback 2: Essayer au moins de récupérer le dirigeant avec BeautifulSoup
+                logger.info("Playwright non disponible, tentative scraping BeautifulSoup (dirigeant seulement)...")
+                try:
+                    dirigeant = self._scrape_inpi_dirigeant(siren)
+                    if dirigeant:
+                        result["PRESIDENT DE LA SOCIETE"] = dirigeant
+                        result["enrichment_status"] = "partial"
+                        result["error_message"] = "Seul le dirigeant a pu être récupéré (API indisponible, environnement limité)"
+                        logger.info(f"Dirigeant récupéré via BeautifulSoup: {dirigeant}")
+                        return result
+                except Exception as e:
+                    logger.warning(f"Échec du scraping BeautifulSoup: {str(e)}")
+
+                result["error_message"] = "Entreprise non trouvée dans la base INPI (API et scraping échoués)"
                 logger.warning(result["error_message"])
                 return result
 
