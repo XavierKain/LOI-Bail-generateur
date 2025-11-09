@@ -276,13 +276,25 @@ class INPIClient:
                 if sibling:
                     result["TYPE DE SOCIETE"] = sibling.get_text(strip=True)
 
-            # 3. CAPITAL
+            # 3. CAPITAL - Formater comme "145 131 987 €"
             capital_elements = soup.find_all(string=lambda s: s and 'Capital social' in s)
             if capital_elements:
                 parent = capital_elements[0].parent
                 sibling = parent.find_next_sibling()
                 if sibling:
-                    result["CAPITAL SOCIAL"] = sibling.get_text(strip=True)
+                    capital_text = sibling.get_text(strip=True)
+                    # Extraire le montant (ex: "145131987 EUR" ou "145131987  EUR")
+                    import re
+                    match = re.search(r'([\d\s]+)', capital_text)
+                    if match:
+                        # Enlever tous les espaces existants
+                        montant = match.group(1).replace(' ', '').replace('\xa0', '')
+                        # Formater avec espaces tous les 3 chiffres
+                        montant_formate = '{:,}'.format(int(montant)).replace(',', ' ')
+                        result["CAPITAL SOCIAL"] = f"{montant_formate} €"
+                    else:
+                        # Fallback si le format est inattendu
+                        result["CAPITAL SOCIAL"] = capital_text.replace('EUR', '€').strip()
 
             # 4. ADRESSE
             adresse_elements = soup.find_all(string=lambda s: s and 'Adresse du siège' in s)
@@ -464,15 +476,25 @@ class INPIClient:
                 except Exception as e:
                     logger.debug(f"Impossible d'extraire le type: {e}")
 
-                # 3. CAPITAL SOCIAL
+                # 3. CAPITAL SOCIAL - Formater comme "145 131 987 €"
                 try:
                     capital_element = page.locator('text=/Capital/').first
                     if capital_element:
                         # Le sibling suivant contient la valeur
                         sibling = capital_element.locator('xpath=following-sibling::*[1]')
                         capital = sibling.text_content().strip()
-                        result["CAPITAL SOCIAL"] = capital
-                        logger.debug(f"Capital trouvé: {capital}")
+
+                        # Formater le capital
+                        import re
+                        match = re.search(r'([\d\s]+)', capital)
+                        if match:
+                            montant = match.group(1).replace(' ', '').replace('\xa0', '')
+                            montant_formate = '{:,}'.format(int(montant)).replace(',', ' ')
+                            result["CAPITAL SOCIAL"] = f"{montant_formate} €"
+                        else:
+                            result["CAPITAL SOCIAL"] = capital.replace('EUR', '€').strip()
+
+                        logger.debug(f"Capital trouvé: {result['CAPITAL SOCIAL']}")
                 except Exception as e:
                     logger.debug(f"Impossible d'extraire le capital: {e}")
 
