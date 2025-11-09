@@ -261,8 +261,16 @@ class INPIClient:
         Returns:
             Dict avec toutes les informations trouvées ou None si erreur
         """
-        if not PLAYWRIGHT_AVAILABLE:
+        # Vérifier dynamiquement si Playwright est disponible
+        try:
+            from playwright.sync_api import sync_playwright
+            playwright_available = True
+        except ImportError:
+            playwright_available = False
+
+        if not playwright_available:
             logger.warning("Playwright non disponible - impossible de scraper les données complètes")
+            logger.warning("Installez avec: pip install playwright && playwright install chromium")
             return None
 
         url = f"https://data.inpi.fr/entreprises/{siren}"
