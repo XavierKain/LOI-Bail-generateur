@@ -436,6 +436,9 @@ class BailGenerator:
             logger.warning(f"Aucune règle trouvée pour l'article '{article_name}'")
             return None
 
+        # Accumuler tous les textes qui matchent (pour les articles avec plusieurs parties comme 8.1 + 8.2)
+        textes_matches = []
+
         # Parcourir les lignes candidates et évaluer les conditions
         for ligne in lignes_candidates:
             # Vérifier si la donnée source correspond (pour les lookup tables)
@@ -503,10 +506,12 @@ class BailGenerator:
                 if pd.notna(texte):
                     # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
                     # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
-                    nom_source = ligne.get('Nom Source')
-                    if article_name == "Article préliminaire" and nom_source and "Condition suspensive" in str(nom_source):
+                    nom_source_check = ligne.get('Nom Source')
+                    if article_name == "Article préliminaire" and nom_source_check and "Condition suspensive" in str(nom_source_check):
                         return self._generer_conditions_suspensives(donnees, ligne)
-                    return str(texte)
+                    # Ajouter le texte à la liste
+                    textes_matches.append(str(texte))
+                    continue  # Continuer pour chercher d'autres lignes qui matchent
 
             # Évaluer Condition Option 2
             condition2 = ligne.get('Condition Option 2')
@@ -515,10 +520,16 @@ class BailGenerator:
                 if pd.notna(texte):
                     # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
                     # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
-                    nom_source = ligne.get('Nom Source')
-                    if article_name == "Article préliminaire" and nom_source and "Condition suspensive" in str(nom_source):
+                    nom_source_check = ligne.get('Nom Source')
+                    if article_name == "Article préliminaire" and nom_source_check and "Condition suspensive" in str(nom_source_check):
                         return self._generer_conditions_suspensives(donnees, ligne)
-                    return str(texte)
+                    # Ajouter le texte à la liste
+                    textes_matches.append(str(texte))
+                    continue  # Continuer pour chercher d'autres lignes qui matchent
+
+        # Retourner tous les textes concaténés
+        if textes_matches:
+            return "\n\n".join(textes_matches)
 
         logger.warning(f"Aucune condition satisfaite pour l'article '{article_name}'")
         return None
