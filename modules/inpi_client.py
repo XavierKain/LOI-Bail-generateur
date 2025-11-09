@@ -372,6 +372,19 @@ class INPIClient:
             company_data = self._search_by_siren(siren)
 
             if not company_data:
+                # Fallback: essayer le scraping direct si l'API ne répond pas
+                logger.info("API INPI non disponible, tentative de scraping direct...")
+                try:
+                    dirigeant_scraping = self._scrape_inpi_dirigeant(siren)
+                    if dirigeant_scraping:
+                        result["PRESIDENT DE LA SOCIETE"] = dirigeant_scraping
+                        result["enrichment_status"] = "partial"  # Seulement le dirigeant récupéré
+                        result["error_message"] = "Seul le dirigeant a pu être récupéré via scraping (API indisponible)"
+                        logger.info(f"Dirigeant récupéré via scraping: {dirigeant_scraping}")
+                        return result
+                except Exception as e:
+                    logger.warning(f"Échec du scraping fallback: {str(e)}")
+
                 result["error_message"] = "Entreprise non trouvée dans la base INPI"
                 logger.warning(result["error_message"])
                 return result
