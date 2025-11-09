@@ -98,7 +98,7 @@ class BailWordGenerator:
             "{{ARTICLE_5_3}}": articles_generes.get("Article 5.3", ""),
             "{{ARTICLE_7_1}}": articles_generes.get("Article 7.1", ""),
             "{{ARTICLE_7_2}}": articles_generes.get("Article 7.2", ""),
-            "{{ARTICLE_7_3}}": articles_generes.get("Article 7.3", ""),
+            "{{ARTICLE_7_3}}": articles_generes.get("Article  7.3", ""),  # Note: 2 espaces
             "{{ARTICLE_7_6}}": articles_generes.get("Article 7.6", ""),
             "{{ARTICLE_8}}": articles_generes.get("Article 8", ""),
             "{{ARTICLE_19}}": articles_generes.get("Article 19", ""),

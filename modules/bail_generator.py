@@ -501,6 +501,11 @@ class BailGenerator:
             if self.evaluer_condition(condition1, donnees):
                 texte = ligne.get('Entrée correspondante - Option 1')
                 if pd.notna(texte):
+                    # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
+                    # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
+                    nom_source = ligne.get('Nom Source')
+                    if article_name == "Article préliminaire" and nom_source and "Condition suspensive" in str(nom_source):
+                        return self._generer_conditions_suspensives(donnees, ligne)
                     return str(texte)
 
             # Évaluer Condition Option 2
@@ -508,10 +513,83 @@ class BailGenerator:
             if self.evaluer_condition(condition2, donnees):
                 texte = ligne.get('Entrée correspondante - Option 2')
                 if pd.notna(texte):
+                    # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
+                    # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
+                    nom_source = ligne.get('Nom Source')
+                    if article_name == "Article préliminaire" and nom_source and "Condition suspensive" in str(nom_source):
+                        return self._generer_conditions_suspensives(donnees, ligne)
                     return str(texte)
 
         logger.warning(f"Aucune condition satisfaite pour l'article '{article_name}'")
         return None
+
+    def _generer_conditions_suspensives(self, donnees: Dict[str, Any], ligne: pd.Series) -> str:
+        """
+        Génère le texte pour les conditions suspensives.
+        Si 1 seule condition → utilise colonne G (Option 1) directement (sans modification)
+        Si plusieurs → utilise colonne J (Option 2) avec remplacement des points a., b., c., d.
+
+        Args:
+            donnees: Données extraites
+            ligne: Ligne Excel avec les templates
+
+        Returns:
+            Texte généré pour les conditions suspensives
+        """
+        # Compter les conditions suspensives non vides
+        conditions = []
+        for i in range(1, 5):
+            key = f'Condition suspensive {i}'
+            value = donnees.get(key)
+            if value and str(value).strip() and str(value).lower() != 'none':
+                conditions.append((key, value))
+
+        logger.info(f"Conditions suspensives trouvées: {len(conditions)}")
+
+        # Si plusieurs conditions → colonne J avec liste
+        if len(conditions) > 1:
+            template = ligne.get('Entrée correspondante - Option 2')
+            if not pd.notna(template):
+                return ""
+
+            texte_final = str(template)
+
+            # Mapping des textes spécifiques par type de condition
+            textes_conditions = {
+                "Financement": "Obtention d'un prêt bancaire par le Preneur d'un montant de [X] € ([EN LETTRES] EUROS) auprès d'un organisme prêteur ;",
+                "Autorisations administratives": "Obtention d'un prêt bancaire par le Preneur d'un montant de [X] € ([EN LETTRES] EUROS) auprès d'un organisme prêteur ;",
+                "Extraction": "Obtention par le bailleur d'une autorisation de copropriété pour la réalisation de travaux d'installation d'un conduit d'extraction extérieur permettant notamment l'exercice d'une activité de restauration au sein des Locaux Loués ;",
+                "Libération des locaux": "Libération effective des Locaux Loués par l'actuel occupant, étant précisé que l'occupant a donné congé pour le [X] ;",
+                "Autre": "[.]"  # Point rouge vide à remplir manuellement
+            }
+
+            # Construire la liste des conditions a., b., c., d.
+            import re
+            lettres = ['a', 'b', 'c', 'd']
+            conditions_text = []
+
+            for idx, (key, value) in enumerate(conditions):
+                if idx < len(lettres):
+                    lettre = lettres[idx]
+                    texte_condition = textes_conditions.get(value, f"[Condition: {value}]")
+                    conditions_text.append(f"{lettre}. {texte_condition}")
+
+            # Remplacer le bloc entre "suivantes :" et "Ci-après" par la liste des conditions
+            pattern = r'suivantes\s*:\s*\n\s*\n(.+?)\n\s*\nCi-après'
+            replacement_lines = '\n'.join(conditions_text)
+            replacement = f'suivantes :\n \n{replacement_lines}\n \nCi-après'
+
+            texte_final = re.sub(pattern, replacement, texte_final, flags=re.DOTALL)
+
+            return texte_final
+
+        # Si 1 seule condition → colonne G (retourner tel quel sans modification)
+        elif len(conditions) == 1:
+            texte = ligne.get('Entrée correspondante - Option 1')
+            return str(texte) if pd.notna(texte) else ""
+
+        # Aucune condition
+        return ""
 
     def remplacer_placeholders(self, texte: str, donnees: Dict[str, Any]) -> str:
         """
