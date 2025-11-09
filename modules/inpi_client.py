@@ -227,19 +227,18 @@ class INPIClient:
             logger.error(f"Erreur lors de l'extraction du dirigeant depuis l'API: {str(e)}")
             return None
 
-    def _scrape_inpi_dirigeant(self, siren: str) -> Optional[str]:
+    def _scrape_inpi_beautifulsoup(self, siren: str) -> Optional[Dict[str, str]]:
         """
-        Scrape le nom du dirigeant depuis data.inpi.fr avec BeautifulSoup.
+        Scrape TOUTES les informations depuis data.inpi.fr avec BeautifulSoup.
 
-        Note: Cette méthode utilise le web scraping léger (BeautifulSoup)
-        compatible avec Streamlit Cloud pour récupérer le dirigeant.
-        Utilisé uniquement pour un usage légitime et limité.
+        Note: Les données sont présentes dans le HTML initial (pas de JavaScript requis)!
+        Compatible avec Streamlit Cloud.
 
         Args:
             siren: Numéro SIREN (9 chiffres)
 
         Returns:
-            Nom du dirigeant ou None si non trouvé
+            Dict avec toutes les informations ou None
         """
         if not SCRAPING_AVAILABLE:
             logger.warning("BeautifulSoup non disponible")
@@ -248,67 +247,101 @@ class INPIClient:
         url = f"https://data.inpi.fr/entreprises/{siren}"
 
         try:
-            logger.info(f"Tentative de scraping BeautifulSoup pour SIREN {siren}")
+            logger.info(f"Scraping BeautifulSoup complet pour SIREN {siren}")
 
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
             response = requests.get(url, headers=headers, timeout=30)
 
             if response.status_code != 200:
-                logger.warning(f"Scraping échoué (HTTP {response.status_code})")
                 return None
 
             soup = BeautifulSoup(response.content, 'html.parser')
+            result = {}
 
-            # Chercher la section "Gestion et Direction"
+            # 1. NOM
+            h1 = soup.find('h1')
+            if h1:
+                nom = h1.get_text().strip()
+                if " - SIREN" in nom:
+                    nom = nom.split(" - SIREN")[0]
+                if nom.startswith("Entreprise : "):
+                    nom = nom.replace("Entreprise : ", "")
+                result["NOM DE LA SOCIETE"] = nom.strip()
+
+            # 2. TYPE - Chercher "Forme juridique" et son sibling
+            forme_elements = soup.find_all(string=lambda s: s and 'Forme juridique' in s)
+            if forme_elements:
+                parent = forme_elements[0].parent
+                sibling = parent.find_next_sibling()
+                if sibling:
+                    result["TYPE DE SOCIETE"] = sibling.get_text(strip=True)
+
+            # 3. CAPITAL
+            capital_elements = soup.find_all(string=lambda s: s and 'Capital social' in s)
+            if capital_elements:
+                parent = capital_elements[0].parent
+                sibling = parent.find_next_sibling()
+                if sibling:
+                    result["CAPITAL SOCIAL"] = sibling.get_text(strip=True)
+
+            # 4. ADRESSE
+            adresse_elements = soup.find_all(string=lambda s: s and 'Adresse du siège' in s)
+            if adresse_elements:
+                parent = adresse_elements[0].parent
+                sibling = parent.find_next_sibling()
+                if sibling:
+                    adresse = sibling.get_text(strip=True)
+                    result["ADRESSE DE DOMICILIATION"] = adresse
+
+                    # 5. LOCALITE RCS
+                    parts = adresse.split()
+                    for i, part in enumerate(parts):
+                        if part.isdigit() and len(part) == 5:
+                            if i + 1 < len(parts):
+                                ville = ' '.join(parts[i+1:])
+                                ville = ville.replace(" 1ER ARRONDISSEMENT", "").replace(" 2E ARRONDISSEMENT", "")
+                                for j in range(3, 21):
+                                    ville = ville.replace(f" {j}E ARRONDISSEMENT", "")
+                                result["LOCALITE RCS"] = ville.replace(" FRANCE", "").strip()
+                                break
+
+            # 6. DIRIGEANT
             gestion_h3 = soup.find('h3', id='representants')
-            if not gestion_h3:
-                logger.warning("Section 'Gestion et Direction' non trouvée")
-                return None
+            if gestion_h3:
+                section_row = gestion_h3.find_parent('div', class_='row')
+                if section_row:
+                    blocs = section_row.find_all('div', class_='bloc-dirigeant')
+                    if blocs:
+                        dirigeant_info = {}
+                        for bloc in blocs:
+                            paras = bloc.find_all('p')
+                            if len(paras) >= 2:
+                                dirigeant_info[paras[0].get_text().strip()] = paras[1].get_text().strip()
 
-            # Trouver les blocs dirigeant
-            section_row = gestion_h3.find_parent('div', class_='row')
-            if not section_row:
-                return None
+                        dirigeant = None
+                        if 'Dénomination' in dirigeant_info:
+                            dirigeant = dirigeant_info['Dénomination']
+                        elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
+                            nom = dirigeant_info['Nom'].capitalize() if dirigeant_info['Nom'].isupper() else dirigeant_info['Nom']
+                            prenom = dirigeant_info['Prénom'].capitalize() if dirigeant_info['Prénom'].isupper() else dirigeant_info['Prénom']
+                            dirigeant = f"{prenom} {nom}"
+                        elif 'Nom' in dirigeant_info:
+                            dirigeant = dirigeant_info['Nom'].capitalize() if dirigeant_info['Nom'].isupper() else dirigeant_info['Nom']
 
-            blocs = section_row.find_all('div', class_='bloc-dirigeant')
-            if not blocs:
-                logger.warning("Aucun bloc dirigeant trouvé")
-                return None
+                        if dirigeant:
+                            result["PRESIDENT DE LA SOCIETE"] = dirigeant
 
-            # Extraire les informations du premier bloc
-            dirigeant_info = {}
-            for bloc in blocs:
-                paragraphs = bloc.find_all('p')
-                if len(paragraphs) >= 2:
-                    label = paragraphs[0].get_text().strip()
-                    valeur = paragraphs[1].get_text().strip()
-                    dirigeant_info[label] = valeur
-
-            # Extraire le dirigeant
-            dirigeant = None
-            if 'Dénomination' in dirigeant_info:
-                dirigeant = dirigeant_info['Dénomination']
-            elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
-                nom = dirigeant_info['Nom']
-                prenom = dirigeant_info['Prénom']
-                nom_formatted = nom.capitalize() if nom.isupper() else nom
-                prenom_formatted = prenom.capitalize() if prenom.isupper() else prenom
-                dirigeant = f"{prenom_formatted} {nom_formatted}"
-            elif 'Nom' in dirigeant_info:
-                nom = dirigeant_info['Nom']
-                dirigeant = nom.capitalize() if nom.isupper() else nom
-
-            if dirigeant:
-                logger.info(f"Dirigeant trouvé: {dirigeant}")
-                return dirigeant
-
-            return None
+            logger.info(f"Scraping BeautifulSoup réussi: {len(result)} champs")
+            return result if result else None
 
         except Exception as e:
-            logger.error(f"Erreur lors du scraping BeautifulSoup: {str(e)}")
+            logger.error(f"Erreur scraping BeautifulSoup: {str(e)}")
             return None
+
+    def _scrape_inpi_dirigeant(self, siren: str) -> Optional[str]:
+        """Wrapper pour compatibilité - retourne seulement le dirigeant."""
+        full_data = self._scrape_inpi_beautifulsoup(siren)
+        return full_data.get("PRESIDENT DE LA SOCIETE") if full_data else None
 
     def _scrape_inpi_full(self, siren: str) -> Optional[Dict[str, str]]:
         """
@@ -529,32 +562,20 @@ class INPIClient:
             company_data = self._search_by_siren(siren)
 
             if not company_data:
-                # Fallback 1: Essayer le scraping complet avec Playwright (si disponible)
-                logger.info("API INPI non disponible, tentative de scraping direct...")
+                # Fallback: Essayer le scraping avec BeautifulSoup (TOUS les champs!)
+                # BeautifulSoup fonctionne sur Streamlit Cloud contrairement à Playwright
+                logger.info("API INPI non disponible, tentative de scraping BeautifulSoup...")
                 try:
-                    scraped_data = self._scrape_inpi_full(siren)
+                    scraped_data = self._scrape_inpi_beautifulsoup(siren)
                     if scraped_data and len(scraped_data) > 0:
-                        # Copier toutes les données récupérées par scraping
+                        # Copier toutes les données récupérées
                         for key, value in scraped_data.items():
-                            if value:  # Seulement si la valeur n'est pas vide
+                            if value:
                                 result[key] = value
 
-                        result["enrichment_status"] = "success"  # Données récupérées via scraping
-                        result["error_message"] = "Données récupérées via scraping Playwright (API indisponible)"
-                        logger.info(f"Scraping complet réussi: {len(scraped_data)} champs récupérés")
-                        return result
-                except Exception as e:
-                    logger.warning(f"Échec du scraping Playwright: {str(e)}")
-
-                # Fallback 2: Essayer au moins de récupérer le dirigeant avec BeautifulSoup
-                logger.info("Playwright non disponible, tentative scraping BeautifulSoup (dirigeant seulement)...")
-                try:
-                    dirigeant = self._scrape_inpi_dirigeant(siren)
-                    if dirigeant:
-                        result["PRESIDENT DE LA SOCIETE"] = dirigeant
-                        result["enrichment_status"] = "partial"
-                        result["error_message"] = "Seul le dirigeant a pu être récupéré (API indisponible, environnement limité)"
-                        logger.info(f"Dirigeant récupéré via BeautifulSoup: {dirigeant}")
+                        result["enrichment_status"] = "success"
+                        result["error_message"] = "Données récupérées via scraping BeautifulSoup (API indisponible)"
+                        logger.info(f"Scraping BeautifulSoup réussi: {len(scraped_data)} champs récupérés")
                         return result
                 except Exception as e:
                     logger.warning(f"Échec du scraping BeautifulSoup: {str(e)}")
