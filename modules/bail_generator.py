@@ -557,7 +557,7 @@ class BailGenerator:
             # Mapping des textes spécifiques par type de condition
             textes_conditions = {
                 "Financement": "Obtention d'un prêt bancaire par le Preneur d'un montant de [X] € ([EN LETTRES] EUROS) auprès d'un organisme prêteur ;",
-                "Autorisations administratives": "Obtention d'un prêt bancaire par le Preneur d'un montant de [X] € ([EN LETTRES] EUROS) auprès d'un organisme prêteur ;",
+                "Autorisations administratives": "Obtention par le Preneur de l'ensemble des autorisations administratives pour la réalisation des travaux nécessaires à la bonne exploitation de son activité et à la mise en place dans les Locaux Loués de son concept, à savoir une Déclaration Préalable pour les modifications de façade, une demande d'Autorisation d'aménager un établissement recevant du public (ERP) ou toute autre autorisation administrative qui s'avérerait indispensable à l'ouverture et à l'exploitation des Locaux Loués au vu de la localisation spécifique de ces derniers. Le Preneur s'engage à justifier au Bailleur du dépôt de ces autorisations administratives au plus tard 1 (UN) mois après la signature des présentes. ;",
                 "Extraction": "Obtention par le bailleur d'une autorisation de copropriété pour la réalisation de travaux d'installation d'un conduit d'extraction extérieur permettant notamment l'exercice d'une activité de restauration au sein des Locaux Loués ;",
                 "Libération des locaux": "Libération effective des Locaux Loués par l'actuel occupant, étant précisé que l'occupant a donné congé pour le [X] ;",
                 "Autre": "[.]"  # Point rouge vide à remplir manuellement
