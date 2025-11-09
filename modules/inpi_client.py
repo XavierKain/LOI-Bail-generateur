@@ -305,31 +305,75 @@ class INPIClient:
                                 result["LOCALITE RCS"] = ville.replace(" FRANCE", "").strip()
                                 break
 
-            # 6. DIRIGEANT
+            # 6. DIRIGEANT - avec filtrage pour ignorer les commissaires aux comptes
             gestion_h3 = soup.find('h3', id='representants')
             if gestion_h3:
                 section_row = gestion_h3.find_parent('div', class_='row')
                 if section_row:
                     blocs = section_row.find_all('div', class_='bloc-dirigeant')
                     if blocs:
-                        dirigeant_info = {}
+                        # Regrouper les blocs par personne (chaque groupe commence par Nom ou Dénomination)
+                        dirigeants = []
+                        current_dirigeant = {}
+
                         for bloc in blocs:
                             paras = bloc.find_all('p')
                             if len(paras) >= 2:
-                                dirigeant_info[paras[0].get_text().strip()] = paras[1].get_text().strip()
+                                label = paras[0].get_text().strip()
+                                value = paras[1].get_text().strip()
+
+                                # Nouveau dirigeant si on voit Nom ou Dénomination
+                                if label in ['Nom, Prénom(s)', 'Dénomination']:
+                                    if current_dirigeant:  # Sauver le précédent
+                                        dirigeants.append(current_dirigeant)
+                                    current_dirigeant = {}
+
+                                current_dirigeant[label] = value
+
+                        # Ajouter le dernier
+                        if current_dirigeant:
+                            dirigeants.append(current_dirigeant)
+
+                        # Filtrer pour trouver le vrai dirigeant (pas les commissaires)
+                        qualites_dirigeant = [
+                            'Gérant',
+                            'Président',
+                            'Directeur général',
+                            'Président du conseil d\'administration',
+                            'Président du conseil de surveillance'
+                        ]
 
                         dirigeant = None
-                        if 'Dénomination' in dirigeant_info:
-                            dirigeant = dirigeant_info['Dénomination']
-                        elif 'Nom' in dirigeant_info and 'Prénom' in dirigeant_info:
-                            nom = dirigeant_info['Nom'].capitalize() if dirigeant_info['Nom'].isupper() else dirigeant_info['Nom']
-                            prenom = dirigeant_info['Prénom'].capitalize() if dirigeant_info['Prénom'].isupper() else dirigeant_info['Prénom']
-                            dirigeant = f"{prenom} {nom}"
-                        elif 'Nom' in dirigeant_info:
-                            dirigeant = dirigeant_info['Nom'].capitalize() if dirigeant_info['Nom'].isupper() else dirigeant_info['Nom']
+                        for d in dirigeants:
+                            qualite = d.get('Qualité', '')
 
-                        if dirigeant:
-                            result["PRESIDENT DE LA SOCIETE"] = dirigeant
+                            # Ignorer les commissaires aux comptes
+                            if 'Commissaire' in qualite:
+                                continue
+
+                            # Vérifier si c'est un vrai dirigeant
+                            is_dirigeant = any(q.lower() in qualite.lower() for q in qualites_dirigeant)
+
+                            if is_dirigeant:
+                                # Extraire le nom
+                                if 'Dénomination' in d:
+                                    dirigeant = d['Dénomination']
+                                elif 'Nom, Prénom(s)' in d:
+                                    nom_prenom = d['Nom, Prénom(s)']
+                                    # Nettoyer les espaces multiples et sauts de ligne
+                                    parts = [p.strip() for p in nom_prenom.split() if p.strip()]
+                                    if len(parts) >= 2:
+                                        # Premier mot = Nom, reste = Prénom(s)
+                                        nom = parts[0].capitalize() if parts[0].isupper() else parts[0]
+                                        prenom = ' '.join(parts[1:])
+                                        prenom = prenom.capitalize() if prenom.isupper() else prenom
+                                        dirigeant = f"{prenom} {nom}"
+                                    elif len(parts) == 1:
+                                        dirigeant = parts[0].capitalize() if parts[0].isupper() else parts[0]
+
+                                if dirigeant:
+                                    result["PRESIDENT DE LA SOCIETE"] = dirigeant
+                                    break
 
             logger.info(f"Scraping BeautifulSoup réussi: {len(result)} champs")
             return result if result else None
