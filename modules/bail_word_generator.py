@@ -7,12 +7,15 @@ dans le template Word avec placeholders, puis remplace tous les placeholders
 """
 
 from docx import Document
-from docx.shared import RGBColor
+from docx.shared import RGBColor, Pt
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional, Union
 import logging
 import re
+import openpyxl
+from openpyxl.cell.rich_text import CellRichText
 from .number_to_french import number_to_french_words
+from .text_style import TextStyle, RichTextStyle
 
 logger = logging.getLogger(__name__)
 
@@ -52,18 +55,67 @@ class BailWordGenerator:
 
         return normalized
 
-    def __init__(self, template_path: str = "Template BAIL avec placeholder.docx"):
+    def __init__(self, template_path: str = "Template BAIL avec placeholder.docx",
+                 excel_config_path: str = "Redaction BAIL.xlsx"):
         """
         Initialise le générateur Word pour BAIL.
 
         Args:
             template_path: Chemin vers le template Word avec placeholders
+            excel_config_path: Chemin vers le fichier Excel de configuration (pour les styles)
         """
         self.template_path = Path(template_path)
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template non trouvé: {template_path}")
 
+        self.excel_config_path = Path(excel_config_path)
+        self.text_styles = {}  # {row_idx: {col_name: TextStyle}}
+
+        # Charger les styles depuis l'Excel
+        if self.excel_config_path.exists():
+            self._load_styles_from_excel()
+
         logger.info(f"Template BAIL chargé: {template_path}")
+
+    def _load_styles_from_excel(self):
+        """Charge les styles de texte depuis le fichier Excel de configuration."""
+        try:
+            # Charger avec data_only=False pour détecter le rich text
+            wb = openpyxl.load_workbook(self.excel_config_path, data_only=False, rich_text=True)
+            ws_bail = wb["Rédaction BAIL"]
+
+            headers = [cell.value for cell in ws_bail[1]]
+
+            for row_idx in range(2, ws_bail.max_row + 1):
+                row_styles = {}
+
+                for col_idx, header in enumerate(headers, start=1):
+                    if header:
+                        cell = ws_bail.cell(row_idx, col_idx)
+                        if cell.value is not None:
+                            # Vérifier si c'est du rich text
+                            if isinstance(cell.value, CellRichText):
+                                # Rich text avec formatage partiel
+                                rich_style = RichTextStyle.from_excel_rich_text(cell.value)
+                                row_styles[header] = rich_style
+                            else:
+                                # Texte simple avec formatage uniforme
+                                style = TextStyle.from_excel_cell(cell)
+                                if isinstance(cell.value, str):
+                                    style.text = cell.value.strip()
+                                else:
+                                    style.text = str(cell.value)
+                                row_styles[header] = style
+
+                if row_styles:
+                    self.text_styles[row_idx] = row_styles
+
+            wb.close()
+            logger.info(f"Styles chargés depuis {self.excel_config_path}: {len(self.text_styles)} lignes")
+
+        except Exception as e:
+            logger.warning(f"Impossible de charger les styles depuis Excel: {e}")
+            self.text_styles = {}
 
     def generer_document(
         self,
@@ -368,6 +420,36 @@ class BailWordGenerator:
                     paragraph.runs[0].text = new_text
                 else:
                     paragraph.text = new_text
+
+    def _set_paragraph_text_with_styles(self, paragraph, text: str,
+                                         text_style: Optional[Union[TextStyle, RichTextStyle]] = None):
+        """
+        Remplace le texte d'un paragraphe en appliquant les styles si disponibles.
+
+        Args:
+            paragraph: Paragraphe Word
+            text: Nouveau texte (ignoré si text_style est RichTextStyle)
+            text_style: Style à appliquer (TextStyle ou RichTextStyle, optionnel)
+        """
+        # Vider tous les runs existants
+        for run in paragraph.runs:
+            run.text = ""
+
+        if isinstance(text_style, RichTextStyle):
+            # Rich text: appliquer directement au paragraphe
+            text_style.apply_to_word_paragraph(paragraph)
+        else:
+            # Texte simple: créer un seul run
+            if paragraph.runs:
+                new_run = paragraph.runs[0]
+            else:
+                new_run = paragraph.add_run()
+
+            new_run.text = text
+
+            # Appliquer les styles si disponibles
+            if text_style:
+                text_style.apply_to_word_run(new_run)
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """

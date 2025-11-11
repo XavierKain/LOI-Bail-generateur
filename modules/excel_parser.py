@@ -10,6 +10,7 @@ from pathlib import Path
 import openpyxl
 from openpyxl.utils.exceptions import InvalidFileException
 from .inpi_client import get_inpi_client
+from .text_style import TextStyle
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,44 @@ class ExcelParser:
 
         except Exception as e:
             logger.warning(f"Erreur lecture cellule {sheet_name}!{cell_ref}: {e}")
+            return None
+
+    def _get_cell_with_style(self, sheet_name: str, cell_ref: str) -> Optional[TextStyle]:
+        """
+        Récupère une cellule avec son style depuis un onglet.
+
+        Args:
+            sheet_name: Nom de l'onglet
+            cell_ref: Référence de la cellule (ex: "B23")
+
+        Returns:
+            TextStyle avec valeur et formatage, ou None
+        """
+        try:
+            if sheet_name not in self.workbook.sheetnames:
+                logger.warning(f"Onglet '{sheet_name}' introuvable")
+                return None
+
+            sheet = self.workbook[sheet_name]
+            cell = sheet[cell_ref]
+
+            # Convertir en TextStyle
+            style = TextStyle.from_excel_cell(cell)
+
+            # Formater la valeur comme dans _get_cell_value
+            if cell.value is None:
+                return None
+            elif isinstance(cell.value, datetime):
+                style.text = cell.value.strftime("%d/%m/%Y")
+            elif isinstance(cell.value, (int, float)):
+                style.text = str(cell.value)
+            else:
+                style.text = str(cell.value).strip()
+
+            return style
+
+        except Exception as e:
+            logger.warning(f"Erreur lecture cellule avec style {sheet_name}!{cell_ref}: {e}")
             return None
 
     def _parse_formula(self, formula: str) -> Optional[str]:

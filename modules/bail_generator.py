@@ -13,6 +13,7 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, Optional, List, Any
 import logging
+from .text_style import TextStyle
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class BailGenerator:
         self.source_workbook = None
         self.regles_df = None
         self.donnees_df = None
+        self.text_styles = {}  # Dictionnaire pour stocker les styles: {row_idx: {col_name: TextStyle}}
         self._load_rules()
 
         # Charger le fichier source si fourni
@@ -55,13 +57,29 @@ class BailGenerator:
 
             for row_idx in range(2, ws_bail.max_row + 1):
                 row_data = {}
+                row_styles = {}
+
                 for col_idx, header in enumerate(headers, start=1):
                     if header:  # Skip empty headers
-                        cell_value = ws_bail.cell(row_idx, col_idx).value
+                        cell = ws_bail.cell(row_idx, col_idx)
+                        cell_value = cell.value
                         row_data[header] = cell_value
+
+                        # Capturer le style si la cellule a du contenu
+                        if cell_value is not None:
+                            style = TextStyle.from_excel_cell(cell)
+                            # Formater le texte
+                            if isinstance(cell_value, str):
+                                style.text = cell_value.strip()
+                            else:
+                                style.text = str(cell_value)
+                            row_styles[header] = style
 
                 # Ajouter la ligne même si Article est None
                 regles_list.append(row_data)
+                # Stocker les styles pour cette ligne
+                if row_styles:
+                    self.text_styles[row_idx] = row_styles
 
             self.regles_df = pd.DataFrame(regles_list)
 
