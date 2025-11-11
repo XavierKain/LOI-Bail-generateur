@@ -239,6 +239,27 @@ class BailWordGenerator:
 
         return ""
 
+    def _get_section_id_for_text(self, text: str) -> Optional[str]:
+        """
+        Tente de trouver l'ID de section correspondant dans le document Word.
+
+        Args:
+            text: Le texte à chercher
+
+        Returns:
+            L'ID de section si trouvé, sinon None
+        """
+        if not text or not self.word_text_loader:
+            return None
+
+        # Chercher dans toutes les sections
+        for section_id in self.word_text_loader.get_section_ids():
+            section_para = self.word_text_loader.get_formatted_paragraph(section_id)
+            if section_para and section_para.text.strip() == text.strip():
+                return section_id
+
+        return None
+
     def _replace_article_placeholders(
         self,
         paragraph,
@@ -246,6 +267,7 @@ class BailWordGenerator:
     ) -> None:
         """
         Remplace les placeholders {{ARTICLE}} dans un paragraphe.
+        Applique le formatage depuis le document Word si disponible.
 
         Args:
             paragraph: Paragraphe docx
@@ -264,6 +286,21 @@ class BailWordGenerator:
                 if not replacement:
                     full_text = full_text.replace(placeholder, "")
                 else:
+                    # Chercher si on a un paragraphe formaté dans le Word
+                    section_id = self._get_section_id_for_text(replacement)
+
+                    if section_id:
+                        # On a trouvé le formatage ! L'appliquer
+                        source_para = self.word_text_loader.get_formatted_paragraph(section_id)
+                        if source_para:
+                            # Remplacer le placeholder par le texte formaté
+                            full_text = full_text.replace(placeholder, replacement)
+                            # Appliquer le formatage
+                            self.word_text_loader.copy_formatted_text_to_paragraph(source_para, paragraph)
+                            logger.info(f"✨ Formatage appliqué depuis Word pour {section_id}")
+                            return  # Important: sortir pour ne pas écraser le formatage
+
+                    # Sinon, remplacement normal sans formatage
                     full_text = full_text.replace(placeholder, replacement)
 
         # Si le texte a changé, on met à jour le paragraphe
