@@ -47,7 +47,7 @@ st.markdown("---")
 config_loi_path = Path("Rédaction LOI.xlsx")
 template_loi_path = Path("Template LOI avec placeholder.docx")
 config_bail_path = Path("Redaction BAIL.xlsx")
-template_bail_path = Path("Template BAIL avec placeholder.docx")
+template_bail_path = Path("2025 - Template BAIL.docx")
 
 missing_files = []
 if not config_loi_path.exists():
