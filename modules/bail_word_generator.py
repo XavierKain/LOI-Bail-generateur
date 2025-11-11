@@ -16,6 +16,7 @@ import openpyxl
 from openpyxl.cell.rich_text import CellRichText
 from .number_to_french import number_to_french_words
 from .text_style import TextStyle, RichTextStyle
+from .word_text_loader import WordTextLoader
 
 logger = logging.getLogger(__name__)
 
@@ -56,26 +57,28 @@ class BailWordGenerator:
         return normalized
 
     def __init__(self, template_path: str = "Template BAIL avec placeholder.docx",
-                 excel_config_path: str = "Redaction BAIL.xlsx"):
+                 excel_config_path: str = "Redaction BAIL.xlsx",
+                 word_styles_path: str = "Textes BAIL avec styles.docx"):
         """
         Initialise le générateur Word pour BAIL.
 
         Args:
             template_path: Chemin vers le template Word avec placeholders
-            excel_config_path: Chemin vers le fichier Excel de configuration (pour les styles)
+            excel_config_path: Chemin vers le fichier Excel de configuration (pour les styles - deprecated)
+            word_styles_path: Chemin vers le document Word contenant les textes formatés
         """
         self.template_path = Path(template_path)
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template non trouvé: {template_path}")
 
         self.excel_config_path = Path(excel_config_path)
-        self.text_styles = {}  # {row_idx: {col_name: TextStyle}}
+        self.text_styles = {}  # {row_idx: {col_name: TextStyle}} - deprecated
 
-        # Charger les styles depuis l'Excel
-        if self.excel_config_path.exists():
-            self._load_styles_from_excel()
+        # Charger les styles depuis le document Word
+        self.word_text_loader = WordTextLoader(word_styles_path)
 
         logger.info(f"Template BAIL chargé: {template_path}")
+        logger.info(f"Styles chargés: {self.word_text_loader}")
 
     def _load_styles_from_excel(self):
         """Charge les styles de texte depuis le fichier Excel de configuration."""
