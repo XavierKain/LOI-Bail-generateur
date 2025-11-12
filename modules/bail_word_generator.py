@@ -322,7 +322,7 @@ class BailWordGenerator:
         donnees: Dict[str, any]
     ) -> None:
         """
-        Remplace les placeholders [Variable] dans un paragraphe.
+        Remplace les placeholders [Variable] dans un paragraphe EN PRÉSERVANT LE FORMATAGE.
         Met les placeholders manquants en ROUGE.
         Gère les placeholders "en lettres" pour conversion numérique.
 
@@ -338,27 +338,49 @@ class BailWordGenerator:
         if not placeholders:
             return
 
-        # Vérifier si des données manquent
-        missing_data = False
+        # Pour chaque placeholder, essayer de le remplacer avec formatage préservé
         for placeholder in placeholders:
+            placeholder_with_brackets = f"[{placeholder}]"
+
             # Gestion spéciale pour les placeholders "en lettres"
             if placeholder.endswith(" en lettres"):
-                # Extraire le nom de la variable de base
                 base_variable = placeholder.replace(" en lettres", "")
-                # Normaliser le nom de variable
                 base_variable = self._normalize_variable_name(base_variable, donnees)
                 value = donnees.get(base_variable)
+
+                if value and str(value).strip():
+                    try:
+                        value_clean = str(value).replace(" ", "").replace(",", ".")
+                        numeric_value = float(value_clean)
+                        words = number_to_french_words(numeric_value)
+                        # Remplacer avec préservation du formatage
+                        replace_placeholder_with_format(paragraph, placeholder_with_brackets, words + " ")
+                        logger.info(f"✨ Formatage préservé pour placeholder '{placeholder}'")
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
+                        # Laisser le placeholder (sera mis en rouge à la fin)
+                else:
+                    # Placeholder manquant sera géré à la fin
+                    pass
             else:
-                # Normaliser le nom de variable
+                # Placeholder normal
                 normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
                 value = donnees.get(normalized_placeholder)
 
-            if not value or str(value).strip() == "":
-                missing_data = True
-                break
+                if value and str(value).strip():
+                    # Remplacer avec préservation du formatage
+                    replace_placeholder_with_format(paragraph, placeholder_with_brackets, str(value))
+                    logger.info(f"✨ Formatage préservé pour placeholder '{placeholder}'")
+                else:
+                    # Placeholder manquant sera géré à la fin
+                    pass
 
-        if missing_data:
-            # Reconstruire le paragraphe avec les placeholders manquants en rouge
+        # Deuxième passe: mettre les placeholders restants en rouge
+        full_text = paragraph.text
+        remaining_placeholders = re.findall(r'\[([^\]]+)\]', full_text)
+
+        if remaining_placeholders:
+            # Il reste des placeholders non remplacés: les mettre en rouge
             # Vider les runs existants
             for run in list(paragraph.runs):
                 run.text = ""
@@ -371,49 +393,10 @@ class BailWordGenerator:
                     run = paragraph.add_run(full_text[current_pos:match.start()])
                     run.font.color.rgb = RGBColor(0, 0, 0)
 
-                # Le placeholder
-                placeholder = match.group(1)
-
-                # Gestion spéciale pour les placeholders "en lettres"
-                if placeholder.endswith(" en lettres"):
-                    base_variable = placeholder.replace(" en lettres", "")
-                    # Normaliser le nom de variable
-                    base_variable = self._normalize_variable_name(base_variable, donnees)
-                    value = donnees.get(base_variable)
-
-                    if value and str(value).strip():
-                        # Convertir le nombre en lettres
-                        try:
-                            # Nettoyer et convertir en float
-                            value_clean = str(value).replace(" ", "").replace(",", ".")
-                            numeric_value = float(value_clean)
-                            # Convertir en mots français (juste le nombre, pas "EUROS")
-                            words = number_to_french_words(numeric_value)
-                            # Ajouter un espace après pour séparer du mot "euros" qui suit
-                            run = paragraph.add_run(words + " ")
-                            run.font.color.rgb = RGBColor(0, 0, 0)
-                        except (ValueError, TypeError) as e:
-                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
-                            run = paragraph.add_run(f"[{placeholder}]")
-                            run.font.color.rgb = RGBColor(255, 0, 0)
-                    else:
-                        # Données manquantes: placeholder en rouge
-                        run = paragraph.add_run(f"[{placeholder}]")
-                        run.font.color.rgb = RGBColor(255, 0, 0)
-                else:
-                    # Placeholder normal
-                    # Normaliser le nom de variable
-                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
-                    value = donnees.get(normalized_placeholder)
-
-                    if value and str(value).strip():
-                        # Données présentes: texte en noir
-                        run = paragraph.add_run(str(value))
-                        run.font.color.rgb = RGBColor(0, 0, 0)
-                    else:
-                        # Données manquantes: placeholder en rouge
-                        run = paragraph.add_run(f"[{placeholder}]")
-                        run.font.color.rgb = RGBColor(255, 0, 0)
+                # Le placeholder en rouge
+                placeholder = match.group(0)  # Avec les crochets
+                run = paragraph.add_run(placeholder)
+                run.font.color.rgb = RGBColor(255, 0, 0)
 
                 current_pos = match.end()
 
@@ -421,46 +404,6 @@ class BailWordGenerator:
             if current_pos < len(full_text):
                 run = paragraph.add_run(full_text[current_pos:])
                 run.font.color.rgb = RGBColor(0, 0, 0)
-
-        else:
-            # Toutes les données présentes: remplacement simple
-            new_text = full_text
-            for placeholder in placeholders:
-                # Gestion spéciale pour les placeholders "en lettres"
-                if placeholder.endswith(" en lettres"):
-                    base_variable = placeholder.replace(" en lettres", "")
-                    # Normaliser le nom de variable
-                    base_variable = self._normalize_variable_name(base_variable, donnees)
-                    value = donnees.get(base_variable, "")
-
-                    if value and str(value).strip():
-                        try:
-                            # Nettoyer et convertir en float
-                            value_clean = str(value).replace(" ", "").replace(",", ".")
-                            numeric_value = float(value_clean)
-                            # Convertir en mots français (juste le nombre, pas "EUROS")
-                            words = number_to_french_words(numeric_value)
-                            # Ajouter un espace après pour séparer du mot "euros" qui suit
-                            new_text = new_text.replace(f"[{placeholder}]", words + " ")
-                        except (ValueError, TypeError) as e:
-                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
-                            # Laisser le placeholder tel quel en cas d'erreur
-                            pass
-                else:
-                    # Placeholder normal
-                    # Normaliser le nom de variable
-                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
-                    value = donnees.get(normalized_placeholder, "")
-                    new_text = new_text.replace(f"[{placeholder}]", str(value))
-
-            # Mettre à jour le paragraphe
-            if new_text != full_text:
-                if paragraph.runs:
-                    for run in paragraph.runs:
-                        run.text = ""
-                    paragraph.runs[0].text = new_text
-                else:
-                    paragraph.text = new_text
 
     def _set_paragraph_text_with_styles(self, paragraph, text: str,
                                          text_style: Optional[Union[TextStyle, RichTextStyle]] = None):
