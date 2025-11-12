@@ -17,6 +17,7 @@ from openpyxl.cell.rich_text import CellRichText
 from .number_to_french import number_to_french_words
 from .text_style import TextStyle, RichTextStyle
 from .word_text_loader import WordTextLoader
+from .placeholder_formatter import replace_placeholder_with_format
 
 logger = logging.getLogger(__name__)
 
