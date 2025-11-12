@@ -10,7 +10,7 @@ def test_template():
     print('TEST DU TEMPLATE BAIL FINAL')
     print('=' * 80)
 
-    template_path = "Template BAIL avec placeholder FINAL.docx"
+    template_path = "Template BAIL avec placeholder AUTOMATISE.docx"
 
     print(f'\n📄 Chargement: {template_path}')
     doc = Document(template_path)
