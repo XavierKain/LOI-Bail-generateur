@@ -468,6 +468,14 @@ class BailGenerator:
                 if pattern_match and ',' in str(nom_source):
                     # Extraire la base et les nombres
                     base = pattern_match.group(1).strip().rstrip('.')
+                    # Singulariser la base (ex: "Conditions suspensives" → "Condition suspensive")
+                    base_words = base.split()
+                    base_singular_words = [w.rstrip('s') if w.endswith('s') and len(w) > 1 else w for w in base_words]
+                    base_singular = ' '.join(base_singular_words)
+                    # Vérifier si la forme singulière existe dans les données
+                    test_name = f"{base_singular} 1"
+                    if test_name in donnees:
+                        base = base_singular
                     numbers = re.findall(r'\d+', str(nom_source))
                     for num in numbers:
                         noms_sources.append(f"{base} {num}")
@@ -489,12 +497,21 @@ class BailGenerator:
                             match_found = True
                             break
                 else:
-                    # Comparaison simple
-                    for nom in noms_sources:
-                        valeur_actuelle = donnees.get(nom)
-                        if str(valeur_actuelle) == str(valeur_attendue):
-                            match_found = True
-                            break
+                    # CAS SPÉCIAL: Pour les conditions suspensives, vérifier si AU MOINS UNE est non vide
+                    if article_name == "Article préliminaire" and "Condition" in str(nom_source) and "suspensive" in str(nom_source).lower():
+                        # Vérifier si au moins une condition suspensive est présente
+                        for nom in noms_sources:
+                            valeur_actuelle = donnees.get(nom)
+                            if valeur_actuelle and str(valeur_actuelle).strip():
+                                match_found = True
+                                break
+                    else:
+                        # Comparaison simple pour les autres cas
+                        for nom in noms_sources:
+                            valeur_actuelle = donnees.get(nom)
+                            if str(valeur_actuelle) == str(valeur_attendue):
+                                match_found = True
+                                break
 
                 if not match_found:
                     continue  # Passer à la ligne suivante
@@ -505,9 +522,9 @@ class BailGenerator:
                 texte = ligne.get('Entrée correspondante - Option 1')
                 if pd.notna(texte):
                     # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
-                    # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
+                    # Détecter via le Nom Source qui contient "Condition" et "suspensive"
                     nom_source_check = ligne.get('Nom Source')
-                    if article_name == "Article préliminaire" and nom_source_check and "Condition suspensive" in str(nom_source_check):
+                    if article_name == "Article préliminaire" and nom_source_check and "Condition" in str(nom_source_check) and "suspensive" in str(nom_source_check).lower():
                         return self._generer_conditions_suspensives(donnees, ligne)
                     # Ajouter le texte à la liste
                     textes_matches.append(str(texte))
@@ -519,9 +536,9 @@ class BailGenerator:
                 texte = ligne.get('Entrée correspondante - Option 2')
                 if pd.notna(texte):
                     # CAS SPÉCIAL: Article préliminaire avec conditions suspensives
-                    # Détecter via le Nom Source qui contient "Condition suspensive 1, 2, 3, 4"
+                    # Détecter via le Nom Source qui contient "Condition" et "suspensive"
                     nom_source_check = ligne.get('Nom Source')
-                    if article_name == "Article préliminaire" and nom_source_check and "Condition suspensive" in str(nom_source_check):
+                    if article_name == "Article préliminaire" and nom_source_check and "Condition" in str(nom_source_check) and "suspensive" in str(nom_source_check).lower():
                         return self._generer_conditions_suspensives(donnees, ligne)
                     # Ajouter le texte à la liste
                     textes_matches.append(str(texte))
