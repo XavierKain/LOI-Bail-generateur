@@ -30,6 +30,94 @@ class BailWordGenerator:
         run.font.name = DEFAULT_FONT_NAME
         run.font.size = DEFAULT_FONT_SIZE
 
+    @staticmethod
+    def _parse_formatting_tags(text: str) -> list:
+        """
+        Parse le texte contenant des balises HTML-like (<b>, <i>, <u>) et retourne
+        une liste de segments avec leur formatage.
+
+        Args:
+            text: Texte contenant potentiellement des balises <b>, <i>, <u>
+
+        Returns:
+            Liste de tuples (texte, {formatage}) où formatage = {"bold": bool, "italic": bool, "underline": bool}
+
+        Example:
+            "La <b>Société [Nom]</b> est <i>présente</i>"
+            -> [("La ", {}), ("Société [Nom]", {"bold": True}), (" est ", {}), ("présente", {"italic": True})]
+        """
+        if not text or not any(tag in text for tag in ['<b>', '<i>', '<u>']):
+            # Pas de balises, retourner le texte tel quel
+            return [(text, {})]
+
+        segments = []
+        current_pos = 0
+        format_stack = []  # Stack pour gérer les balises imbriquées
+
+        # Pattern pour trouver toutes les balises ouvrantes et fermantes
+        tag_pattern = re.compile(r'<(/?)([biu])>', re.IGNORECASE)
+
+        # Trouver toutes les balises
+        matches = list(tag_pattern.finditer(text))
+
+        if not matches:
+            return [(text, {})]
+
+        for match in matches:
+            # Texte avant la balise
+            if match.start() > current_pos:
+                text_before = text[current_pos:match.start()]
+                # Appliquer le formatage actuel du stack
+                current_format = {}
+                for fmt in format_stack:
+                    current_format[fmt] = True
+                segments.append((text_before, current_format.copy()))
+
+            # Traiter la balise
+            is_closing = match.group(1) == '/'
+            tag_type = match.group(2).lower()
+
+            # Mapper le tag au nom de propriété
+            tag_map = {'b': 'bold', 'i': 'italic', 'u': 'underline'}
+            format_name = tag_map.get(tag_type)
+
+            if is_closing:
+                # Balise fermante: retirer du stack
+                if format_name in format_stack:
+                    format_stack.remove(format_name)
+            else:
+                # Balise ouvrante: ajouter au stack
+                if format_name not in format_stack:
+                    format_stack.append(format_name)
+
+            current_pos = match.end()
+
+        # Texte après la dernière balise
+        if current_pos < len(text):
+            text_after = text[current_pos:]
+            current_format = {}
+            for fmt in format_stack:
+                current_format[fmt] = True
+            segments.append((text_after, current_format.copy()))
+
+        return segments
+
+    @staticmethod
+    def _apply_formatting(run, formatting: dict):
+        """
+        Applique le formatage (bold, italic, underline) à un run.
+
+        Args:
+            run: Run docx
+            formatting: Dict avec keys "bold", "italic", "underline" (valeurs bool)
+        """
+        if formatting.get('bold'):
+            run.font.bold = True
+        if formatting.get('italic'):
+            run.font.italic = True
+        if formatting.get('underline'):
+            run.font.underline = True
+
     def _normalize_variable_name(self, var_name: str, donnees: Dict[str, any]) -> str:
         """
         Normalise le nom de variable pour gérer les variations.
@@ -201,6 +289,7 @@ class BailWordGenerator:
     ) -> None:
         """
         Remplace les placeholders {{ARTICLE}} dans un paragraphe.
+        Parse et applique les balises de formatage HTML-like (<b>, <i>, <u>).
 
         Args:
             paragraph: Paragraphe docx
@@ -223,16 +312,19 @@ class BailWordGenerator:
 
         # Si le texte a changé, on met à jour le paragraphe
         if full_text != paragraph.text:
-            # Préserver le formatage du premier run
-            if paragraph.runs:
-                # Vider tous les runs
-                for run in paragraph.runs:
-                    run.text = ""
-                # Ajouter le nouveau texte au premier run et appliquer la police
-                paragraph.runs[0].text = full_text
-                self._apply_default_font(paragraph.runs[0])
-            else:
-                paragraph.text = full_text
+            # Parser les balises de formatage
+            segments = self._parse_formatting_tags(full_text)
+
+            # Vider tous les runs existants
+            for run in list(paragraph.runs):
+                run.text = ""
+
+            # Créer un run pour chaque segment avec son formatage
+            for text, formatting in segments:
+                if text:  # Ignorer les segments vides
+                    run = paragraph.add_run(text)
+                    self._apply_default_font(run)
+                    self._apply_formatting(run, formatting)
 
     def _replace_variable_placeholders(
         self,
@@ -243,6 +335,7 @@ class BailWordGenerator:
         Remplace les placeholders [Variable] dans un paragraphe.
         Met les placeholders manquants en ROUGE.
         Gère les placeholders "en lettres" pour conversion numérique.
+        Parse et applique les balises de formatage HTML-like (<b>, <i>, <u>).
 
         Args:
             paragraph: Paragraphe docx
@@ -254,6 +347,18 @@ class BailWordGenerator:
         placeholders = re.findall(r'\[([^\]]+)\]', full_text)
 
         if not placeholders:
+            # Même sans placeholders, parser les balises de formatage
+            if any(tag in full_text for tag in ['<b>', '<i>', '<u>']):
+                segments = self._parse_formatting_tags(full_text)
+                # Vider tous les runs existants
+                for run in list(paragraph.runs):
+                    run.text = ""
+                # Créer un run pour chaque segment avec son formatage
+                for text, formatting in segments:
+                    if text:
+                        run = paragraph.add_run(text)
+                        self._apply_default_font(run)
+                        self._apply_formatting(run, formatting)
             return
 
         # Vérifier si des données manquent
@@ -284,11 +389,16 @@ class BailWordGenerator:
             # Parser le texte et créer des runs avec le bon formatage
             current_pos = 0
             for match in re.finditer(r'\[([^\]]+)\]', full_text):
-                # Texte avant le placeholder
+                # Texte avant le placeholder - parser les balises de formatage
                 if match.start() > current_pos:
-                    run = paragraph.add_run(full_text[current_pos:match.start()])
-                    self._apply_default_font(run)
-                    run.font.color.rgb = RGBColor(0, 0, 0)
+                    text_before = full_text[current_pos:match.start()]
+                    segments = self._parse_formatting_tags(text_before)
+                    for seg_text, seg_format in segments:
+                        if seg_text:
+                            run = paragraph.add_run(seg_text)
+                            self._apply_default_font(run)
+                            self._apply_formatting(run, seg_format)
+                            run.font.color.rgb = RGBColor(0, 0, 0)
 
                 # Le placeholder
                 placeholder = match.group(1)
@@ -329,10 +439,15 @@ class BailWordGenerator:
                     value = donnees.get(normalized_placeholder)
 
                     if value and str(value).strip():
-                        # Données présentes: texte en noir
-                        run = paragraph.add_run(str(value))
-                        self._apply_default_font(run)
-                        run.font.color.rgb = RGBColor(0, 0, 0)
+                        # Données présentes: texte en noir - parser les balises de formatage
+                        value_str = str(value)
+                        value_segments = self._parse_formatting_tags(value_str)
+                        for val_text, val_format in value_segments:
+                            if val_text:
+                                run = paragraph.add_run(val_text)
+                                self._apply_default_font(run)
+                                self._apply_formatting(run, val_format)
+                                run.font.color.rgb = RGBColor(0, 0, 0)
                     else:
                         # Données manquantes: placeholder en rouge
                         run = paragraph.add_run(f"[{placeholder}]")
@@ -341,11 +456,16 @@ class BailWordGenerator:
 
                 current_pos = match.end()
 
-            # Texte après le dernier placeholder
+            # Texte après le dernier placeholder - parser les balises de formatage
             if current_pos < len(full_text):
-                run = paragraph.add_run(full_text[current_pos:])
-                self._apply_default_font(run)
-                run.font.color.rgb = RGBColor(0, 0, 0)
+                text_after = full_text[current_pos:]
+                segments = self._parse_formatting_tags(text_after)
+                for seg_text, seg_format in segments:
+                    if seg_text:
+                        run = paragraph.add_run(seg_text)
+                        self._apply_default_font(run)
+                        self._apply_formatting(run, seg_format)
+                        run.font.color.rgb = RGBColor(0, 0, 0)
 
         else:
             # Toutes les données présentes: remplacement simple
@@ -378,14 +498,20 @@ class BailWordGenerator:
                     value = donnees.get(normalized_placeholder, "")
                     new_text = new_text.replace(f"[{placeholder}]", str(value))
 
-            # Mettre à jour le paragraphe
+            # Mettre à jour le paragraphe - parser les balises de formatage
             if new_text != full_text:
-                if paragraph.runs:
-                    for run in paragraph.runs:
-                        run.text = ""
-                    paragraph.runs[0].text = new_text
-                else:
-                    paragraph.text = new_text
+                segments = self._parse_formatting_tags(new_text)
+
+                # Vider tous les runs existants
+                for run in list(paragraph.runs):
+                    run.text = ""
+
+                # Créer un run pour chaque segment avec son formatage
+                for text, formatting in segments:
+                    if text:
+                        run = paragraph.add_run(text)
+                        self._apply_default_font(run)
+                        self._apply_formatting(run, formatting)
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
