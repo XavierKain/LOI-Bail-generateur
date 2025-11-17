@@ -7,7 +7,7 @@ dans le template Word avec placeholders, puis remplace tous les placeholders
 """
 
 from docx import Document
-from docx.shared import RGBColor
+from docx.shared import RGBColor, Pt
 from pathlib import Path
 from typing import Dict
 import logging
@@ -16,9 +16,19 @@ from .number_to_french import number_to_french_words
 
 logger = logging.getLogger(__name__)
 
+# Police par défaut pour le contenu du BAIL
+DEFAULT_FONT_NAME = "Calibri"
+DEFAULT_FONT_SIZE = Pt(11)
+
 
 class BailWordGenerator:
     """Générateur de documents BAIL au format Word."""
+
+    @staticmethod
+    def _apply_default_font(run):
+        """Applique la police par défaut (Calibri 11) à un run."""
+        run.font.name = DEFAULT_FONT_NAME
+        run.font.size = DEFAULT_FONT_SIZE
 
     def _normalize_variable_name(self, var_name: str, donnees: Dict[str, any]) -> str:
         """
@@ -218,8 +228,9 @@ class BailWordGenerator:
                 # Vider tous les runs
                 for run in paragraph.runs:
                     run.text = ""
-                # Ajouter le nouveau texte au premier run
+                # Ajouter le nouveau texte au premier run et appliquer la police
                 paragraph.runs[0].text = full_text
+                self._apply_default_font(paragraph.runs[0])
             else:
                 paragraph.text = full_text
 
@@ -276,6 +287,7 @@ class BailWordGenerator:
                 # Texte avant le placeholder
                 if match.start() > current_pos:
                     run = paragraph.add_run(full_text[current_pos:match.start()])
+                    self._apply_default_font(run)
                     run.font.color.rgb = RGBColor(0, 0, 0)
 
                 # Le placeholder
@@ -298,14 +310,17 @@ class BailWordGenerator:
                             words = number_to_french_words(numeric_value)
                             # Ajouter un espace après pour séparer du mot "euros" qui suit
                             run = paragraph.add_run(words + " ")
+                            self._apply_default_font(run)
                             run.font.color.rgb = RGBColor(0, 0, 0)
                         except (ValueError, TypeError) as e:
                             logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
                             run = paragraph.add_run(f"[{placeholder}]")
+                            self._apply_default_font(run)
                             run.font.color.rgb = RGBColor(255, 0, 0)
                     else:
                         # Données manquantes: placeholder en rouge
                         run = paragraph.add_run(f"[{placeholder}]")
+                        self._apply_default_font(run)
                         run.font.color.rgb = RGBColor(255, 0, 0)
                 else:
                     # Placeholder normal
@@ -316,10 +331,12 @@ class BailWordGenerator:
                     if value and str(value).strip():
                         # Données présentes: texte en noir
                         run = paragraph.add_run(str(value))
+                        self._apply_default_font(run)
                         run.font.color.rgb = RGBColor(0, 0, 0)
                     else:
                         # Données manquantes: placeholder en rouge
                         run = paragraph.add_run(f"[{placeholder}]")
+                        self._apply_default_font(run)
                         run.font.color.rgb = RGBColor(255, 0, 0)
 
                 current_pos = match.end()
@@ -327,6 +344,7 @@ class BailWordGenerator:
             # Texte après le dernier placeholder
             if current_pos < len(full_text):
                 run = paragraph.add_run(full_text[current_pos:])
+                self._apply_default_font(run)
                 run.font.color.rgb = RGBColor(0, 0, 0)
 
         else:
