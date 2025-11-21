@@ -335,168 +335,128 @@ class BailWordGenerator:
         Remplace les placeholders [Variable] dans un paragraphe.
         Met les placeholders manquants en ROUGE.
         Gère les placeholders "en lettres" pour conversion numérique.
-        Parse et applique les balises de formatage HTML-like (<b>, <i>, <u>).
+        PRÉSERVE le formatage existant des runs (bold, italic, etc.).
 
         Args:
             paragraph: Paragraphe docx
             donnees: Données avec toutes les variables
         """
-        full_text = paragraph.text
+        # Créer le mapping placeholder -> (valeur, is_red)
+        placeholder_mapping = {}
 
-        # Trouver tous les placeholders [Variable]
+        # Trouver tous les placeholders dans le paragraphe complet
+        full_text = paragraph.text
         placeholders = re.findall(r'\[([^\]]+)\]', full_text)
 
         if not placeholders:
-            # Même sans placeholders, parser les balises de formatage
-            if any(tag in full_text for tag in ['<b>', '<i>', '<u>']):
-                segments = self._parse_formatting_tags(full_text)
-                # Vider tous les runs existants
-                for run in list(paragraph.runs):
-                    run.text = ""
-                # Créer un run pour chaque segment avec son formatage
-                for text, formatting in segments:
-                    if text:
-                        run = paragraph.add_run(text)
-                        self._apply_default_font(run)
-                        self._apply_formatting(run, formatting)
             return
 
-        # Vérifier si des données manquent
-        missing_data = False
+        # Pour chaque placeholder, déterminer sa valeur de remplacement et sa couleur
         for placeholder in placeholders:
             # Gestion spéciale pour les placeholders "en lettres"
             if placeholder.endswith(" en lettres"):
-                # Extraire le nom de la variable de base
                 base_variable = placeholder.replace(" en lettres", "")
-                # Normaliser le nom de variable
                 base_variable = self._normalize_variable_name(base_variable, donnees)
                 value = donnees.get(base_variable)
+
+                if value and str(value).strip():
+                    try:
+                        value_clean = str(value).replace(" ", "").replace(",", ".")
+                        numeric_value = float(value_clean)
+                        words = number_to_french_words(numeric_value)
+                        placeholder_mapping[f"[{placeholder}]"] = (words + " ", False)
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
+                        placeholder_mapping[f"[{placeholder}]"] = (f"[{placeholder}]", True)
+                else:
+                    placeholder_mapping[f"[{placeholder}]"] = (f"[{placeholder}]", True)
             else:
-                # Normaliser le nom de variable
+                # Placeholder normal
                 normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
                 value = donnees.get(normalized_placeholder)
 
-            if not value or str(value).strip() == "":
-                missing_data = True
-                break
-
-        if missing_data:
-            # Stratégie: Remplacer d'abord tous les placeholders (présents ou non),
-            # puis parser le texte final avec les balises de formatage
-            new_text = full_text
-            placeholders_to_mark_red = []
-
-            for placeholder in placeholders:
-                # Gestion spéciale pour les placeholders "en lettres"
-                if placeholder.endswith(" en lettres"):
-                    base_variable = placeholder.replace(" en lettres", "")
-                    base_variable = self._normalize_variable_name(base_variable, donnees)
-                    value = donnees.get(base_variable)
-
-                    if value and str(value).strip():
-                        try:
-                            value_clean = str(value).replace(" ", "").replace(",", ".")
-                            numeric_value = float(value_clean)
-                            words = number_to_french_words(numeric_value)
-                            new_text = new_text.replace(f"[{placeholder}]", f"##RED_START##{words} ##RED_END##")
-                        except (ValueError, TypeError) as e:
-                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
-                            placeholders_to_mark_red.append(placeholder)
-                    else:
-                        placeholders_to_mark_red.append(placeholder)
+                if value and str(value).strip():
+                    placeholder_mapping[f"[{placeholder}]"] = (str(value), False)
                 else:
-                    # Placeholder normal
-                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
-                    value = donnees.get(normalized_placeholder)
+                    placeholder_mapping[f"[{placeholder}]"] = (f"[{placeholder}]", True)
 
-                    if value and str(value).strip():
-                        # Remplacer le placeholder par sa valeur
-                        new_text = new_text.replace(f"[{placeholder}]", str(value))
-                    else:
-                        # Marquer pour mise en rouge
-                        placeholders_to_mark_red.append(placeholder)
+        # Maintenant, parcourir chaque run et remplacer les placeholders
+        # On crée de nouveaux runs pour chaque remplacement afin de pouvoir colorer individuellement
+        runs_to_process = list(paragraph.runs)  # Copie car on va modifier pendant l'itération
 
-            # Parser les balises de formatage du texte après remplacement
-            segments = self._parse_formatting_tags(new_text)
+        for run in runs_to_process:
+            run_text = run.text
 
-            # Supprimer tous les runs existants
-            for run in list(paragraph.runs):
-                run._element.getparent().remove(run._element)
+            # Vérifier si ce run contient des placeholders
+            has_placeholder = any(ph_key in run_text for ph_key in placeholder_mapping.keys())
 
-            # Créer les runs avec formatage
-            for text, formatting in segments:
+            if not has_placeholder:
+                continue
+
+            # Sauvegarder le formatage du run original
+            original_bold = run.font.bold
+            original_italic = run.font.italic
+            original_underline = run.font.underline
+            original_font_name = run.font.name
+            original_font_size = run.font.size
+
+            # Diviser le texte du run en segments (texte normal / placeholder)
+            segments = []
+            remaining = run_text
+
+            while remaining:
+                # Trouver le premier placeholder
+                first_pos = len(remaining)
+                first_placeholder = None
+
+                for ph_key in placeholder_mapping.keys():
+                    pos = remaining.find(ph_key)
+                    if pos != -1 and pos < first_pos:
+                        first_pos = pos
+                        first_placeholder = ph_key
+
+                if first_placeholder:
+                    # Ajouter le texte avant le placeholder
+                    if first_pos > 0:
+                        segments.append((remaining[:first_pos], None))  # None = pas un placeholder
+
+                    # Ajouter le placeholder
+                    value, is_red = placeholder_mapping[first_placeholder]
+                    segments.append((value, is_red))  # is_red = True/False
+
+                    remaining = remaining[first_pos + len(first_placeholder):]
+                else:
+                    # Plus de placeholders
+                    segments.append((remaining, None))
+                    break
+
+            # Supprimer le run original
+            run._element.getparent().remove(run._element)
+
+            # Créer de nouveaux runs pour chaque segment
+            for text, is_red in segments:
                 if not text:
                     continue
 
-                # Gérer les marqueurs RED
-                if "##RED_START##" in text or "##RED_END##" in text:
-                    # Découper par les marqueurs
-                    parts = re.split(r'(##RED_START##|##RED_END##)', text)
-                    is_red = False
-                    for part in parts:
-                        if part == "##RED_START##":
-                            is_red = True
-                        elif part == "##RED_END##":
-                            is_red = False
-                        elif part:
-                            run = paragraph.add_run(part)
-                            self._apply_default_font(run)
-                            self._apply_formatting(run, formatting)
-                            run.font.color.rgb = RGBColor(255, 0, 0) if is_red else RGBColor(0, 0, 0)
+                new_run = paragraph.add_run(text)
+
+                # Appliquer le formatage du run original
+                new_run.font.bold = original_bold
+                new_run.font.italic = original_italic
+                new_run.font.underline = original_underline
+                if original_font_name:
+                    new_run.font.name = original_font_name
+                if original_font_size:
+                    new_run.font.size = original_font_size
+
+                # Appliquer Calibri 11 par défaut
+                self._apply_default_font(new_run)
+
+                # Appliquer la couleur (rouge si missing placeholder)
+                if is_red:
+                    new_run.font.color.rgb = RGBColor(255, 0, 0)
                 else:
-                    # Vérifier si ce segment contient un placeholder manquant
-                    has_missing = any(f"[{p}]" in text for p in placeholders_to_mark_red)
-
-                    run = paragraph.add_run(text)
-                    self._apply_default_font(run)
-                    self._apply_formatting(run, formatting)
-                    run.font.color.rgb = RGBColor(255, 0, 0) if has_missing else RGBColor(0, 0, 0)
-
-        else:
-            # Toutes les données présentes: remplacement simple
-            new_text = full_text
-            for placeholder in placeholders:
-                # Gestion spéciale pour les placeholders "en lettres"
-                if placeholder.endswith(" en lettres"):
-                    base_variable = placeholder.replace(" en lettres", "")
-                    # Normaliser le nom de variable
-                    base_variable = self._normalize_variable_name(base_variable, donnees)
-                    value = donnees.get(base_variable, "")
-
-                    if value and str(value).strip():
-                        try:
-                            # Nettoyer et convertir en float
-                            value_clean = str(value).replace(" ", "").replace(",", ".")
-                            numeric_value = float(value_clean)
-                            # Convertir en mots français (juste le nombre, pas "EUROS")
-                            words = number_to_french_words(numeric_value)
-                            # Ajouter un espace après pour séparer du mot "euros" qui suit
-                            new_text = new_text.replace(f"[{placeholder}]", words + " ")
-                        except (ValueError, TypeError) as e:
-                            logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
-                            # Laisser le placeholder tel quel en cas d'erreur
-                            pass
-                else:
-                    # Placeholder normal
-                    # Normaliser le nom de variable
-                    normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
-                    value = donnees.get(normalized_placeholder, "")
-                    new_text = new_text.replace(f"[{placeholder}]", str(value))
-
-            # Mettre à jour le paragraphe - parser les balises de formatage
-            if new_text != full_text:
-                segments = self._parse_formatting_tags(new_text)
-
-                # Supprimer tous les runs existants (créer une copie de la liste d'abord)
-                for run in list(paragraph.runs):
-                    run._element.getparent().remove(run._element)
-
-                # Créer un run pour chaque segment avec son formatage
-                for text, formatting in segments:
-                    if text:
-                        run = paragraph.add_run(text)
-                        self._apply_default_font(run)
-                        self._apply_formatting(run, formatting)
+                    new_run.font.color.rgb = RGBColor(0, 0, 0)
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
