@@ -502,9 +502,9 @@ class BailWordGenerator:
             if new_text != full_text:
                 segments = self._parse_formatting_tags(new_text)
 
-                # Vider tous les runs existants
+                # Supprimer tous les runs existants (créer une copie de la liste d'abord)
                 for run in list(paragraph.runs):
-                    run.text = ""
+                    run._element.getparent().remove(run._element)
 
                 # Créer un run pour chaque segment avec son formatage
                 for text, formatting in segments:
