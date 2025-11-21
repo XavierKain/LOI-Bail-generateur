@@ -381,91 +381,76 @@ class BailWordGenerator:
                 break
 
         if missing_data:
-            # Reconstruire le paragraphe avec les placeholders manquants en rouge
-            # Vider les runs existants
-            for run in list(paragraph.runs):
-                run.text = ""
+            # Stratégie: Remplacer d'abord tous les placeholders (présents ou non),
+            # puis parser le texte final avec les balises de formatage
+            new_text = full_text
+            placeholders_to_mark_red = []
 
-            # Parser le texte et créer des runs avec le bon formatage
-            current_pos = 0
-            for match in re.finditer(r'\[([^\]]+)\]', full_text):
-                # Texte avant le placeholder - parser les balises de formatage
-                if match.start() > current_pos:
-                    text_before = full_text[current_pos:match.start()]
-                    segments = self._parse_formatting_tags(text_before)
-                    for seg_text, seg_format in segments:
-                        if seg_text:
-                            run = paragraph.add_run(seg_text)
-                            self._apply_default_font(run)
-                            self._apply_formatting(run, seg_format)
-                            run.font.color.rgb = RGBColor(0, 0, 0)
-
-                # Le placeholder
-                placeholder = match.group(1)
-
+            for placeholder in placeholders:
                 # Gestion spéciale pour les placeholders "en lettres"
                 if placeholder.endswith(" en lettres"):
                     base_variable = placeholder.replace(" en lettres", "")
-                    # Normaliser le nom de variable
                     base_variable = self._normalize_variable_name(base_variable, donnees)
                     value = donnees.get(base_variable)
 
                     if value and str(value).strip():
-                        # Convertir le nombre en lettres
                         try:
-                            # Nettoyer et convertir en float
                             value_clean = str(value).replace(" ", "").replace(",", ".")
                             numeric_value = float(value_clean)
-                            # Convertir en mots français (juste le nombre, pas "EUROS")
                             words = number_to_french_words(numeric_value)
-                            # Ajouter un espace après pour séparer du mot "euros" qui suit
-                            run = paragraph.add_run(words + " ")
-                            self._apply_default_font(run)
-                            run.font.color.rgb = RGBColor(0, 0, 0)
+                            new_text = new_text.replace(f"[{placeholder}]", f"##RED_START##{words} ##RED_END##")
                         except (ValueError, TypeError) as e:
                             logger.warning(f"Impossible de convertir '{value}' en lettres: {e}")
-                            run = paragraph.add_run(f"[{placeholder}]")
-                            self._apply_default_font(run)
-                            run.font.color.rgb = RGBColor(255, 0, 0)
+                            placeholders_to_mark_red.append(placeholder)
                     else:
-                        # Données manquantes: placeholder en rouge
-                        run = paragraph.add_run(f"[{placeholder}]")
-                        self._apply_default_font(run)
-                        run.font.color.rgb = RGBColor(255, 0, 0)
+                        placeholders_to_mark_red.append(placeholder)
                 else:
                     # Placeholder normal
-                    # Normaliser le nom de variable
                     normalized_placeholder = self._normalize_variable_name(placeholder, donnees)
                     value = donnees.get(normalized_placeholder)
 
                     if value and str(value).strip():
-                        # Données présentes: texte en noir - parser les balises de formatage
-                        value_str = str(value)
-                        value_segments = self._parse_formatting_tags(value_str)
-                        for val_text, val_format in value_segments:
-                            if val_text:
-                                run = paragraph.add_run(val_text)
-                                self._apply_default_font(run)
-                                self._apply_formatting(run, val_format)
-                                run.font.color.rgb = RGBColor(0, 0, 0)
+                        # Remplacer le placeholder par sa valeur
+                        new_text = new_text.replace(f"[{placeholder}]", str(value))
                     else:
-                        # Données manquantes: placeholder en rouge
-                        run = paragraph.add_run(f"[{placeholder}]")
-                        self._apply_default_font(run)
-                        run.font.color.rgb = RGBColor(255, 0, 0)
+                        # Marquer pour mise en rouge
+                        placeholders_to_mark_red.append(placeholder)
 
-                current_pos = match.end()
+            # Parser les balises de formatage du texte après remplacement
+            segments = self._parse_formatting_tags(new_text)
 
-            # Texte après le dernier placeholder - parser les balises de formatage
-            if current_pos < len(full_text):
-                text_after = full_text[current_pos:]
-                segments = self._parse_formatting_tags(text_after)
-                for seg_text, seg_format in segments:
-                    if seg_text:
-                        run = paragraph.add_run(seg_text)
-                        self._apply_default_font(run)
-                        self._apply_formatting(run, seg_format)
-                        run.font.color.rgb = RGBColor(0, 0, 0)
+            # Supprimer tous les runs existants
+            for run in list(paragraph.runs):
+                run._element.getparent().remove(run._element)
+
+            # Créer les runs avec formatage
+            for text, formatting in segments:
+                if not text:
+                    continue
+
+                # Gérer les marqueurs RED
+                if "##RED_START##" in text or "##RED_END##" in text:
+                    # Découper par les marqueurs
+                    parts = re.split(r'(##RED_START##|##RED_END##)', text)
+                    is_red = False
+                    for part in parts:
+                        if part == "##RED_START##":
+                            is_red = True
+                        elif part == "##RED_END##":
+                            is_red = False
+                        elif part:
+                            run = paragraph.add_run(part)
+                            self._apply_default_font(run)
+                            self._apply_formatting(run, formatting)
+                            run.font.color.rgb = RGBColor(255, 0, 0) if is_red else RGBColor(0, 0, 0)
+                else:
+                    # Vérifier si ce segment contient un placeholder manquant
+                    has_missing = any(f"[{p}]" in text for p in placeholders_to_mark_red)
+
+                    run = paragraph.add_run(text)
+                    self._apply_default_font(run)
+                    self._apply_formatting(run, formatting)
+                    run.font.color.rgb = RGBColor(255, 0, 0) if has_missing else RGBColor(0, 0, 0)
 
         else:
             # Toutes les données présentes: remplacement simple
