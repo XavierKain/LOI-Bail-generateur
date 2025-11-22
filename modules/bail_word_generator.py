@@ -233,6 +233,9 @@ class BailWordGenerator:
         # Nettoyer les paragraphes vides
         self._clean_empty_paragraphs(doc)
 
+        # Mettre à jour la table des matières
+        self._update_toc(doc)
+
         # Sauvegarder le document
         doc.save(output_path)
         logger.info(f"Document BAIL généré: {output_path}")
@@ -327,14 +330,16 @@ class BailWordGenerator:
                 return
 
             # Traiter le premier paragraphe dans le paragraphe Word actuel
-            self._process_paragraph_with_heading(paragraph, paragraphs_text[0])
+            # Strip pour enlever les espaces/newlines au début et fin
+            self._process_paragraph_with_heading(paragraph, paragraphs_text[0].strip())
 
             # Pour les paragraphes suivants, créer de nouveaux paragraphes Word si doc est fourni
             if doc and len(paragraphs_text) > 1:
                 # Insérer les nouveaux paragraphes après le paragraphe actuel
                 last_para = paragraph
                 for para_text in paragraphs_text[1:]:
-                    if not para_text.strip():
+                    para_text_stripped = para_text.strip()
+                    if not para_text_stripped:
                         continue
 
                     # Insérer un nouveau paragraphe
@@ -343,8 +348,8 @@ class BailWordGenerator:
                     p_element = new_para._element
                     last_para._element.addnext(p_element)
 
-                    # Traiter le paragraphe
-                    self._process_paragraph_with_heading(new_para, para_text)
+                    # Traiter le paragraphe (avec texte strippé)
+                    self._process_paragraph_with_heading(new_para, para_text_stripped)
 
                     # Mettre à jour le dernier paragraphe traité
                     last_para = new_para
@@ -522,6 +527,34 @@ class BailWordGenerator:
                     new_run.font.color.rgb = RGBColor(255, 0, 0)
                 else:
                     new_run.font.color.rgb = RGBColor(0, 0, 0)
+
+    def _update_toc(self, doc) -> None:
+        """
+        Met à jour la table des matières (TOC) dans le document.
+        Force la mise à jour des champs TOC pour inclure les nouveaux titres.
+
+        Args:
+            doc: Document docx
+        """
+        # Parcourir tous les paragraphes pour trouver les champs TOC
+        from docx.oxml.ns import qn
+
+        for paragraph in doc.paragraphs:
+            # Chercher les éléments de champ (field codes)
+            for run in paragraph.runs:
+                # Accéder à l'élément XML du run
+                r_element = run._element
+
+                # Chercher les balises de champ
+                fld_char_elements = r_element.findall(qn('w:fldChar'))
+                for fld_char in fld_char_elements:
+                    fld_char_type = fld_char.get(qn('w:fldCharType'))
+
+                    # Si c'est un début de champ, ajouter l'instruction dirty pour forcer la mise à jour
+                    if fld_char_type == 'begin':
+                        fld_char.set(qn('w:dirty'), '1')
+
+        logger.info("Table des matières marquée pour mise à jour")
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
