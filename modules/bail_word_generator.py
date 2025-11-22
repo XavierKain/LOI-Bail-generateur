@@ -290,6 +290,7 @@ class BailWordGenerator:
         """
         Remplace les placeholders {{ARTICLE}} dans un paragraphe.
         Parse et applique les balises de formatage HTML-like (<b>, <i>, <u>).
+        Gère les marqueurs de titre (** pour Heading 2, *** pour Heading 3).
 
         Args:
             paragraph: Paragraphe docx
@@ -312,19 +313,81 @@ class BailWordGenerator:
 
         # Si le texte a changé, on met à jour le paragraphe
         if full_text != paragraph.text:
-            # Parser les balises de formatage
-            segments = self._parse_formatting_tags(full_text)
+            # Traiter les balises de titre si présentes au début du texte
+            self._process_text_with_headings(paragraph, full_text)
 
-            # Vider tous les runs existants
-            for run in list(paragraph.runs):
-                run.text = ""
+    def _process_text_with_headings(self, paragraph, full_text: str) -> None:
+        """
+        Traite le texte en gérant les marqueurs de titre ** et ***.
+        Divise le texte en lignes et applique les styles de titre appropriés.
 
-            # Créer un run pour chaque segment avec son formatage
-            for text, formatting in segments:
-                if text:  # Ignorer les segments vides
-                    run = paragraph.add_run(text)
-                    self._apply_default_font(run)
-                    self._apply_formatting(run, formatting)
+        Args:
+            paragraph: Paragraphe docx (premier paragraphe)
+            full_text: Texte complet à traiter
+        """
+        # Diviser le texte en lignes
+        lines = full_text.split('\n')
+
+        # Traiter la première ligne dans le paragraphe existant
+        if lines:
+            self._process_single_line(paragraph, lines[0])
+
+        # Pour les lignes suivantes, créer de nouveaux paragraphes
+        if len(lines) > 1:
+            # Insérer les nouveaux paragraphes après le paragraphe actuel
+            p_element = paragraph._element
+            parent = p_element.getparent()
+            p_index = list(parent).index(p_element)
+
+            for i, line in enumerate(lines[1:], 1):
+                # Créer un nouveau paragraphe
+                from docx.oxml import OxmlElement
+                new_p = OxmlElement('w:p')
+                parent.insert(p_index + i, new_p)
+
+                # Créer un objet Paragraph à partir de l'élément
+                from docx.text.paragraph import Paragraph
+                new_paragraph = Paragraph(new_p, parent)
+
+                # Traiter la ligne
+                self._process_single_line(new_paragraph, line)
+
+    def _process_single_line(self, paragraph, line: str) -> None:
+        """
+        Traite une ligne unique en détectant les marqueurs de titre et en appliquant le formatage.
+
+        Args:
+            paragraph: Paragraphe docx
+            line: Ligne de texte à traiter
+        """
+        # Détecter les marqueurs de titre au début de la ligne
+        heading_style = None
+        text_to_parse = line
+
+        if line.startswith('***'):
+            heading_style = 'Heading 3'
+            text_to_parse = line[3:].lstrip()  # Retirer *** et espaces
+        elif line.startswith('**'):
+            heading_style = 'Heading 2'
+            text_to_parse = line[2:].lstrip()  # Retirer ** et espaces
+
+        # Appliquer le style de titre si détecté
+        if heading_style:
+            paragraph.style = heading_style
+
+        # Parser les balises de formatage
+        segments = self._parse_formatting_tags(text_to_parse)
+
+        # Vider tous les runs existants
+        for run in list(paragraph.runs):
+            run.text = ""
+
+        # Créer un run pour chaque segment avec son formatage
+        for text, formatting in segments:
+            if text:  # Ignorer les segments vides
+                run = paragraph.add_run(text)
+                self._apply_default_font(run)
+                self._apply_formatting(run, formatting)
 
     def _replace_variable_placeholders(
         self,

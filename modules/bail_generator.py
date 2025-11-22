@@ -603,9 +603,10 @@ class BailGenerator:
                     conditions_text.append(f"{lettre}. {texte_condition}")
 
             # Remplacer le bloc entre "suivantes :" et "Ci-après" par la liste des conditions
+            # Chaque condition sur sa propre ligne avec un saut de ligne après
             pattern = r'suivantes\s*:\s*\n\s*\n(.+?)\n\s*\nCi-après'
-            replacement_lines = '\n'.join(conditions_text)
-            replacement = f'suivantes :\n \n{replacement_lines}\n \nCi-après'
+            replacement_lines = '\n\n'.join(conditions_text)  # Double \n pour séparer les conditions
+            replacement = f'suivantes :\n\n{replacement_lines}\n\nCi-après'
 
             texte_final = re.sub(pattern, replacement, texte_final, flags=re.DOTALL)
 
