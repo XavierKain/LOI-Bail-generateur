@@ -210,14 +210,14 @@ class BailWordGenerator:
 
         # Remplacer les placeholders {{ARTICLE}} dans tous les paragraphes
         for paragraph in doc.paragraphs:
-            self._replace_article_placeholders(paragraph, placeholder_mapping)
+            self._replace_article_placeholders(paragraph, placeholder_mapping, doc)
 
         # Remplacer les placeholders dans les tableaux
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
-                        self._replace_article_placeholders(paragraph, placeholder_mapping)
+                        self._replace_article_placeholders(paragraph, placeholder_mapping, doc)
 
         # ÉTAPE 2: Remplacer les placeholders [Variable] dans TOUT le document
         # (comme dans LOIGenerator)
@@ -285,16 +285,19 @@ class BailWordGenerator:
     def _replace_article_placeholders(
         self,
         paragraph,
-        mapping: Dict[str, str]
+        mapping: Dict[str, str],
+        doc=None
     ) -> None:
         """
         Remplace les placeholders {{ARTICLE}} dans un paragraphe.
         Parse et applique les balises de formatage HTML-like (<b>, <i>, <u>).
         Gère les marqueurs de titre (** pour Heading 2, *** pour Heading 3).
+        Si le texte contient plusieurs lignes avec marqueurs, crée des paragraphes séparés.
 
         Args:
             paragraph: Paragraphe docx
             mapping: Mapping {placeholder: texte_final}
+            doc: Document docx (optionnel, nécessaire pour créer de nouveaux paragraphes)
         """
         full_text = paragraph.text
 
@@ -313,67 +316,66 @@ class BailWordGenerator:
 
         # Si le texte a changé, on met à jour le paragraphe
         if full_text != paragraph.text:
-            # Traiter les balises de titre si présentes au début du texte
-            self._process_text_with_headings(paragraph, full_text)
+            # Diviser le texte en paragraphes (séparés par double saut de ligne)
+            # Ceci permet de gérer les conditions suspensives qui doivent être des paragraphes séparés
+            paragraphs_text = full_text.split('\n\n')
 
-    def _process_text_with_headings(self, paragraph, full_text: str) -> None:
+            # Filtrer les paragraphes vides
+            paragraphs_text = [p for p in paragraphs_text if p.strip()]
+
+            if not paragraphs_text:
+                return
+
+            # Traiter le premier paragraphe dans le paragraphe Word actuel
+            self._process_paragraph_with_heading(paragraph, paragraphs_text[0])
+
+            # Pour les paragraphes suivants, créer de nouveaux paragraphes Word si doc est fourni
+            if doc and len(paragraphs_text) > 1:
+                # Insérer les nouveaux paragraphes après le paragraphe actuel
+                last_para = paragraph
+                for para_text in paragraphs_text[1:]:
+                    if not para_text.strip():
+                        continue
+
+                    # Insérer un nouveau paragraphe
+                    new_para = last_para.insert_paragraph_before('')
+                    # Déplacer ce nouveau paragraphe après le dernier paragraphe traité
+                    p_element = new_para._element
+                    last_para._element.addnext(p_element)
+
+                    # Traiter le paragraphe
+                    self._process_paragraph_with_heading(new_para, para_text)
+
+                    # Mettre à jour le dernier paragraphe traité
+                    last_para = new_para
+
+    def _process_paragraph_with_heading(self, paragraph, text: str) -> None:
         """
-        Traite le texte en gérant les marqueurs de titre ** et ***.
-        Divise le texte en lignes et applique les styles de titre appropriés.
-
-        Args:
-            paragraph: Paragraphe docx (premier paragraphe)
-            full_text: Texte complet à traiter
-        """
-        # Diviser le texte en lignes
-        lines = full_text.split('\n')
-
-        # Traiter la première ligne dans le paragraphe existant
-        if lines:
-            self._process_single_line(paragraph, lines[0])
-
-        # Pour les lignes suivantes, créer de nouveaux paragraphes
-        if len(lines) > 1:
-            # Insérer les nouveaux paragraphes après le paragraphe actuel
-            p_element = paragraph._element
-            parent = p_element.getparent()
-            p_index = list(parent).index(p_element)
-
-            for i, line in enumerate(lines[1:], 1):
-                # Créer un nouveau paragraphe
-                from docx.oxml import OxmlElement
-                new_p = OxmlElement('w:p')
-                parent.insert(p_index + i, new_p)
-
-                # Créer un objet Paragraph à partir de l'élément
-                from docx.text.paragraph import Paragraph
-                new_paragraph = Paragraph(new_p, parent)
-
-                # Traiter la ligne
-                self._process_single_line(new_paragraph, line)
-
-    def _process_single_line(self, paragraph, line: str) -> None:
-        """
-        Traite une ligne unique en détectant les marqueurs de titre et en appliquant le formatage.
+        Traite un paragraphe unique en détectant les marqueurs de titre et en appliquant le formatage.
 
         Args:
             paragraph: Paragraphe docx
-            line: Ligne de texte à traiter
+            text: Texte à traiter
         """
-        # Détecter les marqueurs de titre au début de la ligne
+        # Détecter les marqueurs de titre au début du texte
         heading_style = None
-        text_to_parse = line
+        text_to_parse = text
 
-        if line.startswith('***'):
+        # Chercher *** d'abord (plus spécifique)
+        if text.startswith('***'):
             heading_style = 'Heading 3'
-            text_to_parse = line[3:].lstrip()  # Retirer *** et espaces
-        elif line.startswith('**'):
+            text_to_parse = text[3:].lstrip()  # Retirer *** et espaces
+        elif text.startswith('**'):
             heading_style = 'Heading 2'
-            text_to_parse = line[2:].lstrip()  # Retirer ** et espaces
+            text_to_parse = text[2:].lstrip()  # Retirer ** et espaces
 
         # Appliquer le style de titre si détecté
         if heading_style:
-            paragraph.style = heading_style
+            try:
+                paragraph.style = heading_style
+            except:
+                # Si le style n'existe pas, ignorer
+                pass
 
         # Parser les balises de formatage
         segments = self._parse_formatting_tags(text_to_parse)
