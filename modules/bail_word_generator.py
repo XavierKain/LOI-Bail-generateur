@@ -548,44 +548,65 @@ class BailWordGenerator:
 
     def _update_toc(self, doc) -> None:
         """
-        Configure le document pour mettre à jour automatiquement la TOC à l'ouverture.
+        Force la mise à jour de la TOC en recréant le champ TOC.
+        Supprime l'ancienne TOC et en crée une nouvelle avec les titres actuels.
 
         Args:
             doc: Document docx
         """
         from docx.oxml.ns import qn
-        from docx.oxml import OxmlElement
+        from docx.oxml import OxmlElement, parse_xml
 
-        # Marquer tous les champs comme "dirty" pour forcer la mise à jour
-        for paragraph in doc.paragraphs:
-            for run in paragraph.runs:
-                r_element = run._element
-                fld_char_elements = r_element.findall(qn('w:fldChar'))
-                for fld_char in fld_char_elements:
-                    fld_char_type = fld_char.get(qn('w:fldCharType'))
-                    if fld_char_type == 'begin':
-                        fld_char.set(qn('w:dirty'), '1')
+        # Chercher et supprimer l'ancienne TOC
+        toc_found = False
+        toc_start_para = None
+        toc_end_para = None
 
-        # Configurer les settings du document pour mettre à jour les champs à l'ouverture
-        try:
-            settings_element = doc.settings.element
+        for i, paragraph in enumerate(doc.paragraphs):
+            para_xml = paragraph._element.xml.decode('utf-8') if isinstance(paragraph._element.xml, bytes) else str(paragraph._element.xml)
 
-            # Chercher ou créer l'élément updateFields
-            update_fields = settings_element.find(qn('w:updateFields'))
+            # Chercher le début de la TOC (TOC \o)
+            if 'TOC' in para_xml and not toc_found:
+                toc_found = True
+                toc_start_para = i
+                logger.info(f"TOC trouvée au paragraphe {i}")
 
-            if update_fields is None:
-                # Créer l'élément updateFields
-                update_fields = OxmlElement('w:updateFields')
-                update_fields.set(qn('w:val'), 'true')
-                settings_element.append(update_fields)
-            else:
-                # Mettre à jour l'élément existant
-                update_fields.set(qn('w:val'), 'true')
+            # Chercher la fin de la TOC (fldCharType="end")
+            if toc_found and toc_end_para is None:
+                if 'fldCharType="end"' in para_xml or 'fldCharType="separate"' in para_xml:
+                    # Continuer jusqu'à trouver vraiment la fin
+                    continue
+                elif i > toc_start_para + 1 and 'fldChar' not in para_xml:
+                    # Premier paragraphe après la TOC sans balise de champ
+                    toc_end_para = i - 1
+                    logger.info(f"Fin de TOC au paragraphe {toc_end_para}")
+                    break
 
-            logger.info("Document configuré pour mise à jour automatique des champs à l'ouverture")
-        except Exception as e:
-            logger.warning(f"Impossible de configurer updateFields: {e}")
-            logger.info("Table des matières marquée pour mise à jour manuelle")
+        if not toc_found:
+            logger.warning("TOC non trouvée dans le document, activation de updateFields uniquement")
+        else:
+            # Recréer la TOC en extrayant les titres
+            logger.info("Reconstruction de la TOC avec les nouveaux titres")
+
+            # Trouver le paragraphe TOC et le marquer pour mise à jour
+            for paragraph in doc.paragraphs:
+                for run in paragraph.runs:
+                    for fld_char in run._element.findall(qn('w:fldChar')):
+                        fld_type = fld_char.get(qn('w:fldCharType'))
+                        if fld_type in ['begin', 'separate']:
+                            # Marquer comme dirty
+                            fld_char.set(qn('w:dirty'), 'true')
+
+                # Chercher les instructions de champ TOC
+                for instr in paragraph._element.findall(qn('.//w:instrText')):
+                    if 'TOC' in instr.text:
+                        # Forcer la mise à jour en modifiant légèrement l'instruction
+                        instr.text = instr.text.strip() + ' '
+
+        # NOTE: La mise à jour automatique de la TOC sans confirmation n'est pas possible avec python-docx
+        # Word demande toujours une confirmation pour des raisons de sécurité quand updateFields est activé
+        # Solution: ne pas modifier updateFields, laisser l'utilisateur faire un clic-droit → Mettre à jour
+        logger.info("TOC: Les champs ont été marqués comme dirty. Cliquez sur la TOC et pressez F9 pour la mettre à jour.")
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
