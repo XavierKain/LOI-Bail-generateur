@@ -319,27 +319,36 @@ class BailWordGenerator:
 
         # Si le texte a changé, on met à jour le paragraphe
         if full_text != paragraph.text:
-            # Diviser le texte en paragraphes (séparés par double saut de ligne)
-            # Ceci permet de gérer les conditions suspensives qui doivent être des paragraphes séparés
+            # Stratégie améliorée : diviser d'abord sur \n\n, puis sur \n si on trouve des marqueurs ** ou ***
+            # Ceci gère les cas où l'Excel a des sauts de ligne incohérents
+
+            # Étape 1: Split sur \n\n
             paragraphs_text = full_text.split('\n\n')
 
-            # Filtrer les paragraphes vides
-            paragraphs_text = [p for p in paragraphs_text if p.strip()]
+            # Étape 2: Pour chaque paragraphe, vérifier s'il contient des marqueurs de titre sur des lignes séparées
+            final_paragraphs = []
+            for para in paragraphs_text:
+                # Chercher les lignes avec ** ou *** précédées d'un seul \n
+                import re
+                # Pattern: \n suivi de ** ou *** (mais pas au début du paragraphe)
+                parts = re.split(r'\n(?=\*{2,3})', para)
 
-            if not paragraphs_text:
+                for part in parts:
+                    if part.strip():
+                        final_paragraphs.append(part.strip())
+
+            if not final_paragraphs:
                 return
 
             # Traiter le premier paragraphe dans le paragraphe Word actuel
-            # Strip pour enlever les espaces/newlines au début et fin
-            self._process_paragraph_with_heading(paragraph, paragraphs_text[0].strip())
+            self._process_paragraph_with_heading(paragraph, final_paragraphs[0])
 
             # Pour les paragraphes suivants, créer de nouveaux paragraphes Word si doc est fourni
-            if doc and len(paragraphs_text) > 1:
+            if doc and len(final_paragraphs) > 1:
                 # Insérer les nouveaux paragraphes après le paragraphe actuel
                 last_para = paragraph
-                for para_text in paragraphs_text[1:]:
-                    para_text_stripped = para_text.strip()
-                    if not para_text_stripped:
+                for para_text in final_paragraphs[1:]:
+                    if not para_text:
                         continue
 
                     # Insérer un nouveau paragraphe
@@ -348,8 +357,8 @@ class BailWordGenerator:
                     p_element = new_para._element
                     last_para._element.addnext(p_element)
 
-                    # Traiter le paragraphe (avec texte strippé)
-                    self._process_paragraph_with_heading(new_para, para_text_stripped)
+                    # Traiter le paragraphe
+                    self._process_paragraph_with_heading(new_para, para_text)
 
                     # Mettre à jour le dernier paragraphe traité
                     last_para = new_para
