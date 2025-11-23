@@ -328,10 +328,10 @@ class BailWordGenerator:
             # Étape 2: Pour chaque paragraphe, vérifier s'il contient des marqueurs de titre sur des lignes séparées
             final_paragraphs = []
             for para in paragraphs_text:
-                # Chercher les lignes avec ** ou *** précédées d'un seul \n
+                # Chercher les lignes avec **, ***, ou **** précédées d'un seul \n
                 import re
-                # Pattern: \n suivi de ** ou *** (mais pas au début du paragraphe)
-                parts = re.split(r'\n(?=\*{2,3})', para)
+                # Pattern: \n suivi de 2 à 4 astérisques (mais pas au début du paragraphe)
+                parts = re.split(r'\n(?=\*{2,4})', para)
 
                 for part in parts:
                     if part.strip():
@@ -357,6 +357,12 @@ class BailWordGenerator:
                     p_element = new_para._element
                     last_para._element.addnext(p_element)
 
+                    # Réinitialiser le style à Normal (évite l'héritage du style Heading)
+                    try:
+                        new_para.style = 'Normal'
+                    except:
+                        pass
+
                     # Traiter le paragraphe
                     self._process_paragraph_with_heading(new_para, para_text)
 
@@ -375,8 +381,11 @@ class BailWordGenerator:
         heading_style = None
         text_to_parse = text
 
-        # Chercher *** d'abord (plus spécifique)
-        if text.startswith('***'):
+        # Chercher du plus spécifique au moins spécifique (**** avant *** avant **)
+        if text.startswith('****'):
+            heading_style = 'Heading 4'
+            text_to_parse = text[4:].lstrip()  # Retirer **** et espaces
+        elif text.startswith('***'):
             heading_style = 'Heading 3'
             text_to_parse = text[3:].lstrip()  # Retirer *** et espaces
         elif text.startswith('**'):
@@ -539,31 +548,44 @@ class BailWordGenerator:
 
     def _update_toc(self, doc) -> None:
         """
-        Met à jour la table des matières (TOC) dans le document.
-        Force la mise à jour des champs TOC pour inclure les nouveaux titres.
+        Configure le document pour mettre à jour automatiquement la TOC à l'ouverture.
 
         Args:
             doc: Document docx
         """
-        # Parcourir tous les paragraphes pour trouver les champs TOC
         from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
 
+        # Marquer tous les champs comme "dirty" pour forcer la mise à jour
         for paragraph in doc.paragraphs:
-            # Chercher les éléments de champ (field codes)
             for run in paragraph.runs:
-                # Accéder à l'élément XML du run
                 r_element = run._element
-
-                # Chercher les balises de champ
                 fld_char_elements = r_element.findall(qn('w:fldChar'))
                 for fld_char in fld_char_elements:
                     fld_char_type = fld_char.get(qn('w:fldCharType'))
-
-                    # Si c'est un début de champ, ajouter l'instruction dirty pour forcer la mise à jour
                     if fld_char_type == 'begin':
                         fld_char.set(qn('w:dirty'), '1')
 
-        logger.info("Table des matières marquée pour mise à jour")
+        # Configurer les settings du document pour mettre à jour les champs à l'ouverture
+        try:
+            settings_element = doc.settings.element
+
+            # Chercher ou créer l'élément updateFields
+            update_fields = settings_element.find(qn('w:updateFields'))
+
+            if update_fields is None:
+                # Créer l'élément updateFields
+                update_fields = OxmlElement('w:updateFields')
+                update_fields.set(qn('w:val'), 'true')
+                settings_element.append(update_fields)
+            else:
+                # Mettre à jour l'élément existant
+                update_fields.set(qn('w:val'), 'true')
+
+            logger.info("Document configuré pour mise à jour automatique des champs à l'ouverture")
+        except Exception as e:
+            logger.warning(f"Impossible de configurer updateFields: {e}")
+            logger.info("Table des matières marquée pour mise à jour manuelle")
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
