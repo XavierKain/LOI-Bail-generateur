@@ -345,17 +345,24 @@ class BailWordGenerator:
 
             # Pour les paragraphes suivants, créer de nouveaux paragraphes Word si doc est fourni
             if doc and len(final_paragraphs) > 1:
+                from docx.oxml import OxmlElement
+                from docx.text.paragraph import Paragraph
+
                 # Insérer les nouveaux paragraphes après le paragraphe actuel
-                last_para = paragraph
+                last_para_element = paragraph._element
+
                 for para_text in final_paragraphs[1:]:
                     if not para_text:
                         continue
 
-                    # Insérer un nouveau paragraphe
-                    new_para = last_para.insert_paragraph_before('')
-                    # Déplacer ce nouveau paragraphe après le dernier paragraphe traité
-                    p_element = new_para._element
-                    last_para._element.addnext(p_element)
+                    # Créer un nouvel élément de paragraphe directement
+                    new_p_element = OxmlElement('w:p')
+
+                    # Insérer après le dernier paragraphe traité
+                    last_para_element.addnext(new_p_element)
+
+                    # Créer l'objet Paragraph python-docx
+                    new_para = Paragraph(new_p_element, paragraph._parent)
 
                     # Réinitialiser le style à Normal (évite l'héritage du style Heading)
                     try:
@@ -366,8 +373,8 @@ class BailWordGenerator:
                     # Traiter le paragraphe
                     self._process_paragraph_with_heading(new_para, para_text)
 
-                    # Mettre à jour le dernier paragraphe traité
-                    last_para = new_para
+                    # Mettre à jour le dernier élément traité
+                    last_para_element = new_p_element
 
     def _process_paragraph_with_heading(self, paragraph, text: str) -> None:
         """
@@ -582,46 +589,38 @@ class BailWordGenerator:
                     logger.info(f"Fin de TOC au paragraphe {toc_end_para}")
                     break
 
-        if not toc_found:
-            logger.warning("TOC non trouvée dans le document, activation de updateFields uniquement")
-        else:
-            # Recréer la TOC en extrayant les titres
-            logger.info("Reconstruction de la TOC avec les nouveaux titres")
-
-            # Trouver le paragraphe TOC et le marquer pour mise à jour
-            for paragraph in doc.paragraphs:
-                for run in paragraph.runs:
-                    for fld_char in run._element.findall(qn('w:fldChar')):
-                        fld_type = fld_char.get(qn('w:fldCharType'))
-                        if fld_type in ['begin', 'separate']:
-                            # Marquer comme dirty
-                            fld_char.set(qn('w:dirty'), 'true')
-
-                # Chercher les instructions de champ TOC (utiliser iter au lieu de findall avec xpath)
-                for instr in paragraph._element.iter(qn('w:instrText')):
-                    if instr.text and 'TOC' in instr.text:
-                        # Forcer la mise à jour en modifiant légèrement l'instruction
-                        instr.text = instr.text.strip() + ' '
-
         # NOTE: La mise à jour automatique de la TOC sans confirmation n'est pas possible avec python-docx
-        # Word demande toujours une confirmation pour des raisons de sécurité quand updateFields est activé
-        # Solution: ne pas modifier updateFields, laisser l'utilisateur faire un clic-droit → Mettre à jour
-        logger.info("TOC: Les champs ont été marqués comme dirty. Cliquez sur la TOC et pressez F9 pour la mettre à jour.")
+        # Word demande toujours une confirmation pour des raisons de sécurité.
+        # Solution: Ne rien modifier pour éviter la demande de confirmation.
+        # L'utilisateur devra cliquer sur la TOC et presser F9 pour la mettre à jour manuellement.
+        logger.info("TOC: Pour mettre à jour la table des matières, cliquez dessus et pressez F9 dans Word")
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
-        Nettoie les paragraphes qui ne contiennent que des placeholders vides.
+        Nettoie les paragraphes qui ne contiennent que des placeholders vides ou qui sont vides
+        et ont un style Heading. Supprime aussi les paragraphes vides juste avant un Heading.
 
         Args:
             doc: Document docx
         """
         paragraphs_to_remove = []
+        all_paragraphs = list(doc.paragraphs)
 
-        for paragraph in doc.paragraphs:
+        for i, paragraph in enumerate(all_paragraphs):
             text = paragraph.text.strip()
-            # Si le paragraphe ne contient que des {{ }} vides ou est vide
-            if not text or re.match(r'^(\{\{[^}]*\}\}\s*)+$', text):
-                if text:  # Contient des {{ }} non remplacés
+            style_name = paragraph.style.name if paragraph.style else ""
+
+            # Cas 1: Paragraphe contenant des {{ }} non remplacés
+            if text and re.match(r'^(\{\{[^}]*\}\}\s*)+$', text):
+                paragraphs_to_remove.append(paragraph)
+            # Cas 2: Paragraphe complètement vide avec un style Heading
+            elif not text and style_name.startswith('Heading'):
+                paragraphs_to_remove.append(paragraph)
+            # Cas 3: Paragraphe vide juste avant un Heading
+            elif not text and i < len(all_paragraphs) - 1:
+                next_para = all_paragraphs[i + 1]
+                next_style = next_para.style.name if next_para.style else ""
+                if next_style.startswith('Heading'):
                     paragraphs_to_remove.append(paragraph)
 
         # Supprimer les paragraphes identifiés
@@ -629,4 +628,5 @@ class BailWordGenerator:
             p_element = paragraph._element
             p_element.getparent().remove(p_element)
 
-        logger.debug(f"Nettoyé {len(paragraphs_to_remove)} paragraphes vides")
+        if len(paragraphs_to_remove) > 0:
+            logger.info(f"Nettoyé {len(paragraphs_to_remove)} paragraphes vides")
