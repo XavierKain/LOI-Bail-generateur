@@ -597,9 +597,9 @@ class BailWordGenerator:
                             # Marquer comme dirty
                             fld_char.set(qn('w:dirty'), 'true')
 
-                # Chercher les instructions de champ TOC
-                for instr in paragraph._element.findall(qn('.//w:instrText')):
-                    if 'TOC' in instr.text:
+                # Chercher les instructions de champ TOC (utiliser iter au lieu de findall avec xpath)
+                for instr in paragraph._element.iter(qn('w:instrText')):
+                    if instr.text and 'TOC' in instr.text:
                         # Forcer la mise à jour en modifiant légèrement l'instruction
                         instr.text = instr.text.strip() + ' '
 
