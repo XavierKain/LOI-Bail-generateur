@@ -20,7 +20,7 @@ def test_bail_generation():
     test_file = "Fiche de décision test.xlsx"
     config_loi = "Rédaction LOI.xlsx"
     config_bail = "Redaction BAIL.xlsx"
-    template_bail = "Template BAIL avec placeholder.docx"
+    template_bail = "2025 - Template BAIL.docx"
 
     print(f"📁 Fichier test: {test_file}")
 

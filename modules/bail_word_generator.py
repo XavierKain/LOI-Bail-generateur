@@ -150,7 +150,7 @@ class BailWordGenerator:
 
         return normalized
 
-    def __init__(self, template_path: str = "Template BAIL avec placeholder.docx"):
+    def __init__(self, template_path: str = "2025 - Template BAIL.docx"):
         """
         Initialise le générateur Word pour BAIL.
 
@@ -351,7 +351,7 @@ class BailWordGenerator:
                 # Insérer les nouveaux paragraphes après le paragraphe actuel
                 last_para_element = paragraph._element
 
-                for para_text in final_paragraphs[1:]:
+                for i, para_text in enumerate(final_paragraphs[1:], start=1):
                     if not para_text:
                         continue
 
@@ -373,8 +373,20 @@ class BailWordGenerator:
                     # Traiter le paragraphe
                     self._process_paragraph_with_heading(new_para, para_text)
 
-                    # Mettre à jour le dernier élément traité
-                    last_para_element = new_p_element
+                    # Ajouter un paragraphe vide APRÈS ce paragraphe s'il est Normal (pas Heading)
+                    # et ce n'est pas le dernier paragraphe
+                    if i < len(final_paragraphs) - 1:
+                        current_style = new_para.style.name if new_para.style else ""
+                        if not current_style.startswith('Heading'):
+                            # Créer un paragraphe vide pour l'espacement
+                            empty_p_element = OxmlElement('w:p')
+                            new_p_element.addnext(empty_p_element)
+                            # Mettre à jour pour insérer le prochain paragraphe après le vide
+                            last_para_element = empty_p_element
+                        else:
+                            last_para_element = new_p_element
+                    else:
+                        last_para_element = new_p_element
 
     def _process_paragraph_with_heading(self, paragraph, text: str) -> None:
         """
@@ -589,39 +601,53 @@ class BailWordGenerator:
                     logger.info(f"Fin de TOC au paragraphe {toc_end_para}")
                     break
 
-        # NOTE: La mise à jour automatique de la TOC sans confirmation n'est pas possible avec python-docx
-        # Word demande toujours une confirmation pour des raisons de sécurité.
-        # Solution: Ne rien modifier pour éviter la demande de confirmation.
-        # L'utilisateur devra cliquer sur la TOC et presser F9 pour la mettre à jour manuellement.
-        logger.info("TOC: Pour mettre à jour la table des matières, cliquez dessus et pressez F9 dans Word")
+        # Marquer tous les champs comme dirty et activer updateFields
+        # Cela demandera confirmation à l'ouverture, mais mettra à jour la TOC si l'utilisateur accepte
+        for paragraph in doc.paragraphs:
+            for run in paragraph.runs:
+                for fld_char in run._element.findall(qn('w:fldChar')):
+                    fld_type = fld_char.get(qn('w:fldCharType'))
+                    if fld_type == 'begin':
+                        fld_char.set(qn('w:dirty'), '1')
+
+        # Activer updateFields dans les settings
+        try:
+            settings_element = doc.settings.element
+            update_fields = settings_element.find(qn('w:updateFields'))
+
+            if update_fields is None:
+                update_fields = OxmlElement('w:updateFields')
+                update_fields.set(qn('w:val'), 'true')
+                settings_element.append(update_fields)
+            else:
+                update_fields.set(qn('w:val'), 'true')
+
+            logger.info("TOC: Le document demandera la mise à jour à l'ouverture")
+        except Exception as e:
+            logger.warning(f"Impossible de configurer updateFields: {e}")
 
     def _clean_empty_paragraphs(self, doc) -> None:
         """
-        Nettoie les paragraphes qui ne contiennent que des placeholders vides ou qui sont vides
-        et ont un style Heading. Supprime aussi les paragraphes vides juste avant un Heading.
+        Nettoie uniquement les paragraphes qui ne contiennent que des placeholders vides
+        ou qui sont vides avec un style Heading.
+
+        NE supprime PAS les paragraphes Normal vides car ils servent d'espacement.
 
         Args:
             doc: Document docx
         """
         paragraphs_to_remove = []
-        all_paragraphs = list(doc.paragraphs)
 
-        for i, paragraph in enumerate(all_paragraphs):
+        for paragraph in doc.paragraphs:
             text = paragraph.text.strip()
             style_name = paragraph.style.name if paragraph.style else ""
 
             # Cas 1: Paragraphe contenant des {{ }} non remplacés
             if text and re.match(r'^(\{\{[^}]*\}\}\s*)+$', text):
                 paragraphs_to_remove.append(paragraph)
-            # Cas 2: Paragraphe complètement vide avec un style Heading
+            # Cas 2: Paragraphe complètement vide avec un style Heading (erreur de formatage)
             elif not text and style_name.startswith('Heading'):
                 paragraphs_to_remove.append(paragraph)
-            # Cas 3: Paragraphe vide juste avant un Heading
-            elif not text and i < len(all_paragraphs) - 1:
-                next_para = all_paragraphs[i + 1]
-                next_style = next_para.style.name if next_para.style else ""
-                if next_style.startswith('Heading'):
-                    paragraphs_to_remove.append(paragraph)
 
         # Supprimer les paragraphes identifiés
         for paragraph in paragraphs_to_remove:
