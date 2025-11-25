@@ -635,16 +635,19 @@ class BailWordGenerator:
 
     def _fix_heading_indentation(self, doc) -> None:
         """
-        Réinitialise l'indentation de tous les Headings pour les aligner à gauche.
+        Réinitialise l'indentation et l'alignement de tous les Headings pour les aligner à gauche.
 
-        Corrige les Heading 4 du template qui ont parfois un first_line_indent.
+        Corrige les Heading 4 du template qui ont parfois un first_line_indent ou un alignement centré.
         Nettoie aussi les runs vides qui peuvent causer des décalages visuels.
 
         Args:
             doc: Document docx
         """
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+
         fixed_count = 0
         cleaned_runs = 0
+        fixed_alignment = 0
 
         for paragraph in doc.paragraphs:
             style_name = paragraph.style.name if paragraph.style else ""
@@ -659,6 +662,11 @@ class BailWordGenerator:
                     paragraph.paragraph_format.first_line_indent = None
                     fixed_count += 1
 
+                # Forcer l'alignement à gauche (désactiver centrage, justifié, etc.)
+                if paragraph.paragraph_format.alignment != WD_ALIGN_PARAGRAPH.LEFT:
+                    paragraph.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                    fixed_alignment += 1
+
                 # Nettoyer les runs vides (peuvent causer des décalages visuels)
                 runs_to_remove = []
                 for run in paragraph.runs:
@@ -671,6 +679,8 @@ class BailWordGenerator:
 
         if fixed_count > 0:
             logger.info(f"Corrigé l'indentation de {fixed_count} headings")
+        if fixed_alignment > 0:
+            logger.info(f"Corrigé l'alignement de {fixed_alignment} headings (forcé à gauche)")
         if cleaned_runs > 0:
             logger.info(f"Nettoyé {cleaned_runs} runs vides dans les headings")
 
