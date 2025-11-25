@@ -470,10 +470,6 @@ if uploaded_file is not None:
                     with st.expander("Détails de l'erreur"):
                         st.code(traceback.format_exc())
 
-        # Nettoyage
-        if temp_path.exists():
-            temp_path.unlink()
-
     except Exception as e:
         st.error(f"❌ Erreur lors du traitement du fichier: {str(e)}")
         logger.error(f"Erreur traitement: {traceback.format_exc()}")
