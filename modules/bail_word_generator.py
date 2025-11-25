@@ -230,8 +230,11 @@ class BailWordGenerator:
                     for paragraph in cell.paragraphs:
                         self._replace_variable_placeholders(paragraph, donnees)
 
-        # NOTE: Nettoyage désactivé pour conserver l'espacement du template
-        # self._clean_empty_paragraphs(doc)
+        # Nettoyer uniquement les placeholders {{}} non remplacés
+        self._clean_unreplaced_placeholders(doc)
+
+        # Corriger l'indentation des headings
+        self._fix_heading_indentation(doc)
 
         # Mettre à jour la table des matières
         self._update_toc(doc)
@@ -416,6 +419,9 @@ class BailWordGenerator:
         if heading_style:
             try:
                 paragraph.style = heading_style
+                # Réinitialiser l'indentation pour aligner à gauche
+                paragraph.paragraph_format.left_indent = None
+                paragraph.paragraph_format.first_line_indent = None
             except:
                 # Si le style n'existe pas, ignorer
                 pass
@@ -627,8 +633,66 @@ class BailWordGenerator:
         except Exception as e:
             logger.warning(f"Impossible de configurer updateFields: {e}")
 
+    def _fix_heading_indentation(self, doc) -> None:
+        """
+        Réinitialise l'indentation de tous les Headings pour les aligner à gauche.
+
+        Corrige les Heading 4 du template qui ont parfois un first_line_indent.
+
+        Args:
+            doc: Document docx
+        """
+        fixed_count = 0
+
+        for paragraph in doc.paragraphs:
+            style_name = paragraph.style.name if paragraph.style else ""
+
+            # Pour tous les Headings (2, 3, 4)
+            if style_name.startswith('Heading'):
+                # Vérifier s'il y a une indentation
+                if (paragraph.paragraph_format.left_indent is not None or
+                    paragraph.paragraph_format.first_line_indent is not None):
+                    # Réinitialiser
+                    paragraph.paragraph_format.left_indent = None
+                    paragraph.paragraph_format.first_line_indent = None
+                    fixed_count += 1
+
+        if fixed_count > 0:
+            logger.info(f"Corrigé l'indentation de {fixed_count} headings")
+
+    def _clean_unreplaced_placeholders(self, doc) -> None:
+        """
+        Supprime UNIQUEMENT les paragraphes contenant des placeholders {{}} non remplacés.
+
+        NE supprime PAS:
+        - Les paragraphes vides (espacement)
+        - Les paragraphes Heading vides du template
+
+        Args:
+            doc: Document docx
+        """
+        paragraphs_to_remove = []
+
+        for paragraph in doc.paragraphs:
+            text = paragraph.text.strip()
+
+            # Supprimer uniquement les paragraphes avec des placeholders non remplacés
+            if text and re.match(r'^(\{\{[^}]*\}\}\s*)+$', text):
+                paragraphs_to_remove.append(paragraph)
+                logger.debug(f"Marqué pour suppression: {text}")
+
+        # Supprimer les paragraphes identifiés
+        for paragraph in paragraphs_to_remove:
+            p_element = paragraph._element
+            p_element.getparent().remove(p_element)
+
+        if len(paragraphs_to_remove) > 0:
+            logger.info(f"Supprimé {len(paragraphs_to_remove)} placeholders non remplacés")
+
     def _clean_empty_paragraphs(self, doc) -> None:
         """
+        DEPRECATED - Utiliser _clean_unreplaced_placeholders à la place.
+
         Nettoie uniquement les paragraphes qui ne contiennent que des placeholders vides
         ou qui sont vides avec un style Heading.
 
