@@ -638,11 +638,13 @@ class BailWordGenerator:
         Réinitialise l'indentation de tous les Headings pour les aligner à gauche.
 
         Corrige les Heading 4 du template qui ont parfois un first_line_indent.
+        Nettoie aussi les runs vides qui peuvent causer des décalages visuels.
 
         Args:
             doc: Document docx
         """
         fixed_count = 0
+        cleaned_runs = 0
 
         for paragraph in doc.paragraphs:
             style_name = paragraph.style.name if paragraph.style else ""
@@ -657,8 +659,20 @@ class BailWordGenerator:
                     paragraph.paragraph_format.first_line_indent = None
                     fixed_count += 1
 
+                # Nettoyer les runs vides (peuvent causer des décalages visuels)
+                runs_to_remove = []
+                for run in paragraph.runs:
+                    if len(run.text) == 0:
+                        runs_to_remove.append(run)
+
+                for run in runs_to_remove:
+                    run._element.getparent().remove(run._element)
+                    cleaned_runs += 1
+
         if fixed_count > 0:
             logger.info(f"Corrigé l'indentation de {fixed_count} headings")
+        if cleaned_runs > 0:
+            logger.info(f"Nettoyé {cleaned_runs} runs vides dans les headings")
 
     def _clean_unreplaced_placeholders(self, doc) -> None:
         """
