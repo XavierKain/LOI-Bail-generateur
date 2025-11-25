@@ -230,21 +230,19 @@ if uploaded_file is not None:
                             key="download_loi"
                         )
 
-                    # Auto-trigger download avec JavaScript
-                    st.components.v1.html(
+                    # Auto-trigger download avec JavaScript (non-bloquant)
+                    st.markdown(
                         """
                         <script>
-                        // Attendre que la page soit chargée
                         setTimeout(function() {
-                            // Trouver le bouton de téléchargement LOI
                             const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
                             if (downloadBtn) {
                                 downloadBtn.click();
                             }
-                        }, 100);
+                        }, 50);
                         </script>
                         """,
-                        height=0
+                        unsafe_allow_html=True
                     )
 
                     st.info(f"📁 Fichier sauvegardé: `{generated_path}`")
@@ -357,21 +355,19 @@ if uploaded_file is not None:
                             key="download_bail"
                         )
 
-                    # Auto-trigger download avec JavaScript
-                    st.components.v1.html(
+                    # Auto-trigger download avec JavaScript (non-bloquant)
+                    st.markdown(
                         """
                         <script>
-                        // Attendre que la page soit chargée
                         setTimeout(function() {
-                            // Trouver le bouton de téléchargement
                             const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
                             if (downloadBtn) {
                                 downloadBtn.click();
                             }
-                        }, 100);
+                        }, 50);
                         </script>
                         """,
-                        height=0
+                        unsafe_allow_html=True
                     )
 
                     st.info(f"📁 Fichier sauvegardé: `{output_path}`")
