@@ -9,6 +9,7 @@ from pathlib import Path
 from modules import ExcelParser, LOIGenerator, BailGenerator, BailWordGenerator
 from modules.placeholder_extractor import extract_all_placeholders, categorize_placeholders
 import traceback
+import hashlib
 
 # Configuration du logging
 logging.basicConfig(
@@ -16,6 +17,31 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Fonction cachée pour parser le fichier Excel (évite de recharger à chaque clic)
+@st.cache_data(show_spinner=False)
+def parse_excel_cached(file_content: bytes, file_name: str, config_path: str):
+    """Parse le fichier Excel et cache le résultat pour éviter les rechargements."""
+    # Créer un hash du contenu pour identifier le fichier de manière unique
+    file_hash = hashlib.md5(file_content).hexdigest()
+
+    # Sauvegarder temporairement
+    temp_path = Path(f"temp_{file_hash}.xlsx")
+    with open(temp_path, "wb") as f:
+        f.write(file_content)
+
+    try:
+        # Parser le fichier
+        parser = ExcelParser(str(temp_path), config_path)
+        variables = parser.extract_variables()
+        societes_info = parser.extract_societe_info()
+        output_filename_loi = parser.get_output_filename(variables)
+
+        return variables, societes_info, output_filename_loi
+    finally:
+        # Nettoyer le fichier temporaire
+        if temp_path.exists():
+            temp_path.unlink()
 
 # Configuration de la page
 st.set_page_config(
@@ -73,21 +99,19 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     try:
-        # Sauvegarder temporairement le fichier
-        temp_path = Path("temp_uploaded.xlsx")
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
         st.success(f"✅ Fichier chargé: {uploaded_file.name}")
 
-        # Extraire les données avec le parser ORIGINAL (fonctionnel pour LOI)
-        with st.spinner("Extraction des données et enrichissement INPI..."):
-            parser = ExcelParser(str(temp_path), str(config_loi_path))
-            variables = parser.extract_variables()
-            societes_info = parser.extract_societe_info()
-            output_filename_loi = parser.get_output_filename(variables)
+        # Extraire les données avec le parser CACHÉ (évite rechargement à chaque clic)
+        file_content = uploaded_file.getbuffer().tobytes()
 
-        st.success(f"✅ {len(variables)} variables extraites et enrichies")
+        with st.spinner("Extraction des données et enrichissement INPI..."):
+            variables, societes_info, output_filename_loi = parse_excel_cached(
+                file_content,
+                uploaded_file.name,
+                str(config_loi_path)
+            )
+
+        st.success(f"✅ {len(variables)} variables extraites et enrichies (données en cache)")
 
         # Afficher les données extraites
         st.header("2. Données extraites et enrichies")
@@ -189,7 +213,7 @@ if uploaded_file is not None:
         # Génération des documents (DEUX BOUTONS CÔTE À CÔTE)
         st.header("3. Génération des documents")
 
-        st.info("💡 **Astuce**: La barre de chargement apparaît pendant la génération. Cliquez sur le bouton de téléchargement une fois le document généré.")
+        st.info("💡 **Info**: Grâce au cache, après la première génération, les suivantes seront quasi-instantanées ! La barre de chargement indique la progression.")
 
         col_loi, col_bail = st.columns(2)
 
@@ -218,6 +242,7 @@ if uploaded_file is not None:
                         generated_path = generator.generate(str(output_path))
 
                     st.success("✅ Document LOI généré avec succès!")
+                    st.info("👇 Cliquez sur le bouton ci-dessous pour télécharger le document")
 
                     # Téléchargement direct
                     with open(generated_path, "rb") as f:
@@ -233,7 +258,7 @@ if uploaded_file is not None:
                             type="primary"
                         )
 
-                    st.info(f"📁 Fichier sauvegardé: `{generated_path}`")
+                    st.caption(f"📁 Fichier sauvegardé: `{generated_path}`")
 
                     # Informations sur les placeholders
                     with st.expander("ℹ️ Informations LOI"):
@@ -330,6 +355,7 @@ if uploaded_file is not None:
                         )
 
                     st.success("✅ Document BAIL généré avec succès!")
+                    st.info("👇 Cliquez sur le bouton ci-dessous pour télécharger le document")
 
                     # Téléchargement direct
                     with open(output_path, "rb") as f:
@@ -345,7 +371,7 @@ if uploaded_file is not None:
                             type="primary"
                         )
 
-                    st.info(f"📁 Fichier sauvegardé: `{output_path}`")
+                    st.caption(f"📁 Fichier sauvegardé: `{output_path}`")
 
                     # Afficher tous les placeholders du template avec leur statut
                     with st.expander("📝 Statut des placeholders du template"):
