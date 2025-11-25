@@ -189,6 +189,8 @@ if uploaded_file is not None:
         # Génération des documents (DEUX BOUTONS CÔTE À CÔTE)
         st.header("3. Génération des documents")
 
+        st.info("💡 **Astuce**: La barre de chargement apparaît pendant la génération. Cliquez sur le bouton de téléchargement une fois le document généré.")
+
         col_loi, col_bail = st.columns(2)
 
         # BOUTON LOI
@@ -202,7 +204,7 @@ if uploaded_file is not None:
 
             if st.button("🚀 Générer LOI", type="primary", use_container_width=True, key="btn_gen_loi"):
                 try:
-                    with st.spinner("Génération du document LOI..."):
+                    with st.spinner("⏳ Génération en cours... (Enrichissement INPI, création du document)"):
                         # Créer le générateur LOI avec l'API ORIGINALE
                         generator = LOIGenerator(
                             variables,
@@ -215,9 +217,9 @@ if uploaded_file is not None:
                         output_path.parent.mkdir(exist_ok=True)
                         generated_path = generator.generate(str(output_path))
 
-                    st.success("✅ Document LOI généré avec succès! Téléchargement automatique...")
+                    st.success("✅ Document LOI généré avec succès!")
 
-                    # Téléchargement avec auto-trigger
+                    # Téléchargement direct
                     with open(generated_path, "rb") as f:
                         file_data = f.read()
 
@@ -227,23 +229,9 @@ if uploaded_file is not None:
                             file_name=output_filename_loi,
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True,
-                            key="download_loi"
+                            key="download_loi",
+                            type="primary"
                         )
-
-                    # Auto-trigger download avec JavaScript (non-bloquant)
-                    st.markdown(
-                        """
-                        <script>
-                        setTimeout(function() {
-                            const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
-                            if (downloadBtn) {
-                                downloadBtn.click();
-                            }
-                        }, 50);
-                        </script>
-                        """,
-                        unsafe_allow_html=True
-                    )
 
                     st.info(f"📁 Fichier sauvegardé: `{generated_path}`")
 
@@ -285,7 +273,7 @@ if uploaded_file is not None:
 
             if st.button("🚀 Générer BAIL", type="primary", use_container_width=True, key="btn_gen_bail"):
                 try:
-                    with st.spinner("Génération du document BAIL..."):
+                    with st.spinner("⏳ Génération en cours... (Analyse des conditions, création des articles)"):
                         # Générer le nom du fichier BAIL
                         nom_preneur = variables.get("Nom Preneur", "Client")
                         date_loi = variables.get("Date LOI", "")
@@ -298,8 +286,9 @@ if uploaded_file is not None:
                         # Générer les articles
                         articles_generes = bail_generator.generer_bail(variables)
 
-                        st.success(f"✅ {len(articles_generes)} articles générés")
+                    st.success(f"✅ {len(articles_generes)} articles générés")
 
+                    with st.spinner("⏳ Finalisation du document Word..."):
                         # Calculer les données complètes (avec variables dérivées)
                         donnees_complete = bail_generator.calculer_variables_derivees(variables)
 
@@ -340,9 +329,9 @@ if uploaded_file is not None:
                             str(output_path)
                         )
 
-                    st.success("✅ Document BAIL généré avec succès! Téléchargement automatique...")
+                    st.success("✅ Document BAIL généré avec succès!")
 
-                    # Téléchargement avec auto-trigger
+                    # Téléchargement direct
                     with open(output_path, "rb") as f:
                         file_data = f.read()
 
@@ -352,23 +341,9 @@ if uploaded_file is not None:
                             file_name=output_filename_bail,
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True,
-                            key="download_bail"
+                            key="download_bail",
+                            type="primary"
                         )
-
-                    # Auto-trigger download avec JavaScript (non-bloquant)
-                    st.markdown(
-                        """
-                        <script>
-                        setTimeout(function() {
-                            const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
-                            if (downloadBtn) {
-                                downloadBtn.click();
-                            }
-                        }, 50);
-                        </script>
-                        """,
-                        unsafe_allow_html=True
-                    )
 
                     st.info(f"📁 Fichier sauvegardé: `{output_path}`")
 
