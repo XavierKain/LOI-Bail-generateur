@@ -215,18 +215,37 @@ if uploaded_file is not None:
                         output_path.parent.mkdir(exist_ok=True)
                         generated_path = generator.generate(str(output_path))
 
-                    st.success("✅ Document LOI généré avec succès!")
+                    st.success("✅ Document LOI généré avec succès! Téléchargement automatique...")
 
-                    # Téléchargement
+                    # Téléchargement avec auto-trigger
                     with open(generated_path, "rb") as f:
+                        file_data = f.read()
+
                         st.download_button(
                             label="📥 Télécharger le document LOI",
-                            data=f,
+                            data=file_data,
                             file_name=output_filename_loi,
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True,
                             key="download_loi"
                         )
+
+                    # Auto-trigger download avec JavaScript
+                    st.components.v1.html(
+                        """
+                        <script>
+                        // Attendre que la page soit chargée
+                        setTimeout(function() {
+                            // Trouver le bouton de téléchargement LOI
+                            const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
+                            if (downloadBtn) {
+                                downloadBtn.click();
+                            }
+                        }, 100);
+                        </script>
+                        """,
+                        height=0
+                    )
 
                     st.info(f"📁 Fichier sauvegardé: `{generated_path}`")
 
@@ -323,18 +342,37 @@ if uploaded_file is not None:
                             str(output_path)
                         )
 
-                    st.success("✅ Document BAIL généré avec succès!")
+                    st.success("✅ Document BAIL généré avec succès! Téléchargement automatique...")
 
-                    # Téléchargement
+                    # Téléchargement avec auto-trigger
                     with open(output_path, "rb") as f:
+                        file_data = f.read()
+
                         st.download_button(
                             label="📥 Télécharger le document BAIL",
-                            data=f,
+                            data=file_data,
                             file_name=output_filename_bail,
                             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True,
                             key="download_bail"
                         )
+
+                    # Auto-trigger download avec JavaScript
+                    st.components.v1.html(
+                        """
+                        <script>
+                        // Attendre que la page soit chargée
+                        setTimeout(function() {
+                            // Trouver le bouton de téléchargement
+                            const downloadBtn = window.parent.document.querySelector('[data-testid="stDownloadButton"] button');
+                            if (downloadBtn) {
+                                downloadBtn.click();
+                            }
+                        }, 100);
+                        </script>
+                        """,
+                        height=0
+                    )
 
                     st.info(f"📁 Fichier sauvegardé: `{output_path}`")
 

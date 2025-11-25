@@ -230,8 +230,8 @@ class BailWordGenerator:
                     for paragraph in cell.paragraphs:
                         self._replace_variable_placeholders(paragraph, donnees)
 
-        # Nettoyer les paragraphes vides
-        self._clean_empty_paragraphs(doc)
+        # NOTE: Nettoyage désactivé pour conserver l'espacement du template
+        # self._clean_empty_paragraphs(doc)
 
         # Mettre à jour la table des matières
         self._update_toc(doc)
@@ -322,20 +322,27 @@ class BailWordGenerator:
             # Stratégie améliorée : diviser d'abord sur \n\n, puis sur \n si on trouve des marqueurs ** ou ***
             # Ceci gère les cas où l'Excel a des sauts de ligne incohérents
 
-            # Étape 1: Split sur \n\n
-            paragraphs_text = full_text.split('\n\n')
+            # Stratégie simple: Split sur \n\n et insérer un paragraphe vide entre chaque partie
+            import re
 
-            # Étape 2: Pour chaque paragraphe, vérifier s'il contient des marqueurs de titre sur des lignes séparées
+            # Split sur \n\n
+            parts_raw = full_text.split('\n\n')
+
+            # Créer final_paragraphs en intercalant des éléments vides
             final_paragraphs = []
-            for para in paragraphs_text:
-                # Chercher les lignes avec **, ***, ou **** précédées d'un seul \n
-                import re
-                # Pattern: \n suivi de 2 à 4 astérisques (mais pas au début du paragraphe)
-                parts = re.split(r'\n(?=\*{2,4})', para)
+            for i, part in enumerate(parts_raw):
+                # Traiter les headings dans cette partie
+                heading_parts = re.split(r'\n(?=\*{2,4})', part)
 
-                for part in parts:
-                    if part.strip():
-                        final_paragraphs.append(part.strip())
+                for hp in heading_parts:
+                    stripped = hp.strip()
+                    if stripped:  # Ne pas ajouter si complètement vide
+                        final_paragraphs.append(stripped)
+
+                # Ajouter un paragraphe vide APRÈS (sauf pour le dernier)
+                if i < len(parts_raw) - 1:
+                    final_paragraphs.append('')  # Paragraphe vide pour l'espacement
+
 
             if not final_paragraphs:
                 return
@@ -351,10 +358,7 @@ class BailWordGenerator:
                 # Insérer les nouveaux paragraphes après le paragraphe actuel
                 last_para_element = paragraph._element
 
-                for i, para_text in enumerate(final_paragraphs[1:], start=1):
-                    if not para_text:
-                        continue
-
+                for para_text in final_paragraphs[1:]:
                     # Créer un nouvel élément de paragraphe directement
                     new_p_element = OxmlElement('w:p')
 
@@ -364,29 +368,26 @@ class BailWordGenerator:
                     # Créer l'objet Paragraph python-docx
                     new_para = Paragraph(new_p_element, paragraph._parent)
 
-                    # Réinitialiser le style à Normal (évite l'héritage du style Heading)
-                    try:
-                        new_para.style = 'Normal'
-                    except:
-                        pass
-
-                    # Traiter le paragraphe
-                    self._process_paragraph_with_heading(new_para, para_text)
-
-                    # Ajouter un paragraphe vide APRÈS ce paragraphe s'il est Normal (pas Heading)
-                    # et ce n'est pas le dernier paragraphe
-                    if i < len(final_paragraphs) - 1:
-                        current_style = new_para.style.name if new_para.style else ""
-                        if not current_style.startswith('Heading'):
-                            # Créer un paragraphe vide pour l'espacement
-                            empty_p_element = OxmlElement('w:p')
-                            new_p_element.addnext(empty_p_element)
-                            # Mettre à jour pour insérer le prochain paragraphe après le vide
-                            last_para_element = empty_p_element
-                        else:
-                            last_para_element = new_p_element
+                    # Si le paragraphe est vide, le laisser vide (espacement)
+                    if not para_text:
+                        # Paragraphe vide - ne rien faire, juste le style Normal
+                        try:
+                            new_para.style = 'Normal'
+                        except:
+                            pass
                     else:
-                        last_para_element = new_p_element
+                        # Paragraphe avec contenu
+                        # Réinitialiser le style à Normal (évite l'héritage du style Heading)
+                        try:
+                            new_para.style = 'Normal'
+                        except:
+                            pass
+
+                        # Traiter le paragraphe
+                        self._process_paragraph_with_heading(new_para, para_text)
+
+                    # Mettre à jour le dernier élément traité
+                    last_para_element = new_p_element
 
     def _process_paragraph_with_heading(self, paragraph, text: str) -> None:
         """
