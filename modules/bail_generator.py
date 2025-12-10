@@ -253,8 +253,8 @@ class BailGenerator:
             except (ValueError, TypeError):
                 logger.warning(f"Impossible de convertir Durée Bail: {duree_bail_str}")
 
-        # Date de signature (aujourd'hui + 15 jours)
-        date_signature = datetime.now() + timedelta(days=15)
+        # Date de signature (aujourd'hui + 21 jours)
+        date_signature = datetime.now() + timedelta(days=21)
         derivees["Date de signature"] = date_signature.strftime("%d/%m/%Y")
 
         # Date de prise d'effet + 9 ans

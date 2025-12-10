@@ -120,11 +120,14 @@ class LOIGenerator:
         # 3. Calculer le type de bail
         self._calculate_type_bail()
 
-        # 4. Calculer la date de signature (Date d'aujourd'hui + 15 jours)
+        # 4. Calculer la date de signature (Date d'aujourd'hui + 21 jours)
         self._calculate_date_signature()
 
         # 5. Calculer les surfaces
         self._calculate_surfaces()
+
+        # 6. Conditionner l'affichage du PRESIDENT DE LA SOCIETE (uniquement si société)
+        self._handle_president_condition()
 
     def _calculate_paliers(self):
         """Calcule les montants des paliers (remises) pour chaque année."""
@@ -189,14 +192,14 @@ class LOIGenerator:
                 pass
 
     def _calculate_date_signature(self):
-        """Calcule la date de signature (Date d'aujourd'hui + 15 jours)."""
+        """Calcule la date de signature (Date d'aujourd'hui + 21 jours)."""
         date_aujourdhui_str = self.variables.get("Date d'aujourd'hui", "")
 
         if date_aujourdhui_str:
             try:
                 # Parser DD/MM/YYYY
                 date_aujourdhui = datetime.strptime(date_aujourdhui_str, "%d/%m/%Y")
-                date_signature = date_aujourdhui + timedelta(days=15)
+                date_signature = date_aujourdhui + timedelta(days=21)
                 self.variables["Date de signature"] = date_signature.strftime("%d/%m/%Y")
             except ValueError:
                 pass
@@ -216,6 +219,31 @@ class LOIGenerator:
                     self.variables["Surface R-1"] = str(int(surface_r1))
         except ValueError:
             pass
+
+    def _handle_president_condition(self):
+        """
+        Conditionne l'affichage du PRESIDENT DE LA SOCIETE.
+
+        Le placeholder ne doit être rempli que si le preneur est une société
+        (SAS, SARL, EURL, SA, SCI, etc.), pas pour une personne physique.
+        """
+        type_preneur = self.variables.get("Type Preneur", "").strip().upper()
+
+        # Types de sociétés qui nécessitent un président/gérant
+        types_societes = [
+            "SAS", "SARL", "EURL", "SA", "SCI", "SNC", "SASU",
+            "SOCIÉTÉ", "SOCIETE", "SOCIÉTÉ EN FORMATION", "SOCIETE EN FORMATION"
+        ]
+
+        is_societe = any(t in type_preneur for t in types_societes)
+
+        if not is_societe:
+            # Si ce n'est pas une société, vider les variables liées au président
+            self.variables["PRESIDENT DE LA SOCIETE"] = ""
+            self.variables["FONCTION INPI"] = ""
+            logger.debug(f"Type Preneur '{type_preneur}' n'est pas une société - PRESIDENT DE LA SOCIETE vidé")
+        else:
+            logger.debug(f"Type Preneur '{type_preneur}' est une société - PRESIDENT DE LA SOCIETE conservé")
 
     def _is_paragraph_optional(self, paragraph) -> bool:
         """

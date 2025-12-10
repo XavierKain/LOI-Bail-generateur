@@ -170,9 +170,9 @@ class INPIClient:
 
         return None
 
-    def _extract_dirigeant_from_api(self, personne_morale: dict) -> Optional[str]:
+    def _extract_dirigeant_from_api(self, personne_morale: dict) -> tuple:
         """
-        Extrait le nom du dirigeant depuis les données INPI (composition.pouvoirs).
+        Extrait le nom du dirigeant et sa fonction depuis les données INPI (composition.pouvoirs).
 
         Les données de dirigeants sont disponibles dans l'API INPI via composition.pouvoirs.
         Rôles à rechercher:
@@ -184,8 +184,18 @@ class INPIClient:
             personne_morale: Dict contenant les données personneMorale de l'API
 
         Returns:
-            Nom complet du dirigeant ou None si non trouvé
+            Tuple (nom_dirigeant, fonction) ou (None, None) si non trouvé
         """
+        # Mapping des codes de rôle vers les libellés de fonction
+        ROLES_LIBELLES = {
+            "30": "Président",
+            "71": "Président",
+            "50": "Gérant",
+            "10": "Directeur général",
+            "11": "Directeur général délégué",
+            "20": "Administrateur",
+        }
+
         try:
             composition = personne_morale.get("composition", {})
             pouvoirs = composition.get("pouvoirs", [])
@@ -217,15 +227,18 @@ class INPIClient:
                         else:
                             dirigeant = nom.capitalize() if nom.isupper() else nom
 
-                        logger.info(f"Dirigeant trouvé dans API INPI (rôle {role}): {dirigeant}")
-                        return dirigeant
+                        # Récupérer le libellé de la fonction
+                        fonction = ROLES_LIBELLES.get(role, "Dirigeant")
+
+                        logger.info(f"Dirigeant trouvé dans API INPI (rôle {role}): {dirigeant}, fonction: {fonction}")
+                        return dirigeant, fonction
 
             logger.debug("Aucun dirigeant trouvé dans composition.pouvoirs")
-            return None
+            return None, None
 
         except Exception as e:
             logger.error(f"Erreur lors de l'extraction du dirigeant depuis l'API: {str(e)}")
-            return None
+            return None, None
 
     def _scrape_inpi_beautifulsoup(self, siren: str) -> Optional[Dict[str, str]]:
         """
@@ -385,6 +398,8 @@ class INPIClient:
 
                                 if dirigeant:
                                     result["PRESIDENT DE LA SOCIETE"] = dirigeant
+                                    # Ajouter la fonction/qualité
+                                    result["FONCTION INPI"] = qualite if qualite else ""
                                     break
 
             logger.info(f"Scraping BeautifulSoup réussi: {len(result)} champs")
@@ -394,10 +409,15 @@ class INPIClient:
             logger.error(f"Erreur scraping BeautifulSoup: {str(e)}")
             return None
 
-    def _scrape_inpi_dirigeant(self, siren: str) -> Optional[str]:
-        """Wrapper pour compatibilité - retourne seulement le dirigeant."""
+    def _scrape_inpi_dirigeant(self, siren: str) -> tuple:
+        """Wrapper pour scraping - retourne le dirigeant et sa fonction."""
         full_data = self._scrape_inpi_beautifulsoup(siren)
-        return full_data.get("PRESIDENT DE LA SOCIETE") if full_data else None
+        if full_data:
+            return (
+                full_data.get("PRESIDENT DE LA SOCIETE"),
+                full_data.get("FONCTION INPI")
+            )
+        return None, None
 
     def _scrape_inpi_full(self, siren: str) -> Optional[Dict[str, str]]:
         """
@@ -603,6 +623,7 @@ class INPIClient:
             "LOCALITE RCS": "",
             "ADRESSE DE DOMICILIATION": "",
             "PRESIDENT DE LA SOCIETE": "",
+            "FONCTION INPI": "",
             "enrichment_status": "failed",
             "error_message": ""
         }
@@ -733,17 +754,19 @@ class INPIClient:
 
             # Président/gérant (représentant légal)
             # Essayer d'abord depuis l'API INPI (composition.pouvoirs)
-            dirigeant = self._extract_dirigeant_from_api(personne_morale)
+            dirigeant, fonction = self._extract_dirigeant_from_api(personne_morale)
 
             # Fallback: Si pas trouvé dans l'API, essayer le scraping INPI web
             if not dirigeant:
                 try:
                     logger.info("Dirigeant non trouvé dans API INPI, tentative de scraping site INPI...")
-                    dirigeant = self._scrape_inpi_dirigeant(siren)
+                    dirigeant, fonction = self._scrape_inpi_dirigeant(siren)
                 except Exception as e:
                     logger.warning(f"Échec du scraping du dirigeant: {str(e)}")
+                    dirigeant, fonction = None, None
 
             result["PRESIDENT DE LA SOCIETE"] = dirigeant if dirigeant else ""
+            result["FONCTION INPI"] = fonction if fonction else ""
 
             result["enrichment_status"] = "success"
             logger.info(f"Enrichissement INPI réussi pour {result['NOM DE LA SOCIETE']}")

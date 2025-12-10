@@ -252,6 +252,7 @@ class ExcelParser:
             "LOCALITE RCS": "",
             "ADRESSE DE DOMICILIATION": "",
             "PRESIDENT DE LA SOCIETE": "",
+            "FONCTION INPI": "",
             "enrichment_status": "failed",
             "error_message": ""
         }
