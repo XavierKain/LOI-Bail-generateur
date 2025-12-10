@@ -334,7 +334,16 @@ class LOIGenerator:
             if value:
                 text = text.replace(f"[{placeholder}]", value)
             else:
-                missing_data = True
+                # Placeholder spéciaux qui doivent être remplacés par vide si non remplis
+                placeholders_to_clear = [
+                    "PRESIDENT DE LA SOCIETE",
+                    "FONCTION INPI",
+                ]
+                if placeholder in placeholders_to_clear:
+                    # Remplacer par chaîne vide
+                    text = text.replace(f"[{placeholder}]", "")
+                else:
+                    missing_data = True
 
         return text, missing_data
 

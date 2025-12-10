@@ -111,6 +111,10 @@ if uploaded_file is not None:
                 str(config_loi_path)
             )
 
+        # IMPORTANT: Toujours mettre à jour la date d'aujourd'hui (ne pas utiliser celle du cache)
+        from datetime import datetime
+        variables["Date d'aujourd'hui"] = datetime.now().strftime("%d/%m/%Y")
+
         st.success(f"✅ {len(variables)} variables extraites et enrichies (données en cache)")
 
         # Afficher les données extraites
