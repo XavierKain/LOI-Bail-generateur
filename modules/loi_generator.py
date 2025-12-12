@@ -719,12 +719,23 @@ class LOIGenerator:
             for i in range(1, 5)
         )
 
+        # Détecter si les honoraires preneurs ont des données
+        has_honoraires_preneurs = bool(self.variables.get("Honoraires Preneurs", ""))
+
         # Traiter tous les paragraphes
         paragraphs_to_delete = []
         for i, paragraph in enumerate(all_paragraphs):
             text = paragraph.text
             is_optional = self._is_paragraph_optional(paragraph)
             placeholders = self._find_placeholders(text)
+
+            # Cas spécial: "Honoraires de commercialisation" - conditionné par "Honoraires Preneurs"
+            # Ce paragraphe n'est pas en bleu mais doit être supprimé si pas de données
+            if "Honoraires de commercialisation" in text:
+                if not has_honoraires_preneurs:
+                    paragraphs_to_delete.append(paragraph)
+                    continue
+                # Si on a les données, continuer le traitement normal
 
             # Cas spéciaux: paragraphes de titre sans placeholder OU avec placeholder [.]
             if is_optional:

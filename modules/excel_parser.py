@@ -76,12 +76,133 @@ class ExcelParser:
             logger.warning(f"Erreur lecture cellule {sheet_name}!{cell_ref}: {e}")
             return None
 
+    def _parse_vlookup(self, formula: str) -> Optional[str]:
+        """
+        Parse une formule RECHERCHEV (VLOOKUP) et retourne la valeur.
+
+        Format: RECHERCHEV(valeur_cherchée; plage; numéro_colonne; 0)
+
+        Args:
+            formula: Formule RECHERCHEV
+
+        Returns:
+            Valeur trouvée ou None
+        """
+        import re
+
+        # Pattern: RECHERCHEV(arg1;arg2;arg3;arg4)
+        match = re.match(r'RECHERCHEV\((.*)\)', formula, re.IGNORECASE)
+        if not match:
+            return None
+
+        args_str = match.group(1)
+        # Split par ; mais en ignorant les ; dans les noms de feuilles entre quotes
+        args = []
+        current_arg = ""
+        in_quotes = False
+        for char in args_str:
+            if char == "'":
+                in_quotes = not in_quotes
+                current_arg += char
+            elif char == ';' and not in_quotes:
+                args.append(current_arg.strip())
+                current_arg = ""
+            else:
+                current_arg += char
+        if current_arg:
+            args.append(current_arg.strip())
+
+        if len(args) < 3:
+            logger.warning(f"RECHERCHEV mal formée: pas assez d'arguments ({len(args)})")
+            return None
+
+        lookup_value_ref = args[0]
+        table_range = args[1]
+        col_index = int(args[2])
+
+        # Extraire la valeur à chercher
+        lookup_value = self._parse_formula(f"={lookup_value_ref}")
+        if not lookup_value:
+            logger.warning(f"Impossible de lire la valeur de recherche: {lookup_value_ref}")
+            return None
+
+        # Parser la plage (ex: 'EL F&A'!B9:P14)
+        if "!" not in table_range:
+            logger.warning(f"Plage RECHERCHEV invalide: {table_range}")
+            return None
+
+        parts = table_range.split("!")
+        sheet_name = parts[0].strip("'")
+        range_ref = parts[1].strip()
+
+        # Parser la plage (ex: B9:P14)
+        if ":" not in range_ref:
+            logger.warning(f"Référence de plage invalide: {range_ref}")
+            return None
+
+        start_cell, end_cell = range_ref.split(":")
+
+        # Extraire les coordonnées
+        match_start = re.match(r'([A-Z]+)(\d+)', start_cell)
+        match_end = re.match(r'([A-Z]+)(\d+)', end_cell)
+
+        if not match_start or not match_end:
+            logger.warning(f"Impossible de parser la plage: {range_ref}")
+            return None
+
+        start_col = match_start.group(1)
+        start_row = int(match_start.group(2))
+        end_row = int(match_end.group(2))
+
+        # Convertir colonne lettre en nombre (A=1, B=2, etc.)
+        def col_to_num(col):
+            num = 0
+            for char in col:
+                num = num * 26 + (ord(char) - ord('A') + 1)
+            return num
+
+        start_col_num = col_to_num(start_col)
+
+        # Accéder à la feuille
+        if sheet_name not in self.workbook.sheetnames:
+            logger.warning(f"Feuille '{sheet_name}' introuvable pour RECHERCHEV")
+            return None
+
+        ws = self.workbook[sheet_name]
+
+        # Chercher la valeur dans la première colonne de la plage
+        try:
+            lookup_value_num = float(lookup_value)
+        except:
+            lookup_value_num = None
+
+        for row in range(start_row, end_row + 1):
+            cell_value = ws.cell(row, start_col_num).value
+
+            # Comparaison (gérer nombres et textes)
+            match_found = False
+            if lookup_value_num is not None and isinstance(cell_value, (int, float)):
+                match_found = (float(cell_value) == lookup_value_num)
+            else:
+                match_found = (str(cell_value).strip() == str(lookup_value).strip())
+
+            if match_found:
+                # Retourner la valeur de la colonne demandée
+                result_col_num = start_col_num + col_index - 1
+                result_value = ws.cell(row, result_col_num).value
+
+                if result_value is not None:
+                    return str(result_value)
+
+        logger.warning(f"Valeur '{lookup_value}' non trouvée dans RECHERCHEV")
+        return None
+
     def _parse_formula(self, formula: str) -> Optional[str]:
         """
         Parse une formule Excel pour extraire la valeur.
 
         Args:
-            formula: Formule Excel (ex: "=Validation!B23" ou "=[1]Validation!B24")
+            formula: Formule Excel (ex: "=Validation!B23" ou "=[1]Validation!B24" ou "=RECHERCHEV(...)")
 
         Returns:
             Valeur extraite ou None
@@ -98,6 +219,10 @@ class ExcelParser:
         # Pattern: [xxx]SheetName!Cell → SheetName!Cell
         import re
         formula = re.sub(r'^\[.*?\]', '', formula)
+
+        # Vérifier si c'est une formule RECHERCHEV
+        if formula.upper().startswith("RECHERCHEV("):
+            return self._parse_vlookup(formula)
 
         # Format: 'Sheet Name'!CellRef ou SheetName!CellRef
         if "!" in formula:
