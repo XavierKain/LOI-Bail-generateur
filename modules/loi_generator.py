@@ -226,6 +226,8 @@ class LOIGenerator:
 
         Le placeholder ne doit être rempli que si le preneur est une société
         (SAS, SARL, EURL, SA, SCI, etc.), pas pour une personne physique.
+
+        Si ce n'est pas une société, on vide les valeurs ET on les marque pour suppression.
         """
         type_preneur = self.variables.get("Type Preneur", "").strip().upper()
 
@@ -241,7 +243,14 @@ class LOIGenerator:
             # Si ce n'est pas une société, vider les variables liées au président
             self.variables["PRESIDENT DE LA SOCIETE"] = ""
             self.variables["FONCTION INPI"] = ""
-            logger.debug(f"Type Preneur '{type_preneur}' n'est pas une société - PRESIDENT DE LA SOCIETE vidé")
+
+            # Marquer ces placeholders pour suppression (pas en rouge)
+            if "PRESIDENT DE LA SOCIETE" not in self.PLACEHOLDERS_TO_CLEAR:
+                self.PLACEHOLDERS_TO_CLEAR.append("PRESIDENT DE LA SOCIETE")
+            if "FONCTION INPI" not in self.PLACEHOLDERS_TO_CLEAR:
+                self.PLACEHOLDERS_TO_CLEAR.append("FONCTION INPI")
+
+            logger.debug(f"Type Preneur '{type_preneur}' n'est pas une société - PRESIDENT DE LA SOCIETE vidé et marqué pour suppression")
         else:
             logger.debug(f"Type Preneur '{type_preneur}' est une société - PRESIDENT DE LA SOCIETE conservé")
 
@@ -266,6 +275,11 @@ class LOIGenerator:
                         return True
         return False
 
+    # Liste des placeholders qui doivent être remplacés par vide (pas en rouge) s'ils n'ont pas de valeur
+    # Note: Cette liste est utilisée pour les placeholders qui ont été INTENTIONNELLEMENT vidés
+    # par la logique métier (ex: PRESIDENT uniquement pour les sociétés)
+    PLACEHOLDERS_TO_CLEAR = []
+
     def _get_variable(self, placeholder: str) -> str:
         """
         Récupère une variable avec fallback case-insensitive.
@@ -288,6 +302,18 @@ class LOIGenerator:
                 return value or ""
 
         return ""
+
+    def _should_clear_placeholder(self, placeholder: str) -> bool:
+        """
+        Vérifie si un placeholder sans valeur doit être supprimé (au lieu d'être marqué en rouge).
+
+        Args:
+            placeholder: Nom du placeholder
+
+        Returns:
+            True si le placeholder doit être supprimé s'il n'a pas de valeur
+        """
+        return placeholder in self.PLACEHOLDERS_TO_CLEAR
 
     def _find_placeholders(self, text: str) -> List[str]:
         """
@@ -333,17 +359,11 @@ class LOIGenerator:
             value = self._get_variable(placeholder)
             if value:
                 text = text.replace(f"[{placeholder}]", value)
-            else:
+            elif self._should_clear_placeholder(placeholder):
                 # Placeholder spéciaux qui doivent être remplacés par vide si non remplis
-                placeholders_to_clear = [
-                    "PRESIDENT DE LA SOCIETE",
-                    "FONCTION INPI",
-                ]
-                if placeholder in placeholders_to_clear:
-                    # Remplacer par chaîne vide
-                    text = text.replace(f"[{placeholder}]", "")
-                else:
-                    missing_data = True
+                text = text.replace(f"[{placeholder}]", "")
+            else:
+                missing_data = True
 
         return text, missing_data
 
@@ -450,6 +470,9 @@ class LOIGenerator:
                         source_run = char_to_run_map[ph_start] if ph_start < len(char_to_run_map) else original_runs[0]
                         if value:
                             segments.append((ph_start, ph_end, value, source_run, True, False))
+                        elif self._should_clear_placeholder(placeholder):
+                            # Placeholder spécial sans valeur → remplacer par chaîne vide (pas en rouge)
+                            segments.append((ph_start, ph_end, "", source_run, True, False))
                         else:
                             segments.append((ph_start, ph_end, f"[{placeholder}]", source_run, True, True))
 
@@ -548,6 +571,9 @@ class LOIGenerator:
                             source_run = char_to_run_map[ph_start] if ph_start < len(char_to_run_map) else original_runs[0]
                             if value:
                                 segments.append((ph_start, ph_end, value, source_run, True, False))
+                            elif self._should_clear_placeholder(placeholder):
+                                # Placeholder spécial sans valeur → remplacer par chaîne vide
+                                segments.append((ph_start, ph_end, "", source_run, True, False))
                             else:
                                 segments.append((ph_start, ph_end, f"[{placeholder}]", source_run, True, True))
 

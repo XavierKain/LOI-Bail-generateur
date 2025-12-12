@@ -81,7 +81,7 @@ class ExcelParser:
         Parse une formule Excel pour extraire la valeur.
 
         Args:
-            formula: Formule Excel (ex: "=Validation!B23")
+            formula: Formule Excel (ex: "=Validation!B23" ou "=[1]Validation!B24")
 
         Returns:
             Valeur extraite ou None
@@ -93,6 +93,11 @@ class ExcelParser:
         formula = formula.strip()
         if formula.startswith("="):
             formula = formula[1:]
+
+        # Retirer les références à d'autres workbooks (ex: [1], [Classeur1], etc.)
+        # Pattern: [xxx]SheetName!Cell → SheetName!Cell
+        import re
+        formula = re.sub(r'^\[.*?\]', '', formula)
 
         # Format: 'Sheet Name'!CellRef ou SheetName!CellRef
         if "!" in formula:
@@ -122,8 +127,8 @@ class ExcelParser:
             nom = config_sheet.cell(row, 1).value  # Colonne A: Nom
             source = config_sheet.cell(row, 2).value  # Colonne B: Source
 
-            # If source is None, try getting the formula
-            if not source:
+            # Si source est None ou une erreur (#REF!, #N/A, etc.), essayer de lire la formule
+            if not source or (isinstance(source, str) and source.startswith("#")):
                 source = config_sheet_formulas.cell(row, 2).value
 
             if not nom:
