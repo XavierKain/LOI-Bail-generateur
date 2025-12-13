@@ -123,10 +123,13 @@ class LOIGenerator:
         # 4. Calculer la date de signature (Date d'aujourd'hui + 21 jours)
         self._calculate_date_signature()
 
-        # 5. Calculer les surfaces
+        # 5. Calculer la date offre valable (Date d'aujourd'hui + 7 jours)
+        self._calculate_date_offre_valable()
+
+        # 6. Calculer les surfaces
         self._calculate_surfaces()
 
-        # 6. Conditionner l'affichage du PRESIDENT DE LA SOCIETE (uniquement si société)
+        # 7. Conditionner l'affichage du PRESIDENT DE LA SOCIETE (uniquement si société)
         self._handle_president_condition()
 
     def _calculate_paliers(self):
@@ -201,6 +204,19 @@ class LOIGenerator:
                 date_aujourdhui = datetime.strptime(date_aujourdhui_str, "%d/%m/%Y")
                 date_signature = date_aujourdhui + timedelta(days=21)
                 self.variables["Date de signature"] = date_signature.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+    def _calculate_date_offre_valable(self):
+        """Calcule la date offre valable (Date d'aujourd'hui + 7 jours)."""
+        date_aujourdhui_str = self.variables.get("Date d'aujourd'hui", "")
+
+        if date_aujourdhui_str:
+            try:
+                # Parser DD/MM/YYYY
+                date_aujourdhui = datetime.strptime(date_aujourdhui_str, "%d/%m/%Y")
+                date_offre_valable = date_aujourdhui + timedelta(days=7)
+                self.variables["Date offre valable"] = date_offre_valable.strftime("%d/%m/%Y")
             except ValueError:
                 pass
 

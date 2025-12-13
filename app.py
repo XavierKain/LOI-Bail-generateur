@@ -19,9 +19,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Fonction cachée pour parser le fichier Excel (évite de recharger à chaque clic)
+# IMPORTANT: Le cache inclut maintenant la date du jour pour forcer le recalcul quotidien
 @st.cache_data(show_spinner=False)
-def parse_excel_cached(file_content: bytes, file_name: str, config_path: str):
-    """Parse le fichier Excel et cache le résultat pour éviter les rechargements."""
+def parse_excel_cached(file_content: bytes, file_name: str, config_path: str, cache_key: str):
+    """
+    Parse le fichier Excel et cache le résultat pour éviter les rechargements.
+
+    Args:
+        file_content: Contenu binaire du fichier Excel
+        file_name: Nom du fichier
+        config_path: Chemin vers le fichier de configuration
+        cache_key: Clé unique incluant la date du jour (force le recalcul quotidien)
+    """
     # Créer un hash du contenu pour identifier le fichier de manière unique
     file_hash = hashlib.md5(file_content).hexdigest()
 
@@ -104,16 +113,22 @@ if uploaded_file is not None:
         # Extraire les données avec le parser CACHÉ (évite rechargement à chaque clic)
         file_content = uploaded_file.getbuffer().tobytes()
 
+        # Créer une clé de cache unique incluant la date du jour
+        # Cela force le recalcul des dates quotidiennement
+        from datetime import datetime
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        cache_key = f"{uploaded_file.name}_{today_str}"
+
         with st.spinner("Extraction des données et enrichissement INPI..."):
             variables, societes_info, output_filename_loi = parse_excel_cached(
                 file_content,
                 uploaded_file.name,
-                str(config_loi_path)
+                str(config_loi_path),
+                cache_key  # Clé incluant la date du jour
             )
 
-        # IMPORTANT: Toujours mettre à jour la date d'aujourd'hui (ne pas utiliser celle du cache)
-        from datetime import datetime
-        variables["Date d'aujourd'hui"] = datetime.now().strftime("%d/%m/%Y")
+        # NOTE: La date d'aujourd'hui est maintenant calculée dans le parser avec la date actuelle
+        # grâce au cache_key qui force le recalcul quotidien
 
         st.success(f"✅ {len(variables)} variables extraites et enrichies (données en cache)")
 

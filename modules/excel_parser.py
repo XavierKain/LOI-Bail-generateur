@@ -202,7 +202,7 @@ class ExcelParser:
         Parse une formule Excel pour extraire la valeur.
 
         Args:
-            formula: Formule Excel (ex: "=Validation!B23" ou "=[1]Validation!B24" ou "=RECHERCHEV(...)")
+            formula: Formule Excel (ex: "=Validation!B23" ou "=[1]Validation!B24" ou "=RECHERCHEV(...)" ou "=ARRONDI(...)")
 
         Returns:
             Valeur extraite ou None
@@ -219,6 +219,42 @@ class ExcelParser:
         # Pattern: [xxx]SheetName!Cell → SheetName!Cell
         import re
         formula = re.sub(r'^\[.*?\]', '', formula)
+
+        # Vérifier si c'est une formule ARRONDI (ROUND)
+        if formula.upper().startswith("ARRONDI("):
+            # Extraire le contenu entre parenthèses
+            match = re.match(r'ARRONDI\((.*)\)', formula, re.IGNORECASE)
+            if match:
+                args_str = match.group(1)
+                # Séparer les arguments (valeur; nombre_décimales)
+                # Trouver le dernier ; qui sépare la formule interne du nombre de décimales
+                # En comptant les parenthèses pour ne pas splitter à l'intérieur d'une fonction
+                paren_count = 0
+                last_semicolon_pos = -1
+                for i, char in enumerate(args_str):
+                    if char == '(':
+                        paren_count += 1
+                    elif char == ')':
+                        paren_count -= 1
+                    elif char == ';' and paren_count == 0:
+                        last_semicolon_pos = i
+
+                if last_semicolon_pos > 0:
+                    inner_formula = args_str[:last_semicolon_pos].strip()
+                    decimals = args_str[last_semicolon_pos + 1:].strip()
+
+                    # Parser la formule interne (peut être RECHERCHEV ou autre)
+                    inner_result = self._parse_formula(f"={inner_formula}")
+
+                    if inner_result:
+                        try:
+                            value = float(inner_result)
+                            num_decimals = int(decimals)
+                            rounded_value = round(value, num_decimals)
+                            return str(rounded_value)
+                        except (ValueError, TypeError):
+                            logger.warning(f"Impossible d'arrondir la valeur: {inner_result}")
+                            return inner_result
 
         # Vérifier si c'est une formule RECHERCHEV
         if formula.upper().startswith("RECHERCHEV("):
